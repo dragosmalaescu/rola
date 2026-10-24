@@ -37,7 +37,7 @@
   --accent:#F0619D;--on-accent:#17060E;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);color-scheme:dark}
 [hidden]{display:none!important}
 img{max-width:100%}
-html{height:100%;box-sizing:border-box}
+html{height:100%;box-sizing:border-box;overflow:hidden;overscroll-behavior:none}
 *,*::before,*::after{box-sizing:inherit}
 body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.35;-webkit-tap-highlight-color:transparent;overflow:hidden}
 button{font:inherit;color:inherit}
@@ -1334,6 +1334,11 @@ $("#plQueue").addEventListener("click",()=>{closePlayer();tab="lib";document.que
 $("#plSleep").addEventListener("click",sleepSheet);
 /* only Safari (iOS, macOS) lets a web page open the output picker */
 var CAN_OUT=typeof HTMLMediaElement!=="undefined"&&"webkitShowPlaybackTargetPicker" in HTMLMediaElement.prototype;
+/* after a rotation iOS can leave the page scrolled up; pin it back */
+(function(){const pin=()=>{const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;if(window.scrollX||window.scrollY)window.scrollTo(0,0);const se=document.scrollingElement;if(se&&se.scrollTop)se.scrollTop=0;if(document.body.scrollTop)document.body.scrollTop=0};
+  const later=()=>{pin();setTimeout(pin,150);setTimeout(pin,400);setTimeout(pin,800)};
+  addEventListener("orientationchange",later);addEventListener("resize",later);document.addEventListener("focusout",()=>setTimeout(pin,300));
+  if(window.visualViewport)visualViewport.addEventListener("resize",later)})();
 /* iPhone cannot lock orientation from the web, so it gets a hint in landscape */
 if(/iPhone|iPod/i.test(navigator.userAgent||""))document.documentElement.classList.add("iphone");
 $("#rotateTxt").textContent=T("Întoarce telefonul pe verticală");
