@@ -59,6 +59,11 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
 .thumb{width:44px;height:44px;border-radius:9px;background:var(--surface2);flex:none;overflow:hidden;display:grid;place-items:center;color:var(--muted);font-weight:600}
 .thumb img,.cover img{width:100%;height:100%;object-fit:cover;display:block}
 .thumb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8}
+.thumb.ctile{width:56px;height:56px;border-radius:12px;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.thumb.ctile svg{width:26px;height:26px;stroke:#fff;stroke-width:1.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.thumb.ctile.m4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;background:var(--surface2)!important}
+.thumb.ctile img{width:100%;height:100%;object-fit:cover;display:block}
+.rows .row:has(.ctile){min-height:72px}
 .txt{flex:1;min-width:0}
 .t1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--muted);margin-top:1px}
@@ -831,7 +836,9 @@ async function lookupMeta(t){const who=t.artist===UNK_AR?"":t.artist;const q=enc
     if(r)return{title:r.trackName,artist:r.artistName,album:r.collectionName,genre:r.primaryGenreName||"",year:parseInt(String(r.releaseDate||"").slice(0,4),10)||0,track:r.trackNumber||0,
       art:r.artworkUrl100?r.artworkUrl100.replace(/100x100bb/,"600x600bb"):""}}catch(e){}
   try{const d=await jsonp("https://api.deezer.com/search?q="+q+"&limit=10&output=jsonp");const r=pick(d.data||[],x=>x.title,x=>x.artist&&x.artist.name);
-    if(r)return{title:r.title,artist:r.artist&&r.artist.name,album:r.album&&r.album.title,genre:"",year:0,track:0,art:r.album&&r.album.cover_xl||""}}catch(e){}
+    if(r){let genre="",year=0;if(r.album&&r.album.id){try{const a=await jsonp("https://api.deezer.com/album/"+r.album.id+"?output=jsonp");
+        genre=a&&a.genres&&a.genres.data&&a.genres.data[0]&&a.genres.data[0].name||"";year=parseInt(String(a&&a.release_date||"").slice(0,4),10)||0}catch(e){}}
+      return{title:r.title,artist:r.artist&&r.artist.name,album:r.album&&r.album.title,genre,year,track:0,art:r.album&&r.album.cover_xl||""}}}catch(e){}
   return null}
 async function fixTrack(t){const sig=()=>JSON.stringify([t.title,t.artist,t.album,t.genre,t.year,t.track,t.artUrl||""]);const before=sig();
   if(t.artist===UNK_AR&&/\s-\s/.test(t.title)){const p=t.title.split(/\s+-\s+/);t.artist=p[0].trim();t.title=p.slice(1).join(" - ")}
@@ -839,14 +846,14 @@ async function fixTrack(t){const sig=()=>JSON.stringify([t.title,t.artist,t.albu
   if(settings.online){let m=null;try{m=await throttle(()=>lookupMeta(t))}catch(e){}
     if(m){if(m.title)t.title=m.title;if(m.artist)t.artist=m.artist;
       if(m.album&&(t.album===UNK_AL||simS(t.album,m.album)>=.5))t.album=m.album;
-      if(m.genre&&(!t.genre||t.genre==="Necunoscut"))t.genre=m.genre;if(m.year&&!t.year)t.year=m.year;if(m.track&&!t.track)t.track=m.track;
+      if(m.genre&&(!t.genre||/^(necunoscut|unknown|other|others|genre|misc|none|undefined|\(\d+\)|\d+)$/i.test(String(t.genre).trim())))t.genre=m.genre;if(m.year&&!t.year)t.year=m.year;if(m.track&&!t.track)t.track=m.track;
       if(m.art&&!t.hasArt)t.artUrl=m.art}}
   t.fixed=true;try{await op("meta","readwrite",x=>x.put(t))}catch(e){}return sig()!==before}
 let fixing=false;
 async function autoFix(list,force){if(fixing)return;const todo=list.filter(t=>force||!t.fixed);if(!todo.length)return;fixing=true;let n=0;
-  toast(T("Caut titluri și coperți…"));
+  if(settings.online)toast(T("Caut titluri și coperți…"));
   try{await Promise.all(todo.map(t=>fixTrack(t).then(c=>{if(c)n++})))}finally{fixing=false}
-  sortTracks(tracks);plFor=null;miniFor=null;rNPfor=null;render();rRefresh();syncAll();toast(n+T(" piese corectate"))}
+  sortTracks(tracks);plFor=null;miniFor=null;rNPfor=null;render();rRefresh();syncAll();if(n||settings.online)toast(n+T(" piese corectate"))}
 
 /* ---------------- radio (radio-browser.info) ---------------- */
 const RB=["https://de1.api.radio-browser.info","https://fi1.api.radio-browser.info","https://de2.api.radio-browser.info"];
@@ -901,6 +908,13 @@ function render(){
   syncMini();
 }
 function rows(){return h("div","rows")}
+/* Library rows: a 2x2 mosaic of your own album covers (one cover if fewer), or a colored gradient tile with a modern icon */
+function collTile(th,grad,list){if(!th)return;th.classList.add("ctile");th.style.background=grad;
+  const picks=[],seen=new Set();for(const t of list||[]){const k=albumId(t);if(seen.has(k))continue;seen.add(k);picks.push(t);if(picks.length>=4)break}
+  if(!picks.length)return;
+  Promise.all(picks.map(t=>artFor(t).catch(()=>null))).then(us=>{us=us.filter(Boolean);if(!us.length||!th.isConnected)return;
+    const use=us.length>=4?us.slice(0,4):[us[0]];th.innerHTML="";th.classList.add(use.length===4?"m4":"m1");
+    use.forEach(u=>{const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.decoding="async";im.src=u;th.appendChild(im)})})}
 function chevRow(label,count,fn,icon){const r=h("button","row");
   if(icon){const t=h("div","thumb");t.innerHTML=icon;r.appendChild(t)}
   const x=h("div","txt");x.appendChild(h("div","t1",label));r.appendChild(x);
@@ -943,11 +957,14 @@ const VIEWS={
     btns.append(p,s);m.appendChild(btns);
     m.appendChild(h("div","h2",T("Colecție")));
     const r=rows();const al=albums(tracks);
-    r.appendChild(chevRow(T("Playlisturi"),"",()=>go({v:"playlists"}),I.queue));
-    r.appendChild(chevRow(T("Artiști"),groupBy(tracks,t=>t.artist).size,()=>go({v:"artists"}),I.person));
-    r.appendChild(chevRow(T("Albume"),al.length,()=>setTab("alb"),I.album));
-    r.appendChild(chevRow(T("Melodii"),tracks.length,()=>go({v:"songs",title:T("Melodii"),list:"all"}),I.note));
-    r.appendChild(chevRow(T("Genuri"),groupBy(tracks,t=>t.genre||"Necunoscut").size,()=>go({v:"genres"}),I.globe));
+    const firstOf=f=>[...groupBy(tracks,f).values()].map(l=>l[0]);
+    const favL=tracks.filter(t=>favs.has(t.id)),recL=tracks.slice().sort((a,b)=>b.added-a.added),mostL=tracks.filter(t=>plays[t.id]).sort((a,b)=>plays[b.id]-plays[a.id]);
+    const add=(row,grad,list)=>{r.appendChild(row);collTile(row.querySelector(".thumb"),grad,list)};
+    add(chevRow(T("Playlisturi"),"",()=>go({v:"playlists"}),I.queue),"linear-gradient(135deg,#ff6fa5,#8b5cf6)",favL.length?favL:recL);
+    add(chevRow(T("Artiști"),groupBy(tracks,t=>t.artist).size,()=>go({v:"artists"}),I.person),"linear-gradient(135deg,#ffb36b,#f0566a)",firstOf(t=>t.artist));
+    add(chevRow(T("Albume"),al.length,()=>setTab("alb"),I.album),"linear-gradient(135deg,#3fd0c9,#3b6fe0)",al.map(a=>a.tracks[0]));
+    add(chevRow(T("Melodii"),tracks.length,()=>go({v:"songs",title:T("Melodii"),list:"all"}),I.note),"linear-gradient(135deg,#a78bfa,#4338ca)",mostL.length?mostL:tracks.slice().sort((a,b)=>coll.compare(a.title,b.title)).reverse());
+    add(chevRow(T("Genuri"),groupBy(tracks,t=>t.genre||"Necunoscut").size,()=>go({v:"genres"}),I.globe),"linear-gradient(135deg,#84e1a0,#0f8f7a)",firstOf(t=>t.genre||"Necunoscut"));
     m.appendChild(r);
     const recent=al.slice().sort((a,b)=>b.added-a.added).slice(0,12);
     if(recent.length){const hh=h("div","h2",T("Adăugate recent"));m.appendChild(hh);const st=h("div","strip");recent.forEach(a=>st.appendChild(albumTile(a)));m.appendChild(st)}
