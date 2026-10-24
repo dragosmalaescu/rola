@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rola</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rola">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Onest:wght@400;500;600&display=swap">
+<style>
+/* Layout: phone-first app shell. Header, scrolling content, floating mini player, 4-tab bar; full-screen player sheet tinted by the cover. */
+:root{
+  --bg:#F5F4F7;--surface:#FFFFFF;--surface2:#EBE9EF;--fg:#16141B;--muted:#6A6674;--line:#E1DDE7;
+  --accent:#C2366E;--on-accent:#FFFFFF;
+  --shadow:0 1px 2px rgba(22,10,30,.06),0 8px 22px rgba(22,10,30,.08);
+  --f-display:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E0D11;--surface:#18161D;--surface2:#24212A;--fg:#F3F1F6;--muted:#9C97A6;--line:#2C2834;
+  --accent:#F0619D;--on-accent:#17060E;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E0D11;--surface:#18161D;--surface2:#24212A;--fg:#F3F1F6;--muted:#9C97A6;--line:#2C2834;
+  --accent:#F0619D;--on-accent:#17060E;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);color-scheme:dark}
+html{height:100%;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.35;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit}
+svg{display:block}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.app{height:100%;display:flex;flex-direction:column;max-width:760px;margin:0 auto}
+.top{display:flex;align-items:center;gap:10px;padding-block:12px 8px;flex:none}
+.top h1{font-family:var(--f-display);font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-wrap:balance}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:0;background:var(--surface2);display:grid;place-items:center;flex:none;cursor:pointer}
+.icon-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-block:4px 20px;overscroll-behavior:contain}
+.h2{font-family:var(--f-display);font-size:20px;font-weight:700;letter-spacing:-.01em;margin:24px 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.h2:first-child{margin-top:6px}
+.h2 small{font-family:var(--f-body);font-size:13px;font-weight:500;color:var(--muted)}
+.rows{background:var(--surface);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;gap:12px;padding:8px 6px 8px 12px;min-height:58px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.row:last-child{border-bottom:0}
+.row:active{background:var(--surface2)}
+.thumb{width:44px;height:44px;border-radius:9px;background:var(--surface2);flex:none;overflow:hidden;display:grid;place-items:center;color:var(--muted);font-weight:600}
+.thumb img,.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8}
+.txt{flex:1;min-width:0}
+.t1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--muted);margin-top:1px}
+.num{width:22px;text-align:right;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;flex:none}
+.cnt{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;flex:none}
+.chev{color:var(--muted);flex:none;padding-right:6px}
+.row.playing .t1{color:var(--accent)}
+.more{width:38px;height:38px;border:0;background:none;color:var(--muted);border-radius:50%;display:grid;place-items:center;flex:none;cursor:pointer}
+.more svg{width:20px;height:20px;fill:currentColor}
+.star{color:var(--muted)}.star.on{color:var(--accent)}
+.star svg{fill:none;stroke:currentColor;stroke-width:2}.star.on svg{fill:currentColor}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:18px 14px}
+.tile{cursor:pointer;min-width:0;border:0;background:none;padding:0;text-align:left}
+.cover{aspect-ratio:1;width:100%;max-width:100%;border-radius:12px;background:var(--surface2);overflow:hidden;box-shadow:var(--shadow);display:grid;place-items:center;color:var(--muted)}
+.cover svg{width:34%;height:34%;fill:none;stroke:currentColor;stroke-width:1.5}
+.tile .t1{margin-top:8px;font-weight:600;font-size:14px}
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:136px;gap:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;scrollbar-width:none}
+.strip>*{scroll-snap-align:start}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{flex:1 1 130px;height:46px;border-radius:12px;border:0;background:var(--surface2);font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.btn svg{width:18px;height:18px;fill:currentColor}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:6px 0 18px}
+.hero .cover{width:min(62vw,250px);border-radius:16px}
+.hero h2{font-family:var(--f-display);font-size:24px;line-height:1.15;margin:12px 0 0;letter-spacing:-.01em;text-wrap:balance}
+.hero p{margin:0;color:var(--accent);font-weight:600}
+.hero .meta{color:var(--muted);font-size:13px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:12px 0 14px;scrollbar-width:none}
+.chip{flex:none;height:34px;padding:0 14px;border-radius:17px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:14px;cursor:pointer}
+.chip.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.field{width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:0 14px;font:16px var(--f-body)}
+.field:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.note{color:var(--muted);font-size:13px;margin:10px 2px}
+.empty{background:var(--surface);border-radius:18px;padding:22px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.empty h2{font-family:var(--f-display);font-size:22px;margin:0}
+.empty ol{margin:0;padding-left:20px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.empty b{color:var(--fg);font-weight:600}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.12em;color:#fff;background:#D7263D;border-radius:6px;padding:3px 7px}
+.live::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3}}
+.banner{background:var(--surface);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:14px}
+.bar{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.skeleton{height:58px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,var(--surface),var(--surface2),var(--surface));background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+.mini{margin:0 8px 6px;flex:none;position:relative;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 8px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);cursor:pointer;overflow:hidden}
+.mini .thumb{width:46px;height:46px}
+.mini .ctl{width:42px;height:42px;border:0;background:none;display:grid;place-items:center;border-radius:50%;cursor:pointer;flex:none}
+.mini .ctl svg{width:24px;height:24px;fill:currentColor}
+.mini .prog{position:absolute;left:0;bottom:0;height:3px;background:var(--accent);width:0}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--bg);flex:none}
+.tab{height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;color:var(--muted);font-size:11px;font-weight:500;cursor:pointer}
+.tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--accent)}
+.tab.on svg{stroke-width:2.2}
+
+.player{position:fixed;inset:0;z-index:20;isolation:isolate;color:#fff;background:#0D0C10;display:flex;flex-direction:column;
+  padding-top:calc(env(safe-area-inset-top,0px) + 8px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  transform:translateY(0);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.player.off{transform:translateY(105%)}
+.pl-bg{position:absolute;inset:0;z-index:-1;overflow:hidden;background:var(--tint,#2A1F2E)}
+.pl-bg img{width:100%;height:100%;object-fit:cover;filter:blur(50px) saturate(1.5);transform:scale(1.4);opacity:.7}
+.pl-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,12,.25),rgba(10,8,12,.75) 70%,rgba(10,8,12,.9))}
+.pl-in{max-width:520px;width:100%;margin:0 auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:14px}
+.pl-head{display:flex;align-items:center;justify-content:space-between}
+.pl-head .icon-btn{background:rgba(255,255,255,.14);color:#fff}
+.pl-src{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.75;text-align:center;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+.pl-art{width:min(100%,46vh,400px);aspect-ratio:1;max-width:100%;margin:auto;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.08);box-shadow:0 30px 60px rgba(0,0,0,.45);display:grid;place-items:center;transition:transform .3s}
+.pl-art img{width:100%;height:100%;object-fit:cover}
+.pl-art svg{width:30%;height:30%;fill:none;stroke:rgba(255,255,255,.5);stroke-width:1.5}
+.player.paused .pl-art{transform:scale(.9)}
+.pl-meta{display:flex;align-items:center;gap:12px}
+.pl-meta .txt{min-width:0}
+.pl-t{font-family:var(--f-display);font-size:24px;font-weight:700;line-height:1.15;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-s{color:rgba(255,255,255,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pl-meta .more,.pl-meta .star{color:rgba(255,255,255,.8)}
+.pl-meta .star.on{color:#fff}
+.scrub{width:100%;-webkit-appearance:none;appearance:none;background:transparent;height:24px;margin:0;cursor:pointer}
+.scrub::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:linear-gradient(90deg,#fff var(--p,0%),rgba(255,255,255,.25) var(--p,0%))}
+.scrub::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;margin-top:-5.5px;border:0}
+.scrub::-moz-range-track{height:5px;border-radius:3px;background:rgba(255,255,255,.25)}
+.scrub::-moz-range-progress{height:5px;border-radius:3px;background:#fff}
+.scrub::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:0}
+.times{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;margin-top:-4px}
+.ctrls{display:grid;grid-template-columns:1fr 1.2fr 1.5fr 1.2fr 1fr;align-items:center;justify-items:center}
+.cb{border:0;background:none;color:#fff;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.cb svg{width:30px;height:30px;fill:currentColor}
+.cb.sm svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cb.sm{opacity:.55;position:relative}
+.cb.sm.on{opacity:1}
+.cb.sm .badge{position:absolute;bottom:8px;right:8px;font-size:9px;font-weight:700}
+.cb.big{width:74px;height:74px;background:#fff;color:#111}
+.cb.big svg{width:32px;height:32px}
+.pl-foot{display:flex;justify-content:space-around}
+.pl-foot button{border:0;background:none;color:rgba(255,255,255,.8);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;cursor:pointer;padding:6px 10px}
+.pl-foot svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pl-foot .on{color:#fff}
+.radio-only{display:none}.player.radio .radio-only{display:flex}.player.radio .local-only{visibility:hidden}
+
+.sheet{position:fixed;inset:0;z-index:40;background:rgba(8,6,10,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-p{width:100%;max-width:560px;max-height:78%;overflow-y:auto;background:var(--surface);color:var(--fg);border-radius:22px 22px 0 0;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 14px)}
+.sheet-p::before{content:"";display:block;width:38px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 10px}
+.s-head{display:flex;gap:12px;align-items:center;padding:0 18px 12px;border-bottom:1px solid var(--line)}
+.s-head .t1{font-weight:600}
+.s-item{display:flex;align-items:center;gap:14px;width:100%;padding:0 18px;min-height:52px;border:0;background:none;text-align:left;font-size:16px;cursor:pointer;border-bottom:1px solid var(--line)}
+.s-item:last-child{border-bottom:0}
+.s-item:active{background:var(--surface2)}
+.s-item svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;color:var(--muted)}
+.s-item .grow{flex:1;min-width:0}
+.s-item .val{color:var(--muted);font-size:14px}
+.s-item.danger{color:#D7263D}.s-item.danger svg{color:#D7263D}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 150px);transform:translateX(-50%);z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+.sr{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top gut">
+    <button class="icon-btn" id="back" hidden aria-label="Înapoi"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h1 id="title">Bibliotecă</h1>
+    <button class="icon-btn" id="action" aria-label="Meniu"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  </header>
+  <main id="main" class="gut"></main>
+  <div class="mini" id="mini" hidden role="button" tabindex="0" aria-label="Deschide player-ul">
+    <div class="thumb" id="miniArt"></div>
+    <div class="txt"><div class="t1" id="miniT"></div><div class="t2" id="miniS"></div></div>
+    <button class="ctl" id="miniPlay" aria-label="Redă sau pauză"></button>
+    <button class="ctl" id="miniNext" aria-label="Următoarea"><svg viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM16 6h2.5v12H16z"/></svg></button>
+    <i class="prog" id="miniProg"></i>
+  </div>
+  <nav class="tabs gut" id="tabs">
+    <button class="tab on" data-tab="lib"><svg viewBox="0 0 24 24"><path d="M4 4v16M9 4v16M14 5l5 15"/></svg>Bibliotecă</button>
+    <button class="tab" data-tab="alb"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>Albume</button>
+    <button class="tab" data-tab="radio"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M7.8 16.2a6 6 0 010-8.4M16.2 7.8a6 6 0 010 8.4M4.9 19.1a10 10 0 010-14.2M19.1 4.9a10 10 0 010 14.2"/></svg>Radio</button>
+    <button class="tab" data-tab="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Caută</button>
+  </nav>
+</div>
+
+<section class="player off gut" id="player" aria-hidden="true">
+  <div class="pl-bg"><img id="plBg" alt="" hidden></div>
+  <div class="pl-in">
+    <div class="pl-head">
+      <button class="icon-btn" id="plClose" aria-label="Închide"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="pl-src" id="plSrc">Redare</div>
+      <button class="icon-btn" id="plMore" aria-label="Opțiuni"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
+    </div>
+    <div class="pl-art" id="plArt"></div>
+    <div class="pl-meta">
+      <div class="txt" style="flex:1"><div class="pl-t" id="plT"></div><div class="pl-s" id="plS"></div></div>
+      <button class="more star" id="plFav" aria-label="Favorit"><svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.4-9.3-9.2C1.5 8 3.6 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.5 0 5.6 3.5 4.4 6.8-1.8 4.8-9.3 9.2-9.3 9.2z"/></svg></button>
+    </div>
+    <div class="local-only" id="scrubWrap">
+      <input type="range" class="scrub" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Poziție în piesă">
+      <div class="times"><span id="tCur">0:00</span><span id="tRem">-0:00</span></div>
+    </div>
+    <div class="radio-only" style="justify-content:center"><span class="live">LIVE</span></div>
+    <div class="ctrls">
+      <button class="cb sm local-only" id="plShuffle" aria-label="Amestecare"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+      <button class="cb" id="plPrev" aria-label="Anterioara"><svg viewBox="0 0 24 24"><path d="M18 6l-9 6 9 6zM5.5 6H8v12H5.5z"/></svg></button>
+      <button class="cb big" id="plPlay" aria-label="Redă sau pauză"></button>
+      <button class="cb" id="plNext" aria-label="Următoarea"><svg viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM16 6h2.5v12H16z"/></svg></button>
+      <button class="cb sm local-only" id="plRepeat" aria-label="Repetare"><svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 01-3 3H3"/></svg><span class="badge" id="repBadge"></span></button>
+    </div>
+    <div class="pl-foot">
+      <button id="plQueue" class="local-only"><svg viewBox="0 0 24 24"><path d="M3 6h13M3 12h13M3 18h9M18 14v7M21 17.5l-3 3.5-3-3.5"/></svg>Urmează</button>
+      <button id="plSleep"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg><span id="sleepLbl">Timer</span></button>
+      <button id="plGo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="12" r="3.5"/></svg><span id="goLbl">Album</span></button>
+    </div>
+  </div>
+</section>
+
+<div class="sheet" id="sheet" hidden><div class="sheet-p" id="sheetP" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" hidden></div>
+<input type="file" id="pick" class="sr" multiple accept="audio/*,.mp3,.m4a,.aac,.flac,.wav,.aif,.aiff,.ogg,.opus,.alac">
+<input type="file" id="pickDir" class="sr" multiple webkitdirectory>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const h=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e};
+const SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+const AUDIO_RE=/\.(mp3|m4a|m4b|aac|flac|wav|aif|aiff|ogg|oga|opus|alac|mp4|caf)$/i;
+const UNK_AL="Album necunoscut",UNK_AR="Artist necunoscut";
+const I={
+  play:'<svg viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/></svg>',
+  note:'<svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
+  radio:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M7.8 16.2a6 6 0 010-8.4M16.2 7.8a6 6 0 010 8.4"/></svg>',
+  dots:'<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.4-9.3-9.2C1.5 8 3.6 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.5 0 5.6 3.5 4.4 6.8-1.8 4.8-9.3 9.2-9.3 9.2z"/></svg>',
+  shuffle:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  next:'<svg viewBox="0 0 24 24"><path d="M4 12h12M12 6l6 6-6 6"/></svg>',
+  queue:'<svg viewBox="0 0 24 24"><path d="M3 6h13M3 12h13M3 18h9M18 14v7"/></svg>',
+  album:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="12" r="3.5"/></svg>',
+  person:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  file:'<svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
+  folder:'<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
+  gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>',
+  image:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>',
+  trash:'<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>',
+  moon:'<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg>',
+  globe:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>',
+  disk:'<svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/></svg>'
+};
+
+/* ---------------- state ---------------- */
+let db=null,tracks=[],busy=null,unlocked=false;
+let mode=null;                       // "local" | "radio"
+let queue=[],qi=-1,cur=null,loadedId=null,curURL=null,baseList=[];
+let station=null,radioList=[];
+let shuffle=false,repeat="off";
+let favs=new Set(),plays={},counted=null,resume=null,lastSave=0;
+let radioFavs=[],artCache={},settings={online:true};
+let sleepTimer=0,sleepAt=0,sleepEnd=false;
+const audio=new Audio();audio.preload="auto";audio.setAttribute("playsinline","");
+
+function ls(k,v){try{if(v===undefined){return JSON.parse(localStorage.getItem(k))}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+
+/* ---------------- IndexedDB ---------------- */
+function idbOpen(){return new Promise((res,rej)=>{let r;try{r=indexedDB.open("rola",1)}catch(e){return rej(e)}
+  r.onupgradeneeded=()=>{const d=r.result;["meta","files","art"].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,n==="meta"?{keyPath:"id"}:undefined)})};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function op(store,m,fn){return new Promise((res,rej)=>{if(!db)return rej(new Error("no db"));
+  const t=db.transaction(store,m),s=t.objectStore(store);let out;const r=fn(s);if(r)r.onsuccess=()=>{out=r.result};
+  t.oncomplete=()=>res(out);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})}
+const getFile=id=>op("files","readonly",s=>s.get(id));
+const getArt=id=>op("art","readonly",s=>s.get(id));
+
+/* ---------------- metadata ---------------- */
+const coll=new Intl.Collator("ro",{sensitivity:"base",numeric:true});
+const sortTracks=l=>l.sort((a,b)=>coll.compare(a.artist,b.artist)||coll.compare(a.album,b.album)||(a.track-b.track)||coll.compare(a.title,b.title));
+const albumId=t=>t.artist+"\u0001"+t.album;
+function readTags(file){return new Promise(res=>{if(!window.jsmediatags)return res({});let done=false;
+  const fin=v=>{if(done)return;done=true;clearTimeout(to);res(v)};const to=setTimeout(()=>fin({}),8000);
+  try{jsmediatags.read(file,{onSuccess:t=>fin(t&&t.tags||{}),onError:()=>fin({})})}catch(e){fin({})}})}
+function guess(f){const path=(f.webkitRelativePath||"").split("/");
+  let title=f.name.replace(/\.[^.]+$/,"").replace(/_/g," ").trim(),track=0,artist="",album="";
+  const m=title.match(/^(\d{1,3})[\s.\-]+(.+)$/);if(m){track=+m[1];title=m[2]}
+  const p=title.split(/\s+-\s+/);if(p.length>=2){artist=p[0];title=p.slice(1).join(" - ")}
+  if(path.length>=3){album=path[path.length-2];if(!artist)artist=path[path.length-3]}else if(path.length===2)album=path[0];
+  return{title,track,artist,album}}
+function mime(n){const e=(n.split(".").pop()||"").toLowerCase();
+  return({mp3:"audio/mpeg",m4a:"audio/mp4",m4b:"audio/mp4",mp4:"audio/mp4",alac:"audio/mp4",aac:"audio/aac",flac:"audio/flac",wav:"audio/wav",aif:"audio/aiff",aiff:"audio/aiff",ogg:"audio/ogg",oga:"audio/ogg",opus:"audio/ogg",caf:"audio/x-caf"})[e]||"audio/mpeg"}
+
+async function addFiles(list){
+  const files=[...list].filter(f=>/^audio\//.test(f.type)||AUDIO_RE.test(f.name));
+  if(!files.length)return toast("Niciun fișier audio în selecție");
+  if(!db)return toast("Stocarea locală nu e disponibilă");
+  const known=new Set(tracks.map(t=>t.key));let added=0,skipped=0;
+  busy={n:0,total:files.length,name:""};render();
+  for(const f of files){
+    busy.n++;busy.name=f.name;updateBusy();
+    const key=f.name+"|"+f.size;if(known.has(key)){skipped++;continue}
+    try{
+      const tags=await readTags(f),g=guess(f),type=f.type||mime(f.name);
+      const id=crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2);
+      const blob=new Blob([await f.arrayBuffer()],{type});
+      const pic=tags.picture&&tags.picture.data?new Blob([new Uint8Array(tags.picture.data)],{type:tags.picture.format||"image/jpeg"}):null;
+      const meta={id,key,type,title:String(tags.title||g.title||f.name).trim(),
+        artist:String(tags.artist||g.artist||UNK_AR).trim()||UNK_AR,album:String(tags.album||g.album||UNK_AL).trim()||UNK_AL,
+        genre:String(tags.genre||"Necunoscut").trim()||"Necunoscut",year:parseInt(tags.year,10)||0,
+        track:parseInt(tags.track,10)||g.track||0,hasArt:!!pic,added:Date.now()};
+      await op("files","readwrite",s=>s.put(blob,id));
+      if(pic)await op("art","readwrite",s=>s.put(pic,id));
+      await op("meta","readwrite",s=>s.put(meta));
+      tracks.push(meta);known.add(key);added++;
+    }catch(e){toast("Spațiu insuficient sau fișier ilizibil");break}
+  }
+  busy=null;sortTracks(tracks);render();
+  toast(added+" piese adăugate"+(skipped?" · "+skipped+" existau deja":""));
+}
+$("#pick").addEventListener("change",e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=""});
+$("#pickDir").addEventListener("change",e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=""});
+
+/* ---------------- album art: local first, then online ---------------- */
+const objURL=new Map(),pending=new Map();
+async function localArt(id){if(objURL.has(id))return objURL.get(id);
+  let b=null;try{b=await getArt(id)}catch(e){}if(!b)return null;const u=URL.createObjectURL(b);objURL.set(id,u);return u}
+function jsonp(url,ms){return new Promise((res,rej)=>{const cb="__rola_"+Math.random().toString(36).slice(2);const s=document.createElement("script");
+  const clean=()=>{clearTimeout(t);try{delete window[cb]}catch(e){window[cb]=undefined}s.remove()};
+  const t=setTimeout(()=>{clean();rej(new Error("timeout"))},ms||8000);
+  window[cb]=d=>{clean();res(d)};s.onerror=()=>{clean();rej(new Error("blocked"))};
+  s.src=url+(url.indexOf("?")>=0?"&":"?")+"callback="+cb;document.head.appendChild(s)})}
+let lookActive=0;const lookWait=[];
+function throttle(fn){return new Promise((res,rej)=>{const go=()=>{lookActive++;fn().then(res,rej).finally(()=>{lookActive--;setTimeout(()=>{const n=lookWait.shift();if(n)n()},250)})};
+  if(lookActive<2)go();else lookWait.push(go)})}
+async function lookupOnline(t){
+  const single=t.album===UNK_AL;const who=t.artist===UNK_AR?"":t.artist+" ";
+  const term=encodeURIComponent((who+(single?t.title:t.album)).trim());let reached=false;
+  try{const d=await jsonp("https://itunes.apple.com/search?term="+term+"&media=music&entity="+(single?"song":"album")+"&limit=5");reached=true;
+    const r=(d.results||[]).find(x=>x.artworkUrl100);if(r)return r.artworkUrl100.replace(/100x100bb/,"600x600bb")}catch(e){}
+  try{const d=await jsonp("https://api.deezer.com/search/"+(single?"track":"album")+"?q="+term+"&limit=5&output=jsonp");reached=true;
+    const r=(d.data||[]).find(x=>single?(x.album&&x.album.cover_xl):x.cover_xl);if(r)return single?r.album.cover_xl:r.cover_xl}catch(e){}
+  if(!reached)throw new Error("offline");return null}
+function onlineKey(t){return(t.album===UNK_AL?"s:"+t.artist+"|"+t.title:"a:"+t.artist+"|"+t.album).toLowerCase()}
+async function artFor(t){
+  if(!t)return null;
+  if(t.hasArt)return localArt(t.id);
+  if(t.album!==UNK_AL){const sib=tracks.find(x=>x.hasArt&&x.album===t.album&&x.artist===t.artist);if(sib)return localArt(sib.id)}
+  const k=onlineKey(t);
+  if(k in artCache)return artCache[k]||null;
+  if(!settings.online)return null;
+  if(pending.has(k))return pending.get(k);
+  const p=throttle(()=>lookupOnline(t)).then(u=>{artCache[k]=u||"";ls("rola.artcache",artCache);return u||null},()=>null).finally(()=>pending.delete(k));
+  pending.set(k,p);return p}
+function fillArt(box,t,fallback){
+  box.innerHTML=fallback||I.note;
+  artFor(t).then(u=>{if(!u)return;const im=new Image();im.alt="";im.decoding="async";im.referrerPolicy="no-referrer";
+    im.onload=()=>{box.innerHTML="";box.appendChild(im)};im.src=u})}
+const io="IntersectionObserver" in window?new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){io.unobserve(e.target);const f=e.target.__art;if(f)f()}})},{root:null,rootMargin:"300px"}):null;
+function lazyArt(box,t,fb){box.innerHTML=fb||I.note;if(!io)return fillArt(box,t,fb);box.__art=()=>fillArt(box,t,fb);io.observe(box)}
+async function fetchMissingArt(){
+  if(!settings.online)return toast("Activează mai întâi căutarea online");
+  const seen=new Set(),todo=[];
+  for(const t of tracks){if(t.hasArt)continue;const k=onlineKey(t);if(seen.has(k)||(k in artCache&&artCache[k]))continue;
+    if(t.album!==UNK_AL&&tracks.some(x=>x.hasArt&&x.album===t.album&&x.artist===t.artist))continue;seen.add(k);delete artCache[k];todo.push(t)}
+  if(!todo.length)return toast("Toate albumele au coperți");
+  toast("Caut "+todo.length+" coperți…");let found=0;
+  await Promise.all(todo.map(t=>artFor(t).then(u=>{if(u)found++})));
+  toast("Găsite: "+found+" din "+todo.length);render()}
+
+/* ---------------- radio (radio-browser.info) ---------------- */
+const RB=["https://de1.api.radio-browser.info","https://fi1.api.radio-browser.info","https://de2.api.radio-browser.info"];
+const radioCache=new Map();
+async function rb(path){
+  if(radioCache.has(path))return radioCache.get(path);
+  for(const host of RB){try{const r=await fetch(host+path);if(r.ok){const j=await r.json();radioCache.set(path,j);return j}}catch(e){}}
+  throw new Error("offline")}
+function cleanStations(list){const seen=new Set(),out=[];let http=0;
+  for(const s of list||[]){const u=s.url_resolved||s.url||"";if(!/^https:/i.test(u)){http++;continue}
+    const k=(s.name||"").trim().toLowerCase();if(!k||seen.has(k))continue;seen.add(k);
+    out.push({id:s.stationuuid,name:s.name.trim(),url:u,favicon:/^https:/i.test(s.favicon||"")?s.favicon:"",tags:(s.tags||"").split(",").filter(Boolean).slice(0,3).join(" · "),cc:s.countrycode||"",bitrate:s.bitrate||0,codec:s.codec||""})}
+  return{list:out,http}}
+const RADIO_CATS=[
+  {id:"fav",label:"Favorite"},
+  {id:"ro",label:"România",path:"/json/stations/bycountrycodeexact/RO?hidebroken=true&order=clickcount&reverse=true&limit=200"},
+  {id:"top",label:"Top mondial",path:"/json/stations/topclick/150?hidebroken=true"},
+  {id:"jazz",label:"Jazz",path:"/json/stations/bytagexact/jazz?hidebroken=true&order=clickcount&reverse=true&limit=120"},
+  {id:"classical",label:"Clasică",path:"/json/stations/bytagexact/classical?hidebroken=true&order=clickcount&reverse=true&limit=120"},
+  {id:"rock",label:"Rock",path:"/json/stations/bytagexact/rock?hidebroken=true&order=clickcount&reverse=true&limit=120"},
+  {id:"news",label:"Știri",path:"/json/stations/bytagexact/news?hidebroken=true&order=clickcount&reverse=true&limit=120"},
+  {id:"chill",label:"Chillout",path:"/json/stations/bytagexact/chillout?hidebroken=true&order=clickcount&reverse=true&limit=120"},
+  {id:"dance",label:"Dance",path:"/json/stations/bytagexact/dance?hidebroken=true&order=clickcount&reverse=true&limit=120"}];
+let radioCat=null;
+const isRadioFav=s=>radioFavs.some(x=>x.id===s.id);
+function toggleRadioFav(s){if(isRadioFav(s)){radioFavs=radioFavs.filter(x=>x.id!==s.id);toast("Scos din Favorite")}else{radioFavs.push(s);toast("Adăugat la Favorite")}ls("rola.radiofavs",radioFavs);syncPlayer()}
+
+/* ---------------- navigation ---------------- */
+let tab="lib";
+const stacks={lib:[{v:"lib"}],alb:[{v:"albums"}],radio:[{v:"radio"}],search:[{v:"search"}]};
+const top=()=>stacks[tab][stacks[tab].length-1];
+function go(v){stacks[tab].push(v);render();$("#main").scrollTop=0}
+function back(){if(stacks[tab].length>1){stacks[tab].pop();render()}}
+function setTab(t){if(t===tab){stacks[t].length=1;render();$("#main").scrollTop=0;return}tab=t;
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));render();$("#main").scrollTop=0}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+$("#back").addEventListener("click",back);
+$("#action").addEventListener("click",()=>{unlock();libSheet()});
+
+function render(){
+  const v=top(),m=$("#main");m.innerHTML="";
+  $("#back").hidden=stacks[tab].length<2;
+  const R=VIEWS[v.v];const title=R(m,v)||"";
+  $("#title").textContent=title;
+  syncMini();
+}
+function rows(){return h("div","rows")}
+function chevRow(label,count,fn,icon){const r=h("button","row");
+  if(icon){const t=h("div","thumb");t.innerHTML=icon;r.appendChild(t)}
+  const x=h("div","txt");x.appendChild(h("div","t1",label));r.appendChild(x);
+  if(count!=null&&count!=="")r.appendChild(h("span","cnt",String(count)));
+  const c=h("span","chev","›");r.appendChild(c);r.addEventListener("click",()=>{unlock();fn()});return r}
+function songRow(t,list,i,opts){opts=opts||{};
+  const r=h("div","row"+(mode==="local"&&cur&&cur.id===t.id?" playing":""));r.dataset.id=t.id;r.tabIndex=0;r.setAttribute("role","button");
+  if(opts.num){r.appendChild(h("span","num",t.track?String(t.track):"·"))}
+  else{const th=h("div","thumb");lazyArt(th,t);r.appendChild(th)}
+  const x=h("div","txt");x.appendChild(h("div","t1",t.title));x.appendChild(h("div","t2",opts.num?(favs.has(t.id)?"♥ ":"")+t.artist:(favs.has(t.id)?"♥ ":"")+t.artist+" · "+t.album));r.appendChild(x);
+  const mo=h("button","more");mo.innerHTML=I.dots;mo.setAttribute("aria-label","Opțiuni pentru "+t.title);
+  mo.addEventListener("click",e=>{e.stopPropagation();trackSheet(t)});r.appendChild(mo);
+  r.addEventListener("click",()=>{unlock();playList(list,i)});
+  r.addEventListener("keydown",e=>{if(e.key==="Enter"){unlock();playList(list,i)}});
+  return r}
+function albumTile(al){const b=h("button","tile");const c=h("div","cover");lazyArt(c,al.tracks[0],I.album);b.appendChild(c);
+  b.appendChild(h("div","t1",al.album));b.appendChild(h("div","t2",al.artist));
+  b.addEventListener("click",()=>{unlock();go({v:"album",id:al.id})});return b}
+function albums(list){const m=new Map();for(const t of list){const k=albumId(t);if(!m.has(k))m.set(k,{id:k,album:t.album,artist:t.artist,tracks:[],added:0,year:0});
+  const a=m.get(k);a.tracks.push(t);a.added=Math.max(a.added,t.added);if(t.year)a.year=t.year}
+  return[...m.values()].sort((a,b)=>coll.compare(a.album,b.album))}
+function groupBy(list,f){const m=new Map();for(const t of list){const k=f(t);if(!m.has(k))m.set(k,[]);m.get(k).push(t)}return m}
+function emptyLib(m){const e=h("div","empty");
+  e.innerHTML='<h2>Adaugă muzica ta</h2><ol><li>În Files, pune melodiile într-un folder.</li><li>Apasă <b>Adaugă fișiere</b>, deschide folderul.</li><li>Apasă <b>Select</b>, apoi <b>Select All</b> și <b>Open</b>.</li></ol>';
+  const b=h("div","btns");const a=h("button","btn primary");a.innerHTML=I.file.replace("<svg",'<svg fill="none" stroke="currentColor" stroke-width="2"')+"Adaugă fișiere";
+  a.addEventListener("click",()=>$("#pick").click());const r=h("button","btn","Ascultă radio");r.addEventListener("click",()=>setTab("radio"));
+  b.append(a,r);e.appendChild(b);m.appendChild(e)}
+function busyBanner(m){if(!busy)return;const b=h("div","banner");b.id="busy";
+  b.innerHTML='<div class="t1">Se importă muzica</div><div class="t2" id="busyT"></div><div class="bar"><i id="busyBar"></i></div>';m.appendChild(b);updateBusy()}
+function updateBusy(){if(!busy)return;const t=$("#busyT"),b=$("#busyBar");if(!t||!b)return;
+  t.textContent=busy.n+" din "+busy.total+" · "+busy.name;b.style.width=Math.round(busy.n/busy.total*100)+"%"}
+
+const VIEWS={
+  lib(m){
+    busyBanner(m);
+    if(!tracks.length&&!busy){emptyLib(m);return"Bibliotecă"}
+    const btns=h("div","btns");
+    const p=h("button","btn primary");p.innerHTML=I.play+"Redă tot";p.addEventListener("click",()=>{unlock();shuffle=false;saveModes();playList(sortTracks(tracks.slice()),0)});
+    const s=h("button","btn");s.innerHTML=I.shuffle+"Amestecă";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(tracks,Math.floor(Math.random()*tracks.length))});
+    btns.append(p,s);m.appendChild(btns);
+    m.appendChild(h("div","h2","Colecție"));
+    const r=rows();const al=albums(tracks);
+    r.appendChild(chevRow("Playlisturi","",()=>go({v:"playlists"}),I.queue));
+    r.appendChild(chevRow("Artiști",groupBy(tracks,t=>t.artist).size,()=>go({v:"artists"}),I.person));
+    r.appendChild(chevRow("Albume",al.length,()=>setTab("alb"),I.album));
+    r.appendChild(chevRow("Melodii",tracks.length,()=>go({v:"songs",title:"Melodii",list:"all"}),I.note));
+    r.appendChild(chevRow("Genuri",groupBy(tracks,t=>t.genre||"Necunoscut").size,()=>go({v:"genres"}),I.globe));
+    m.appendChild(r);
+    const recent=al.slice().sort((a,b)=>b.added-a.added).slice(0,12);
+    if(recent.length){const hh=h("div","h2","Adăugate recent");m.appendChild(hh);const st=h("div","strip");recent.forEach(a=>st.appendChild(albumTile(a)));m.appendChild(st)}
+    const most=tracks.filter(t=>plays[t.id]).sort((a,b)=>plays[b.id]-plays[a.id]).slice(0,5);
+    if(most.length){m.appendChild(h("div","h2","Ascultate des"));const rr=rows();most.forEach((t,i)=>rr.appendChild(songRow(t,most,i)));m.appendChild(rr)}
+    return"Bibliotecă"},
+  albums(m){busyBanner(m);
+    if(!tracks.length){emptyLib(m);return"Albume"}
+    const g=h("div","grid");albums(tracks).forEach(a=>g.appendChild(albumTile(a)));m.appendChild(g);return"Albume"},
+  album(m,v){
+    const list=sortTracks(tracks.filter(t=>albumId(t)===v.id));if(!list.length){m.appendChild(h("p","note","Albumul nu mai există."));return""}
+    const hero=h("div","hero");const c=h("div","cover");fillArt(c,list[0],I.album);hero.appendChild(c);
+    hero.appendChild(h("h2",null,list[0].album));const ar=h("p",null,list[0].artist);ar.style.cursor="pointer";ar.addEventListener("click",()=>go({v:"artist",name:list[0].artist}));hero.appendChild(ar);
+    const yr=list.find(t=>t.year);hero.appendChild(h("div","meta",[list[0].genre!=="Necunoscut"?list[0].genre:"",yr?yr.year:"",list.length+(list.length===1?" piesă":" piese")].filter(Boolean).join(" · ")));
+    m.appendChild(hero);
+    const b=h("div","btns");const p=h("button","btn primary");p.innerHTML=I.play+"Redă";p.addEventListener("click",()=>{unlock();shuffle=false;saveModes();playList(list,0)});
+    const s=h("button","btn");s.innerHTML=I.shuffle+"Amestecă";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});
+    b.append(p,s);m.appendChild(b);m.appendChild(h("div","h2",""));
+    const r=rows();list.forEach((t,i)=>r.appendChild(songRow(t,list,i,{num:true})));m.appendChild(r);return""},
+  artists(m){const g=groupBy(tracks,t=>t.artist);const r=rows();
+    [...g.keys()].sort(coll.compare).forEach(a=>{const row=chevRow(a,g.get(a).length,()=>go({v:"artist",name:a}));
+      const th=h("div","thumb");lazyArt(th,g.get(a)[0],I.person);row.insertBefore(th,row.firstChild);r.appendChild(row)});
+    m.appendChild(r);return"Artiști"},
+  artist(m,v){const list=sortTracks(tracks.filter(t=>t.artist===v.name));
+    const b=h("div","btns");const s=h("button","btn primary");s.innerHTML=I.shuffle+"Amestecă artistul";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});b.appendChild(s);m.appendChild(b);
+    m.appendChild(h("div","h2","Albume"));const g=h("div","grid");albums(list).forEach(a=>g.appendChild(albumTile(a)));m.appendChild(g);
+    m.appendChild(h("div","h2","Toate piesele"));const r=rows();list.forEach((t,i)=>r.appendChild(songRow(t,list,i)));m.appendChild(r);return v.name},
+  songs(m,v){let list;
+    if(v.list==="all")list=tracks.slice().sort((a,b)=>coll.compare(a.title,b.title));
+    else if(v.list==="fav")list=tracks.filter(t=>favs.has(t.id));
+    else if(v.list==="recent")list=tracks.slice().sort((a,b)=>b.added-a.added).slice(0,100);
+    else if(v.list==="most")list=tracks.filter(t=>plays[t.id]).sort((a,b)=>plays[b.id]-plays[a.id]).slice(0,50);
+    else if(v.list==="genre")list=sortTracks(tracks.filter(t=>(t.genre||"Necunoscut")===v.genre));
+    else list=[];
+    if(!list.length){m.appendChild(h("p","note",v.list==="fav"?"Apasă ⋯ pe o piesă și alege Adaugă la Favorite.":"Încă nimic aici."));return v.title}
+    const b=h("div","btns");const s=h("button","btn");s.innerHTML=I.shuffle+"Amestecă";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});b.appendChild(s);m.appendChild(b);
+    m.appendChild(h("div","h2","",));m.lastChild.appendChild(h("small",null,list.length+" piese"));
+    const r=rows();list.forEach((t,i)=>r.appendChild(songRow(t,list,i)));m.appendChild(r);return v.title},
+  genres(m){const g=groupBy(tracks,t=>t.genre||"Necunoscut");const r=rows();
+    [...g.keys()].sort(coll.compare).forEach(k=>r.appendChild(chevRow(k,g.get(k).length,()=>go({v:"songs",title:k,list:"genre",genre:k}))));m.appendChild(r);return"Genuri"},
+  playlists(m){const r=rows();
+    r.appendChild(chevRow("Favorite",tracks.filter(t=>favs.has(t.id)).length,()=>go({v:"songs",title:"Favorite",list:"fav"}),I.heart.replace("<svg",'<svg fill="none" stroke="currentColor" stroke-width="1.8"')));
+    r.appendChild(chevRow("Urmează la redare",mode==="local"?Math.max(0,queue.length-qi-1):0,()=>go({v:"queue"}),I.queue));
+    r.appendChild(chevRow("Adăugate recent","",()=>go({v:"songs",title:"Adăugate recent",list:"recent"}),I.note));
+    r.appendChild(chevRow("Cele mai ascultate",tracks.filter(t=>plays[t.id]).length,()=>go({v:"songs",title:"Cele mai ascultate",list:"most"}),I.note));
+    m.appendChild(r);return"Playlisturi"},
+  queue(m){if(mode!=="local"||!cur){m.appendChild(h("p","note","Nimic în redare."));return"Urmează"}
+    m.appendChild(h("div","h2","Acum"));const a=rows();a.appendChild(songRow(cur,[cur],0));m.appendChild(a);
+    const rest=queue.slice(qi+1);m.appendChild(h("div","h2","Urmează"));
+    if(!rest.length){m.appendChild(h("p","note","Coada e goală."));return"Urmează"}
+    const r=rows();rest.forEach((t,k)=>{const row=songRow(t,rest,k);row.onclick=null;
+      row.addEventListener("click",ev=>{if(ev.target.closest(".more"))return;ev.stopImmediatePropagation();qi=qi+1+k;loadAndPlay(true);render()},true);r.appendChild(row)});m.appendChild(r);return"Urmează"},
+  radio(m){
+    if(!radioCat)radioCat=radioFavs.length?"fav":"ro";
+    const f=h("input","field");f.type="search";f.id="radioQ";f.placeholder="Caută un post (nume, oraș, stil)";f.enterKeyHint="search";
+    f.addEventListener("keydown",e=>{if(e.key==="Enter"&&f.value.trim()){f.blur();go({v:"radioSearch",q:f.value.trim()})}});m.appendChild(f);
+    const ch=h("div","chips");RADIO_CATS.forEach(c=>{const b=h("button","chip"+(c.id===radioCat?" on":""),c.label);b.addEventListener("click",()=>{radioCat=c.id;render()});ch.appendChild(b)});m.appendChild(ch);
+    const cat=RADIO_CATS.find(c=>c.id===radioCat);
+    if(cat.id==="fav"){if(!radioFavs.length){m.appendChild(h("p","note","Apasă inima de lângă un post ca să-l salvezi aici."));return"Radio"}
+      stationList(m,radioFavs.slice(),0);return"Radio"}
+    loadStations(m,cat.path);return"Radio"},
+  radioSearch(m,v){loadStations(m,"/json/stations/search?name="+encodeURIComponent(v.q)+"&hidebroken=true&order=clickcount&reverse=true&limit=80");return"„"+v.q+"”"},
+  search(m,v){
+    const f=h("input","field");f.type="search";f.id="q";f.placeholder="Piese, artiști, albume, radio";f.enterKeyHint="search";f.value=v.q||"";m.appendChild(f);
+    const out=h("div");m.appendChild(out);let t=0;
+    const run=()=>{v.q=f.value;searchResults(out,f.value.trim())};
+    f.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,300)});
+    if(v.q)run();else out.appendChild(h("p","note","Caută în biblioteca ta și în posturile de radio online."));
+    return"Caută"}
+};
+function stationRow(s,list,i){const r=h("div","row"+(mode==="radio"&&station&&station.id===s.id?" playing":""));r.dataset.sid=s.id;r.tabIndex=0;r.setAttribute("role","button");
+  const th=h("div","thumb");th.textContent=(s.name.match(/[A-Za-z0-9]/)||["•"])[0].toUpperCase();
+  if(s.favicon){const im=new Image();im.alt="";im.loading="lazy";im.referrerPolicy="no-referrer";im.onload=()=>{if(im.naturalWidth>8){th.textContent="";th.appendChild(im)}};im.src=s.favicon}
+  r.appendChild(th);
+  const x=h("div","txt");x.appendChild(h("div","t1",s.name));x.appendChild(h("div","t2",[s.tags,s.bitrate?s.bitrate+" kbps":"",s.cc].filter(Boolean).join(" · ")||"Radio"));r.appendChild(x);
+  const st=h("button","more star"+(isRadioFav(s)?" on":""));st.innerHTML=I.heart;st.setAttribute("aria-label","Favorit");
+  st.addEventListener("click",e=>{e.stopPropagation();toggleRadioFav(s);st.classList.toggle("on",isRadioFav(s))});r.appendChild(st);
+  r.addEventListener("click",()=>{unlock();playStation(list,i)});r.addEventListener("keydown",e=>{if(e.key==="Enter"){unlock();playStation(list,i)}});
+  return r}
+function stationList(m,list,http){const r=rows();list.forEach((s,i)=>r.appendChild(stationRow(s,list,i)));m.appendChild(r);
+  if(http)m.appendChild(h("p","note",http+" posturi fără conexiune securizată (http) au fost ascunse; Safari nu le poate reda aici."))}
+function loadStations(m,path){
+  const box=h("div");m.appendChild(box);const sk=h("div","rows");for(let i=0;i<6;i++)sk.appendChild(h("div","skeleton"));box.appendChild(sk);
+  rb(path).then(d=>{if(!box.isConnected)return;box.innerHTML="";const c=cleanStations(d);
+    if(!c.list.length){box.appendChild(h("p","note","Niciun post găsit."));return}stationList(box,c.list,c.http)})
+  .catch(()=>{if(!box.isConnected)return;box.innerHTML="";box.appendChild(h("p","note","Nu pot accesa directorul de radio. Verifică internetul. Dacă ai deschis player-ul din Claude, deschide versiunea găzduită."))})}
+function searchResults(out,q){out.innerHTML="";if(!q){out.appendChild(h("p","note","Caută în biblioteca ta și în posturile de radio online."));return}
+  const n=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();const nq=n(q);
+  const songs=tracks.filter(t=>n(t.title).includes(nq)||n(t.artist).includes(nq)||n(t.album).includes(nq)).slice(0,40);
+  const al=albums(tracks).filter(a=>n(a.album).includes(nq)||n(a.artist).includes(nq)).slice(0,12);
+  const ar=[...groupBy(tracks,t=>t.artist).keys()].filter(a=>n(a).includes(nq)).slice(0,10);
+  if(ar.length){out.appendChild(h("div","h2","Artiști"));const r=rows();ar.forEach(a=>r.appendChild(chevRow(a,"",()=>go({v:"artist",name:a}),I.person)));out.appendChild(r)}
+  if(al.length){out.appendChild(h("div","h2","Albume"));const st=h("div","strip");al.forEach(a=>st.appendChild(albumTile(a)));out.appendChild(st)}
+  if(songs.length){out.appendChild(h("div","h2","Piese"));const r=rows();songs.forEach((t,i)=>r.appendChild(songRow(t,songs,i)));out.appendChild(r)}
+  out.appendChild(h("div","h2","Radio"));const box=h("div");out.appendChild(box);
+  if(q.length<2){box.appendChild(h("p","note","Scrie cel puțin 2 litere."));return}
+  box.appendChild(h("div","skeleton"));
+  rb("/json/stations/search?name="+encodeURIComponent(q)+"&hidebroken=true&order=clickcount&reverse=true&limit=15").then(d=>{if(!box.isConnected)return;box.innerHTML="";const c=cleanStations(d);
+    if(!c.list.length){box.appendChild(h("p","note","Niciun post."));return}stationList(box,c.list.slice(0,10),0)})
+  .catch(()=>{if(box.isConnected){box.innerHTML="";box.appendChild(h("p","note","Radio indisponibil fără internet."))}})}
+
+/* ---------------- sheets ---------------- */
+function openSheet(build){const p=$("#sheetP");p.innerHTML="";build(p);$("#sheet").hidden=false}
+function closeSheet(){$("#sheet").hidden=true}
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#sheet").hidden)closeSheet();else if(playerOpen())closePlayer();else back()}});
+function sItem(p,icon,label,fn,val,cls){const b=h("button","s-item"+(cls?" "+cls:""));b.innerHTML=icon||"";const g=h("span","grow",label);b.appendChild(g);
+  if(val!=null)b.appendChild(h("span","val",val));b.addEventListener("click",()=>{unlock();fn(b)});p.appendChild(b);return b}
+function sHead(p,t,title,sub){const hd=h("div","s-head");const th=h("div","thumb");if(t)fillArt(th,t);hd.appendChild(th);
+  const x=h("div","txt");x.appendChild(h("div","t1",title));x.appendChild(h("div","t2",sub));hd.appendChild(x);p.appendChild(hd)}
+function trackSheet(t){openSheet(p=>{sHead(p,t,t.title,t.artist+" · "+t.album);
+  sItem(p,I.heart,favs.has(t.id)?"Scoate din Favorite":"Adaugă la Favorite",()=>{toggleFav(t);closeSheet()});
+  sItem(p,I.next,"Redă următoarea",()=>{playNext(t);closeSheet()});
+  sItem(p,I.queue,"Pune la finalul cozii",()=>{queueLast(t);closeSheet()});
+  sItem(p,I.album,"Mergi la album",()=>{closeSheet();closePlayer();if(tab!=="alb")tab="alb",document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="alb"));stacks.alb=[{v:"albums"},{v:"album",id:albumId(t)}];render()});
+  sItem(p,I.person,"Mergi la artist",()=>{closeSheet();closePlayer();tab="lib";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="lib"));stacks.lib=[{v:"lib"},{v:"artist",name:t.artist}];render()});
+})}
+function libSheet(){openSheet(p=>{
+  sItem(p,I.file,"Adaugă fișiere",()=>{closeSheet();$("#pick").click()});
+  sItem(p,I.folder,"Adaugă un folder",()=>{closeSheet();$("#pickDir").click()});
+  sItem(p,I.moon,"Timer de somn",()=>sleepSheet(),sleepLabel());
+  sItem(p,I.gear,"Setări",()=>settingsSheet())})}
+function settingsSheet(){let armed=false;openSheet(p=>{
+  sItem(p,I.globe,"Caută coperți online",b=>{settings.online=!settings.online;ls("rola.settings",settings);b.querySelector(".val").textContent=settings.online?"Pornit":"Oprit"},settings.online?"Pornit":"Oprit");
+  sItem(p,I.image,"Descarcă coperțile lipsă",()=>{closeSheet();fetchMissingArt()});
+  const sp=sItem(p,I.disk,"Spațiu folosit",()=>{},"…");
+  if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(e=>{sp.querySelector(".val").textContent=fmtBytes(e.usage||0)}).catch(()=>{});
+  sItem(p,I.trash,"Șterge biblioteca",b=>{if(!armed){armed=true;b.querySelector(".grow").textContent="Apasă din nou pentru confirmare";return}closeSheet();wipe()},null,"danger");
+  p.appendChild(h("p","note","Coperțile lipsă sunt căutate după artist și album pe iTunes și Deezer. Muzica nu părăsește telefonul."));p.lastChild.style.padding="0 18px"})}
+function sleepSheet(){openSheet(p=>{[["Oprit",0],["15 minute",15],["30 minute",30],["45 minute",45],["60 minute",60],["La finalul piesei","end"]]
+  .forEach(([l,v])=>sItem(p,I.moon,l,()=>{setSleep(v);closeSheet();toast(v?"Timer: "+l:"Timer oprit")}))})}
+const fmtBytes=b=>b>1e9?(b/1e9).toFixed(1)+" GB":Math.round(b/1e6)+" MB";
+async function wipe(){audio.pause();audio.removeAttribute("src");mode=null;cur=null;loadedId=null;queue=[];qi=-1;
+  try{for(const s of["meta","files","art"])await op(s,"readwrite",x=>x.clear())}catch(e){}
+  objURL.forEach(u=>URL.revokeObjectURL(u));objURL.clear();tracks=[];favs=new Set();plays={};
+  ls("rola.last",null);ls("rola.favs",[]);ls("rola.plays",{});closePlayer();render();toast("Biblioteca a fost ștearsă")}
+
+/* ---------------- playback ---------------- */
+function unlock(){if(unlocked)return;unlocked=true;try{if(!audio.src){audio.src=SILENT;const p=audio.play();if(p)p.catch(()=>{})}}catch(e){}}
+const shuf=l=>{const a=l.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function playList(list,i){mode="local";station=null;baseList=list.slice();
+  if(shuffle){const f=list[i];queue=[f].concat(shuf(list.filter(t=>t!==f)));qi=0}else{queue=baseList.slice();qi=i}
+  loadAndPlay(true)}
+function rebuildQueue(){if(mode!=="local"||!cur)return;const src=baseList.length?baseList:tracks;
+  if(shuffle){queue=[cur].concat(shuf(src.filter(t=>t.id!==cur.id)));qi=0}else{queue=src.slice();qi=Math.max(0,queue.findIndex(t=>t.id===cur.id))}}
+async function loadAndPlay(auto){const t=queue[qi];if(!t)return;mode="local";cur=t;station=null;syncAll();
+  let blob=null;try{blob=await getFile(t.id)}catch(e){}
+  if(cur!==t)return;if(!blob)return toast("Fișierul lipsește din bibliotecă");
+  if(curURL)URL.revokeObjectURL(curURL);curURL=URL.createObjectURL(blob);audio.src=curURL;loadedId=t.id;counted=null;
+  if(auto){try{await audio.play()}catch(e){toast("Apasă ▶ pentru redare")}}
+  saveLast();updateMedia();syncAll()}
+function playStation(list,i){radioList=list.slice();const s=radioList[i];if(!s)return;mode="radio";station=s;cur=null;loadedId=null;
+  if(curURL){URL.revokeObjectURL(curURL);curURL=null}
+  audio.src=s.url;audio.play().catch(()=>toast("Postul nu răspunde"));
+  ls("rola.last",{station:s});updateMedia();syncAll()}
+function toggle(){
+  if(mode==="radio"&&station){if(audio.paused){if(!audio.src||audio.src===SILENT||audio.error){audio.src=station.url}audio.play().catch(()=>toast("Postul nu răspunde"))}else audio.pause();return}
+  if(!cur){if(tracks.length)playList(sortTracks(tracks.slice()),0);else toast("Biblioteca e goală");return}
+  if(loadedId!==cur.id)return loadAndPlay(true);
+  if(audio.paused)audio.play().catch(()=>{});else audio.pause()}
+function next(auto){
+  if(mode==="radio"){if(!radioList.length)return;const i=(radioList.findIndex(s=>s.id===station.id)+1)%radioList.length;return playStation(radioList,i)}
+  if(!queue.length)return;if(qi<queue.length-1)qi++;else if(repeat==="all"||!auto)qi=0;else{audio.pause();syncAll();return}
+  loadAndPlay(true)}
+function prev(){
+  if(mode==="radio"){if(!radioList.length)return;const n=radioList.length;const i=(radioList.findIndex(s=>s.id===station.id)-1+n)%n;return playStation(radioList,i)}
+  if(!queue.length)return;if(audio.currentTime>3){audio.currentTime=0;return}qi=qi>0?qi-1:queue.length-1;loadAndPlay(true)}
+function toggleFav(t){if(favs.has(t.id)){favs.delete(t.id);toast("Scoasă din Favorite")}else{favs.add(t.id);toast("Adăugată la Favorite")}ls("rola.favs",[...favs]);syncPlayer();render()}
+function playNext(t){if(mode!=="local"||!cur)return playList([t],0);queue.splice(qi+1,0,t);toast("Urmează: "+t.title)}
+function queueLast(t){if(mode!=="local"||!cur)return playList([t],0);queue.push(t);toast("Adăugată în coadă")}
+function setSleep(v){clearTimeout(sleepTimer);sleepAt=0;sleepEnd=false;
+  if(v==="end")sleepEnd=true;else if(v){sleepAt=Date.now()+v*60000;sleepTimer=setTimeout(()=>{audio.pause();sleepAt=0;syncAll();toast("Timer de somn: pauză")},v*60000)}syncAll()}
+function sleepLabel(){if(sleepEnd)return"Final piesă";if(sleepAt)return Math.max(1,Math.ceil((sleepAt-Date.now())/60000))+" min";return"Oprit"}
+function saveModes(){ls("rola.modes",{shuffle,repeat})}
+function saveLast(){if(mode==="local"&&cur)ls("rola.last",{id:cur.id,t:audio.currentTime||0})}
+
+audio.addEventListener("timeupdate",()=>{progress();
+  if(mode!=="local"||!cur||loadedId!==cur.id)return;const d=audio.duration,c=audio.currentTime;
+  if(counted!==cur.id&&d&&c>d*.5){counted=cur.id;plays[cur.id]=(plays[cur.id]||0)+1;ls("rola.plays",plays)}
+  const now=Date.now();if(now-lastSave>5000){lastSave=now;saveLast()}});
+audio.addEventListener("loadedmetadata",()=>{if(resume&&cur&&resume.id===cur.id&&resume.t>0){try{audio.currentTime=resume.t}catch(e){}}resume=null;progress()});
+audio.addEventListener("play",syncAll);audio.addEventListener("pause",()=>{syncAll();saveLast()});
+audio.addEventListener("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast("Timer de somn: oprit")}
+  if(mode==="radio"){audio.src=station.url;audio.play().catch(()=>{});return}
+  if(repeat==="one"){audio.currentTime=0;audio.play().catch(()=>{});return}next(true)});
+audio.addEventListener("error",()=>{if(audio.src&&audio.src!==SILENT&&(mode==="radio"||loadedId))toast(mode==="radio"?"Postul nu poate fi redat":"Formatul nu poate fi redat")});
+
+/* lock screen / Control Center */
+async function updateMedia(){if(!("mediaSession" in navigator))return;
+  try{if(mode==="radio"&&station){navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:station.tags||"Radio",album:"Radio live",artwork:station.favicon?[{src:station.favicon,sizes:"256x256"}]:[]})}
+  else if(cur){const t=cur;const u=await artFor(t);if(cur!==t)return;navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,album:t.album,artwork:u?[{src:u,sizes:"600x600"}]:[]})}}catch(e){}}
+if("mediaSession" in navigator){const sh=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
+  sh("play",()=>{if(audio.paused)toggle()});sh("pause",()=>audio.pause());sh("previoustrack",prev);sh("nexttrack",()=>next(false));
+  sh("seekto",d=>{if(mode==="local"&&d&&isFinite(d.seekTime))audio.currentTime=d.seekTime})}
+
+/* ---------------- mini & full player ---------------- */
+const fmt=s=>{if(!isFinite(s)||s<0)s=0;s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+let miniFor=null,plFor=null,scrubbing=false;
+function syncAll(){syncMini();syncPlayer();
+  document.querySelectorAll(".row[data-id]").forEach(r=>r.classList.toggle("playing",mode==="local"&&!!cur&&r.dataset.id===cur.id));
+  document.querySelectorAll(".row[data-sid]").forEach(r=>r.classList.toggle("playing",mode==="radio"&&!!station&&r.dataset.sid===station.id))}
+function syncMini(){const has=(mode==="local"&&cur)||(mode==="radio"&&station);$("#mini").hidden=!has;if(!has)return;
+  $("#miniPlay").innerHTML=audio.paused?I.play:I.pause;
+  const key=mode==="radio"?"r:"+station.id:"t:"+cur.id;
+  if(miniFor!==key){miniFor=key;
+    if(mode==="radio"){$("#miniT").textContent=station.name;$("#miniS").textContent="Radio · "+(station.tags||"live");const th=$("#miniArt");th.innerHTML=I.radio;
+      if(station.favicon){const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.onload=()=>{th.innerHTML="";th.appendChild(im)};im.src=station.favicon}}
+    else{$("#miniT").textContent=cur.title;$("#miniS").textContent=cur.artist;fillArt($("#miniArt"),cur)}}
+  progress()}
+function progress(){const d=audio.duration,c=audio.currentTime,p=mode==="local"&&d?c/d*100:0;
+  $("#miniProg").style.width=p+"%";
+  if(!playerOpen()||mode!=="local"||scrubbing)return;const s=$("#scrub");s.value=d?Math.round(c/d*1000):0;s.style.setProperty("--p",p+"%");
+  $("#tCur").textContent=fmt(c);$("#tRem").textContent="-"+fmt((d||0)-c)}
+$("#mini").addEventListener("click",e=>{if(e.target.closest(".ctl"))return;openPlayer()});
+$("#mini").addEventListener("keydown",e=>{if(e.key==="Enter")openPlayer()});
+$("#miniPlay").addEventListener("click",e=>{e.stopPropagation();unlock();toggle()});
+$("#miniNext").addEventListener("click",e=>{e.stopPropagation();unlock();next(false)});
+const playerOpen=()=>!$("#player").classList.contains("off");
+function openPlayer(){const p=$("#player");p.classList.remove("off");p.setAttribute("aria-hidden","false");plFor=null;syncPlayer()}
+function closePlayer(){const p=$("#player");p.classList.add("off");p.setAttribute("aria-hidden","true")}
+function tint(url){return new Promise(res=>{const im=new Image();if(!/^blob:|^data:/.test(url))im.crossOrigin="anonymous";
+  im.onload=()=>{try{const c=document.createElement("canvas");c.width=c.height=16;const x=c.getContext("2d");x.drawImage(im,0,0,16,16);
+    const d=x.getImageData(0,0,16,16).data;let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=4){const mx=Math.max(d[i],d[i+1],d[i+2]),mn=Math.min(d[i],d[i+1],d[i+2]);const w=1+(mx-mn)/40;r+=d[i]*w;g+=d[i+1]*w;b+=d[i+2]*w;n+=w}
+    res("rgb("+Math.round(r/n*.55)+","+Math.round(g/n*.55)+","+Math.round(b/n*.55)+")")}catch(e){res(null)}};im.onerror=()=>res(null);im.src=url})}
+function syncPlayer(){if(!playerOpen())return;const P=$("#player");
+  P.classList.toggle("radio",mode==="radio");P.classList.toggle("paused",audio.paused);
+  $("#plPlay").innerHTML=audio.paused?I.play:I.pause;
+  $("#plShuffle").classList.toggle("on",shuffle);$("#plRepeat").classList.toggle("on",repeat!=="off");$("#repBadge").textContent=repeat==="one"?"1":"";
+  $("#sleepLbl").textContent=sleepAt||sleepEnd?sleepLabel():"Timer";$("#plSleep").classList.toggle("on",!!(sleepAt||sleepEnd));
+  if(mode==="radio"&&station){$("#plFav").classList.toggle("on",isRadioFav(station));$("#goLbl").textContent="Posturi"}
+  else if(cur){$("#plFav").classList.toggle("on",favs.has(cur.id));$("#goLbl").textContent="Album"}
+  const key=mode==="radio"&&station?"r:"+station.id:cur?"t:"+cur.id:null;if(!key||plFor===key){progress();return}plFor=key;
+  const art=$("#plArt"),bg=$("#plBg");bg.hidden=true;P.style.removeProperty("--tint");
+  const setImg=u=>{if(plFor!==key||!u)return;const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.onload=()=>{if(plFor!==key)return;art.innerHTML="";art.appendChild(im);bg.src=u;bg.hidden=false;tint(u).then(c=>{if(c&&plFor===key)P.style.setProperty("--tint",c)})};im.src=u};
+  if(mode==="radio"){$("#plT").textContent=station.name;$("#plS").textContent=[station.tags,station.bitrate?station.bitrate+" kbps":""].filter(Boolean).join(" · ")||"Radio online";
+    $("#plSrc").textContent="Radio live";art.innerHTML=I.radio;if(station.favicon)setImg(station.favicon)}
+  else{$("#plT").textContent=cur.title;$("#plS").textContent=cur.artist+" — "+cur.album;$("#plSrc").textContent=cur.album;art.innerHTML=I.note;artFor(cur).then(setImg)}
+  progress()}
+$("#plClose").addEventListener("click",closePlayer);
+$("#plPlay").addEventListener("click",()=>{unlock();toggle()});
+$("#plNext").addEventListener("click",()=>next(false));$("#plPrev").addEventListener("click",prev);
+$("#plShuffle").addEventListener("click",()=>{shuffle=!shuffle;saveModes();rebuildQueue();syncPlayer();toast(shuffle?"Amestecare pornită":"Amestecare oprită")});
+$("#plRepeat").addEventListener("click",()=>{repeat={off:"all",all:"one",one:"off"}[repeat];saveModes();syncPlayer();toast({off:"Repetare oprită",all:"Repetă tot",one:"Repetă piesa"}[repeat])});
+$("#plFav").addEventListener("click",()=>{if(mode==="radio"&&station)toggleRadioFav(station);else if(cur)toggleFav(cur)});
+$("#plMore").addEventListener("click",()=>{if(mode==="local"&&cur)trackSheet(cur);else if(station)openSheet(p=>{sHead(p,null,station.name,station.tags||"Radio");
+  sItem(p,I.heart,isRadioFav(station)?"Scoate din Favorite":"Adaugă la Favorite",()=>{toggleRadioFav(station);closeSheet()});
+  sItem(p,I.moon,"Timer de somn",()=>sleepSheet(),sleepLabel())})});
+$("#plQueue").addEventListener("click",()=>{closePlayer();tab="lib";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="lib"));stacks.lib=[{v:"lib"},{v:"queue"}];render()});
+$("#plSleep").addEventListener("click",sleepSheet);
+$("#plGo").addEventListener("click",()=>{closePlayer();
+  if(mode==="radio"){setTab("radio");return}
+  if(cur){tab="alb";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="alb"));stacks.alb=[{v:"albums"},{v:"album",id:albumId(cur)}];render()}});
+const scrub=$("#scrub");
+scrub.addEventListener("input",()=>{scrubbing=true;const d=audio.duration||0;const p=scrub.value/10;scrub.style.setProperty("--p",p+"%");$("#tCur").textContent=fmt(d*scrub.value/1000);$("#tRem").textContent="-"+fmt(d-d*scrub.value/1000)});
+scrub.addEventListener("change",()=>{const d=audio.duration;if(d)audio.currentTime=d*scrub.value/1000;scrubbing=false});
+/* swipe down to close */
+(function(){let y0=null;const P=$("#player");P.addEventListener("touchstart",e=>{if(e.target.closest(".scrub"))return;y0=e.touches[0].clientY},{passive:true});
+  P.addEventListener("touchend",e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;y0=null;if(dy>90)closePlayer()},{passive:true})})();
+
+/* ---------------- misc ---------------- */
+let toastT=0;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2400)}
+function makeIcon(){try{const c=document.createElement("canvas");c.width=c.height=180;const x=c.getContext("2d");
+  const g=x.createLinearGradient(0,0,180,180);g.addColorStop(0,"#F0619D");g.addColorStop(1,"#7A1E52");x.fillStyle=g;x.fillRect(0,0,180,180);
+  x.strokeStyle="rgba(255,255,255,.95)";x.lineWidth=10;x.lineCap="round";[30,48,66].forEach(r=>{x.beginPath();x.arc(90,90,r,-.9,.9);x.stroke();x.beginPath();x.arc(90,90,r,Math.PI-.9,Math.PI+.9);x.stroke()});
+  x.fillStyle="#fff";x.beginPath();x.arc(90,90,12,0,7);x.fill();
+  const l=document.createElement("link");l.rel="apple-touch-icon";l.href=c.toDataURL("image/png");document.head.appendChild(l)}catch(e){}}
+
+(async function boot(){
+  const m=ls("rola.modes");if(m){shuffle=!!m.shuffle;repeat=m.repeat||"off"}
+  const f=ls("rola.favs");if(Array.isArray(f))favs=new Set(f);
+  const p=ls("rola.plays");if(p&&typeof p==="object")plays=p;
+  const rf=ls("rola.radiofavs");if(Array.isArray(rf))radioFavs=rf;
+  const ac=ls("rola.artcache");if(ac&&typeof ac==="object")artCache=ac;
+  const st=ls("rola.settings");if(st&&typeof st==="object")settings=Object.assign(settings,st);
+  makeIcon();render();
+  try{db=await idbOpen();const all=await op("meta","readonly",s=>s.getAll());tracks=sortTracks(all||[]);
+    if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}
+  catch(e){toast("Stocarea locală e blocată în acest browser")}
+  const last=ls("rola.last");
+  if(last&&last.station){mode="radio";station=last.station;radioList=radioFavs.length?radioFavs.slice():[station]}
+  else if(last&&last.id){const i=tracks.findIndex(t=>t.id===last.id);if(i>=0){mode="local";baseList=tracks.slice();queue=baseList.slice();qi=i;cur=tracks[i];resume={id:cur.id,t:+last.t||0};updateMedia()}}
+  render();
+})();
+})();
+</script>
+
+</body>
+</html>
