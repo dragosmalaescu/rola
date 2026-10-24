@@ -1341,7 +1341,7 @@ function rMove(d){const v=rTop();if(v.kind!=="list"||!v.items.length)return;cons
   if(v.carousel&&isVelour()){v.sel=ns;rCarUpdate();return}
   const el=$("#rView");if(el.children[v.sel])el.children[v.sel].classList.remove("sel");if(el.children[ns])el.children[ns].classList.add("sel");v.sel=ns;rScroll();
   if(v.items.length>=30){const L=$("#rLetter");L.textContent=initial(v.items[ns].label);L.hidden=false;clearTimeout(rLetterT);rLetterT=setTimeout(()=>{L.hidden=true},700)}}
-function rActivate(){const v=rTop();if(v.kind==="np"){const qc=rQCur();if(rq.sel!=null&&rq.sel>=0&&rq.sel!==qc&&rq.sel<rQItems().length){if(mode==="local"){qi=rq.sel;loadAndPlay(true)}else if(mode==="radio")playStation(radioList,rq.sel);return}if(mode==="local"&&cur)rPush(rOpts(cur));else if(mode==="radio"&&station){toggleRadioFav(station);rFillNP()}return}
+function rActivate(){const v=rTop();if(v.kind==="np"){const qc=rQCur();if(rq.sel!=null&&rq.sel>=0&&rq.sel!==qc&&rq.sel<rQItems().length){if(mode==="local"){qi=rq.sel;loadAndPlay(true)}else if(mode==="radio")playStation(radioList,rq.sel);return}if(playing())toggle();rFillNP();return}
   const it=v.items[v.sel];if(it&&it.go)it.go()}
 function rHold(){const v=rTop();if(v.kind==="np"){if(mode==="local"&&cur)rPush(rOpts(cur));else if(mode==="radio"&&station){toggleRadioFav(station);rFillNP()}return true}const it=v.items[v.sel];if(it&&it.hold){it.hold();return true}return false}
 function rRenderNP(){$("#rView").innerHTML='<div class="rnp"><div class="rcount" id="rI"></div><div class="rnp-top"><div class="rart" id="rArt">♪</div><div class="rmeta"><div class="t" id="rT"></div><div class="a" id="rA"></div><div class="d" id="rL"></div></div></div>'+
