@@ -162,6 +162,14 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
 .s-item .grow{flex:1;min-width:0}
 .s-item .val{color:var(--muted);font-size:14px}
 .s-item.danger{color:#D7263D}.s-item.danger svg{color:#D7263D}
+.eqwrap{padding:4px 18px 0;transition:opacity .2s}
+.eqwrap .chips{margin:6px 0 10px}
+.eqrow{display:grid;grid-template-columns:38px 1fr 56px;align-items:center;gap:10px;min-height:40px}
+.eqf,.eqv{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.eqv{text-align:right}
+.eqs{width:100%;accent-color:var(--accent);min-width:0}
+.tech{align-self:center;font-size:11px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.85);background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;min-height:20px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tech:empty{visibility:hidden}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 150px);transform:translateX(-50%);z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
 .sr{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -211,6 +219,7 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
       <div class="times"><span id="tCur">0:00</span><span id="tRem">-0:00</span></div>
     </div>
     <div class="radio-only" style="justify-content:center"><span class="live">LIVE</span></div>
+    <div class="tech" id="tech"></div>
     <div class="ctrls">
       <button class="cb sm local-only" id="plShuffle" aria-label="Amestecare"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
       <button class="cb" id="plPrev" aria-label="Anterioara"><svg viewBox="0 0 24 24"><path d="M18 6l-9 6 9 6zM5.5 6H8v12H5.5z"/></svg></button>
@@ -221,6 +230,8 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
     <div class="pl-foot">
       <button id="plQueue" class="local-only"><svg viewBox="0 0 24 24"><path d="M3 6h13M3 12h13M3 18h9M18 14v7M21 17.5l-3 3.5-3-3.5"/></svg>Urmează</button>
       <button id="plSleep"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg><span id="sleepLbl">Timer</span></button>
+      <button id="plOut"><svg viewBox="0 0 24 24"><path d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/><path d="M12 15l5 6H7z"/></svg>Ieșire</button>
+      <button id="plEq"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>EQ</button>
       <button id="plGo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="12" r="3.5"/></svg><span id="goLbl">Album</span></button>
     </div>
   </div>
@@ -259,6 +270,9 @@ const I={
   trash:'<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>',
   moon:'<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg>',
   globe:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>',
+  eq:'<svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
+  out:'<svg viewBox="0 0 24 24"><path d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/><path d="M12 15l5 6H7z"/></svg>',
+  hq:'<svg viewBox="0 0 24 24"><path d="M2 12h3l3-8 4 16 3-10 2 2h5"/></svg>',
   disk:'<svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/></svg>'
 };
 
@@ -271,7 +285,14 @@ let shuffle=false,repeat="off";
 let favs=new Set(),plays={},counted=null,resume=null,lastSave=0;
 let radioFavs=[],artCache={},settings={online:true};
 let sleepTimer=0,sleepAt=0,sleepEnd=false;
-const audio=new Audio();audio.preload="auto";audio.setAttribute("playsinline","");
+const elLocal=new Audio(),elRadio=new Audio();
+[elLocal,elRadio].forEach(a=>{a.preload="auto";a.setAttribute("playsinline","");a.setAttribute("x-webkit-airplay","allow")});
+let audio=elLocal;
+const onAudio=(ev,fn)=>[elLocal,elRadio].forEach(a=>a.addEventListener(ev,e=>{if(e.target===audio)fn(e)}));
+function useEl(el){if(audio!==el){try{audio.pause()}catch(e){}audio=el}}
+const EQ_F=[32,64,125,250,500,1000,2000,4000,8000,16000];
+const EQ_P={"Flat":[0,0,0,0,0,0,0,0,0,0],"Bass +":[6,5,4,2,0,0,0,0,0,0],"Treble +":[0,0,0,0,0,0,2,4,5,6],"Vocal":[-2,-2,-1,1,3,4,3,1,0,-1],"Rock":[4,3,1,-1,-2,-1,1,3,4,4],"Jazz":[3,2,1,2,-1,-1,0,1,2,3],"Clasică":[4,3,2,1,-1,-1,0,2,3,4],"Electronic":[5,4,1,0,-2,1,0,1,4,5],"Loudness":[5,3,0,0,-1,0,-1,0,3,5],"Căști mici":[4,3,2,0,-1,0,1,2,3,2]};
+let eq={on:false,preset:"Flat",gains:EQ_P.Flat.slice()},radioMinKbps=0,actx=null,eqNodes=[],preNode=null,curSize=0,curTech=null;
 
 function ls(k,v){try{if(v===undefined){return JSON.parse(localStorage.getItem(k))}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
 
@@ -302,8 +323,9 @@ function mime(n){const e=(n.split(".").pop()||"").toLowerCase();
   return({mp3:"audio/mpeg",m4a:"audio/mp4",m4b:"audio/mp4",mp4:"audio/mp4",alac:"audio/mp4",aac:"audio/aac",flac:"audio/flac",wav:"audio/wav",aif:"audio/aiff",aiff:"audio/aiff",ogg:"audio/ogg",oga:"audio/ogg",opus:"audio/ogg",caf:"audio/x-caf"})[e]||"audio/mpeg"}
 
 async function addFiles(list){
-  const files=[...list].filter(f=>/^audio\//.test(f.type)||AUDIO_RE.test(f.name));
-  if(!files.length)return toast("Niciun fișier audio în selecție");
+  const all=[...list].filter(f=>/^audio\//.test(f.type)||AUDIO_RE.test(f.name));
+  const files=all.filter(f=>elLocal.canPlayType(f.type||mime(f.name))!=="");const bad=all.length-files.length;
+  if(!files.length)return toast(bad?"Formatul acestor fișiere nu poate fi redat pe acest dispozitiv":"Niciun fișier audio în selecție");
   if(!db)return toast("Stocarea locală nu e disponibilă");
   const known=new Set(tracks.map(t=>t.key));let added=0,skipped=0;
   busy={n:0,total:files.length,name:""};render();
@@ -326,7 +348,7 @@ async function addFiles(list){
     }catch(e){toast("Spațiu insuficient sau fișier ilizibil");break}
   }
   busy=null;sortTracks(tracks);render();
-  toast(added+" piese adăugate"+(skipped?" · "+skipped+" existau deja":""));
+  toast(added+" piese adăugate"+(skipped?" · "+skipped+" existau deja":"")+(bad?" · "+bad+" în format nesuportat":""));
 }
 $("#pick").addEventListener("change",e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=""});
 $("#pickDir").addEventListener("change",e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=""});
@@ -387,6 +409,7 @@ async function rb(path){
   throw new Error("offline")}
 function cleanStations(list){const seen=new Set(),out=[];let http=0;
   for(const s of list||[]){const u=s.url_resolved||s.url||"";if(!/^https:/i.test(u)){http++;continue}
+    if(radioMinKbps&&!(s.bitrate>=radioMinKbps))continue;
     const k=(s.name||"").trim().toLowerCase();if(!k||seen.has(k))continue;seen.add(k);
     out.push({id:s.stationuuid,name:s.name.trim(),url:u,favicon:/^https:/i.test(s.favicon||"")?s.favicon:"",tags:(s.tags||"").split(",").filter(Boolean).slice(0,3).join(" · "),cc:s.countrycode||"",bitrate:s.bitrate||0,codec:s.codec||""})}
   return{list:out,http}}
@@ -591,11 +614,17 @@ function trackSheet(t){openSheet(p=>{sHead(p,t,t.title,t.artist+" · "+t.album);
 function libSheet(){openSheet(p=>{
   sItem(p,I.file,"Adaugă fișiere",()=>{closeSheet();$("#pick").click()});
   sItem(p,I.folder,"Adaugă un folder",()=>{closeSheet();$("#pickDir").click()});
+  sItem(p,I.eq,"Egalizator",()=>eqSheet(),eq.on?eq.preset:"Oprit");
+  sItem(p,I.out,"Ieșire audio",()=>{closeSheet();pickOutput()});
   sItem(p,I.moon,"Timer de somn",()=>sleepSheet(),sleepLabel());
   sItem(p,I.gear,"Setări",()=>settingsSheet())})}
 function settingsSheet(){let armed=false;openSheet(p=>{
   sItem(p,I.globe,"Caută coperți online",b=>{settings.online=!settings.online;ls("rola.settings",settings);b.querySelector(".val").textContent=settings.online?"Pornit":"Oprit"},settings.online?"Pornit":"Oprit");
   sItem(p,I.image,"Descarcă coperțile lipsă",()=>{closeSheet();fetchMissingArt()});
+  sItem(p,I.eq,"Egalizator",()=>eqSheet(),eq.on?eq.preset:"Oprit");
+  sItem(p,I.out,"Ieșire audio (AirPlay, Bluetooth)",()=>{closeSheet();pickOutput()});
+  const RQ=[0,128,192,256];
+  sItem(p,I.hq,"Calitate minimă radio",b=>{radioMinKbps=RQ[(RQ.indexOf(radioMinKbps)+1)%RQ.length];ls("rola.radioq",radioMinKbps);b.querySelector(".val").textContent=rqLabel();if(tab==="radio")render()},rqLabel());
   const sp=sItem(p,I.disk,"Spațiu folosit",()=>{},"…");
   if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(e=>{sp.querySelector(".val").textContent=fmtBytes(e.usage||0)}).catch(()=>{});
   sItem(p,I.trash,"Șterge biblioteca",b=>{if(!armed){armed=true;b.querySelector(".grow").textContent="Apasă din nou pentru confirmare";return}closeSheet();wipe()},null,"danger");
@@ -609,7 +638,8 @@ async function wipe(){audio.pause();audio.removeAttribute("src");mode=null;cur=n
   ls("rola.last",null);ls("rola.favs",[]);ls("rola.plays",{});closePlayer();render();toast("Biblioteca a fost ștearsă")}
 
 /* ---------------- playback ---------------- */
-function unlock(){if(unlocked)return;unlocked=true;try{if(!audio.src){audio.src=SILENT;const p=audio.play();if(p)p.catch(()=>{})}}catch(e){}}
+function unlock(){wake();if(unlocked)return;unlocked=true;[elLocal,elRadio].forEach(a=>{try{if(!a.src){a.src=SILENT;const p=a.play();if(p)p.catch(()=>{})}}catch(e){}})}
+function wake(){if(actx&&actx.state!=="running")actx.resume().catch(()=>{})}
 const shuf=l=>{const a=l.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function playList(list,i){mode="local";station=null;baseList=list.slice();
   if(shuffle){const f=list[i];queue=[f].concat(shuf(list.filter(t=>t!==f)));qi=0}else{queue=baseList.slice();qi=i}
@@ -619,11 +649,11 @@ function rebuildQueue(){if(mode!=="local"||!cur)return;const src=baseList.length
 async function loadAndPlay(auto){const t=queue[qi];if(!t)return;mode="local";cur=t;station=null;syncAll();
   let blob=null;try{blob=await getFile(t.id)}catch(e){}
   if(cur!==t)return;if(!blob)return toast("Fișierul lipsește din bibliotecă");
-  if(curURL)URL.revokeObjectURL(curURL);curURL=URL.createObjectURL(blob);audio.src=curURL;loadedId=t.id;counted=null;
+  useEl(elLocal);wake();if(curURL)URL.revokeObjectURL(curURL);curURL=URL.createObjectURL(blob);audio.src=curURL;loadedId=t.id;counted=null;curSize=blob.size;curTech=null;setTech();parseTech(blob,t).then(r=>{if(cur===t){curTech=r;setTech()}});
   if(auto){try{await audio.play()}catch(e){toast("Apasă ▶ pentru redare")}}
   saveLast();updateMedia();syncAll()}
 function playStation(list,i){radioList=list.slice();const s=radioList[i];if(!s)return;mode="radio";station=s;cur=null;loadedId=null;
-  if(curURL){URL.revokeObjectURL(curURL);curURL=null}
+  useEl(elRadio);elLocal.removeAttribute("src");if(curURL){URL.revokeObjectURL(curURL);curURL=null}
   audio.src=s.url;audio.play().catch(()=>toast("Postul nu răspunde"));
   ls("rola.last",{station:s});updateMedia();syncAll()}
 function toggle(){
@@ -647,16 +677,16 @@ function sleepLabel(){if(sleepEnd)return"Final piesă";if(sleepAt)return Math.ma
 function saveModes(){ls("rola.modes",{shuffle,repeat})}
 function saveLast(){if(mode==="local"&&cur)ls("rola.last",{id:cur.id,t:audio.currentTime||0})}
 
-audio.addEventListener("timeupdate",()=>{progress();
+onAudio("timeupdate",()=>{progress();
   if(mode!=="local"||!cur||loadedId!==cur.id)return;const d=audio.duration,c=audio.currentTime;
   if(counted!==cur.id&&d&&c>d*.5){counted=cur.id;plays[cur.id]=(plays[cur.id]||0)+1;ls("rola.plays",plays)}
   const now=Date.now();if(now-lastSave>5000){lastSave=now;saveLast()}});
-audio.addEventListener("loadedmetadata",()=>{if(resume&&cur&&resume.id===cur.id&&resume.t>0){try{audio.currentTime=resume.t}catch(e){}}resume=null;progress()});
-audio.addEventListener("play",syncAll);audio.addEventListener("pause",()=>{syncAll();saveLast()});
-audio.addEventListener("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast("Timer de somn: oprit")}
+onAudio("loadedmetadata",()=>{setTech();if(resume&&cur&&resume.id===cur.id&&resume.t>0){try{audio.currentTime=resume.t}catch(e){}}resume=null;progress()});
+onAudio("play",syncAll);onAudio("pause",()=>{syncAll();saveLast()});
+onAudio("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast("Timer de somn: oprit")}
   if(mode==="radio"){audio.src=station.url;audio.play().catch(()=>{});return}
   if(repeat==="one"){audio.currentTime=0;audio.play().catch(()=>{});return}next(true)});
-audio.addEventListener("error",()=>{if(audio.src&&audio.src!==SILENT&&(mode==="radio"||loadedId))toast(mode==="radio"?"Postul nu poate fi redat":"Formatul nu poate fi redat")});
+onAudio("error",()=>{if(audio.src&&audio.src!==SILENT&&(mode==="radio"||loadedId))toast(mode==="radio"?"Postul nu poate fi redat":"Formatul nu poate fi redat")});
 
 /* lock screen / Control Center */
 async function updateMedia(){if(!("mediaSession" in navigator))return;
@@ -699,6 +729,7 @@ function syncPlayer(){if(!playerOpen())return;const P=$("#player");
   P.classList.toggle("radio",mode==="radio");P.classList.toggle("paused",audio.paused);
   $("#plPlay").innerHTML=audio.paused?I.play:I.pause;
   $("#plShuffle").classList.toggle("on",shuffle);$("#plRepeat").classList.toggle("on",repeat!=="off");$("#repBadge").textContent=repeat==="one"?"1":"";
+  $("#plEq").classList.toggle("on",eq.on);setTech();
   $("#sleepLbl").textContent=sleepAt||sleepEnd?sleepLabel():"Timer";$("#plSleep").classList.toggle("on",!!(sleepAt||sleepEnd));
   if(mode==="radio"&&station){$("#plFav").classList.toggle("on",isRadioFav(station));$("#goLbl").textContent="Posturi"}
   else if(cur){$("#plFav").classList.toggle("on",favs.has(cur.id));$("#goLbl").textContent="Album"}
@@ -720,6 +751,8 @@ $("#plMore").addEventListener("click",()=>{if(mode==="local"&&cur)trackSheet(cur
   sItem(p,I.moon,"Timer de somn",()=>sleepSheet(),sleepLabel())})});
 $("#plQueue").addEventListener("click",()=>{closePlayer();tab="lib";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="lib"));stacks.lib=[{v:"lib"},{v:"queue"}];render()});
 $("#plSleep").addEventListener("click",sleepSheet);
+$("#plOut").addEventListener("click",pickOutput);
+$("#plEq").addEventListener("click",eqSheet);
 $("#plGo").addEventListener("click",()=>{closePlayer();
   if(mode==="radio"){setTab("radio");return}
   if(cur){tab="alb";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="alb"));stacks.alb=[{v:"albums"},{v:"album",id:albumId(cur)}];render()}});
@@ -729,6 +762,59 @@ scrub.addEventListener("change",()=>{const d=audio.duration;if(d)audio.currentTi
 /* swipe down to close */
 (function(){let y0=null;const P=$("#player");P.addEventListener("touchstart",e=>{if(e.target.closest(".scrub"))return;y0=e.touches[0].clientY},{passive:true});
   P.addEventListener("touchend",e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;y0=null;if(dy>90)closePlayer()},{passive:true})})();
+
+/* ---------------- audio quality, output, EQ ---------------- */
+const rqLabel=()=>radioMinKbps?radioMinKbps+" kbps+":"Orice";
+function findBytes(b,s){const c=[...s].map(x=>x.charCodeAt(0));outer:for(let i=0;i<b.length-c.length;i++){for(let k=0;k<c.length;k++)if(b[i+k]!==c[k])continue outer;return i}return -1}
+async function parseTech(blob,t){
+  const ext=((t.key||"").split("|")[0].split(".").pop()||"").toLowerCase();
+  const r={codec:({mp3:"MP3",flac:"FLAC",wav:"WAV",aif:"AIFF",aiff:"AIFF",m4a:"AAC",m4b:"AAC",mp4:"AAC",alac:"ALAC",aac:"AAC",ogg:"OGG",oga:"OGG",opus:"Opus",caf:"CAF"})[ext]||ext.toUpperCase(),sr:0,bits:0,ch:0};
+  try{const b=new Uint8Array(await blob.slice(0,262144).arrayBuffer());const str=(o,n)=>String.fromCharCode.apply(null,b.slice(o,o+n));
+    if(str(0,4)==="fLaC"){r.codec="FLAC";r.sr=(b[18]<<12)|(b[19]<<4)|(b[20]>>4);r.ch=((b[20]>>1)&7)+1;r.bits=(((b[20]&1)<<4)|(b[21]>>4))+1}
+    else if(str(0,4)==="RIFF"&&str(8,4)==="WAVE"){let o=12;while(o<b.length-24){const id=str(o,4),sz=(b[o+4]|(b[o+5]<<8)|(b[o+6]<<16)|(b[o+7]<<24))>>>0;
+      if(id==="fmt "){r.codec="WAV";r.ch=b[o+10]|(b[o+11]<<8);r.sr=(b[o+12]|(b[o+13]<<8)|(b[o+14]<<16)|(b[o+15]<<24))>>>0;r.bits=b[o+22]|(b[o+23]<<8);break}o+=8+sz+(sz&1)}}
+    else if(str(0,3)==="ID3"||(b[0]===0xFF&&(b[1]&0xE0)===0xE0)){r.codec="MP3";let o=0;if(str(0,3)==="ID3")o=10+((b[6]&127)<<21|(b[7]&127)<<14|(b[8]&127)<<7|(b[9]&127));
+      for(;o<b.length-4;o++){if(b[o]===0xFF&&(b[o+1]&0xE0)===0xE0){const ver=(b[o+1]>>3)&3,sri=(b[o+2]>>2)&3,base=[44100,48000,32000][sri];if(base&&ver!==1){r.sr=ver===3?base:ver===2?base/2:base/4;r.ch=(b[o+3]>>6)===3?1:2;break}}}}
+    else{let j=findBytes(b,"alac");if(j>=0)r.codec="ALAC";else{j=findBytes(b,"mp4a");if(j>=0)r.codec="AAC"}
+      if(j>=0&&j+30<b.length){r.ch=(b[j+20]<<8)|b[j+21];const bits=(b[j+22]<<8)|b[j+23];r.sr=(b[j+28]<<8)|b[j+29];if(r.codec==="ALAC")r.bits=bits;
+        if(r.codec==="ALAC"){const k=findBytes(b.subarray(j+8),"alac");if(k>=0){const o=j+8+k+4+4;if(o+24<b.length){r.bits=b[o+5]||r.bits;const sr2=((b[o+20]<<24)|(b[o+21]<<16)|(b[o+22]<<8)|b[o+23])>>>0;if(sr2>7999&&sr2<800000)r.sr=sr2}}}}}
+  }catch(e){}
+  if(!(r.sr>7999&&r.sr<800000))r.sr=0;if(!(r.bits>0&&r.bits<=32))r.bits=0;return r}
+function setTech(){const el=$("#tech");if(!el)return;
+  if(mode==="radio"&&station){el.textContent=[station.codec||"",station.bitrate?station.bitrate+" kbps":""].filter(Boolean).join(" · ");return}
+  if(mode!=="local"||!cur){el.textContent="";return}
+  const t=curTech,d=audio.duration;const kb=d&&curSize?Math.round(curSize*8/d/1000):0;
+  if(!t){el.textContent=kb?kb+" kbps":"";return}
+  const lossless=/FLAC|ALAC|WAV|AIFF/.test(t.codec);const hires=lossless&&(t.bits>16||t.sr>48000);
+  const khz=t.sr?(t.sr/1000).toFixed(1).replace(/\.0$/,"")+" kHz":"";
+  el.textContent=[t.codec,hires?"Hi-Res":lossless?"Lossless":"",t.bits&&khz?t.bits+"-bit/"+khz:khz,kb?kb+" kbps":""].filter(Boolean).join(" · ")}
+function pickOutput(){const a=audio;if(a&&typeof a.webkitShowPlaybackTargetPicker==="function"){try{a.webkitShowPlaybackTargetPicker();return}catch(e){}}
+  toast("Alege ieșirea din Control Center, butonul AirPlay")}
+function ensureGraph(){if(actx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+  try{actx=new AC();const src=actx.createMediaElementSource(elLocal);preNode=actx.createGain();src.connect(preNode);let node=preNode;
+    eqNodes=EQ_F.map((f,i)=>{const b=actx.createBiquadFilter();b.type=i===0?"lowshelf":i===EQ_F.length-1?"highshelf":"peaking";b.frequency.value=f;b.Q.value=1.1;b.gain.value=0;node.connect(b);node=b;return b});
+    node.connect(actx.destination);return true}catch(e){actx=null;return false}}
+function applyEq(){if(!eq.on&&!actx)return;
+  if(eq.on&&!ensureGraph()){eq.on=false;saveEq();return toast("Egalizatorul nu e suportat în acest browser")}
+  eqNodes.forEach((b,i)=>{b.gain.value=eq.on?eq.gains[i]:0});
+  const mx=Math.max(0,...eq.gains);preNode.gain.value=eq.on?Math.pow(10,-mx/20):1;wake()}
+const saveEq=()=>ls("rola.eq",eq);
+const fmtDb=v=>(v>0?"+":"")+(+v).toFixed(1).replace(/\.0$/,"")+" dB";
+function eqSheet(){openSheet(p=>{
+  const hd=h("div","s-head");const x=h("div","txt");x.appendChild(h("div","t1","Egalizator · "+(eq.on?eq.preset:"oprit")));x.appendChild(h("div","t2","Se aplică muzicii tale. Radioul rămâne neprocesat."));hd.appendChild(x);p.appendChild(hd);
+  let wrap;
+  sItem(p,I.eq,"Egalizator",b=>{eq.on=!eq.on;saveEq();applyEq();b.querySelector(".val").textContent=eq.on?"Pornit":"Oprit";wrap.style.opacity=eq.on?1:.45;syncPlayer()},eq.on?"Pornit":"Oprit");
+  wrap=h("div","eqwrap");wrap.style.opacity=eq.on?1:.45;
+  const ch=h("div","chips");Object.keys(EQ_P).forEach(n=>{const c=h("button","chip"+(eq.on&&eq.preset===n?" on":""),n);
+    c.addEventListener("click",()=>{unlock();eq.preset=n;eq.gains=EQ_P[n].slice();eq.on=true;saveEq();applyEq();syncPlayer();eqSheet()});ch.appendChild(c)});wrap.appendChild(ch);
+  EQ_F.forEach((f,i)=>{const r=h("label","eqrow");r.appendChild(h("span","eqf",f>=1000?(f/1000)+"k":String(f)));
+    const sl=h("input","eqs");sl.type="range";sl.min="-12";sl.max="12";sl.step="0.5";sl.value=String(eq.gains[i]);sl.setAttribute("aria-label",f+" Hz");
+    const v=h("span","eqv",fmtDb(eq.gains[i]));
+    sl.addEventListener("input",()=>{unlock();eq.gains[i]=+sl.value;eq.preset="Personalizat";eq.on=true;v.textContent=fmtDb(+sl.value);wrap.style.opacity=1;applyEq()});
+    sl.addEventListener("change",()=>{saveEq();syncPlayer()});r.append(sl,v);wrap.appendChild(r)});
+  p.appendChild(wrap);
+  const n=h("p","note","Dacă pe iPhone-ul tău sunetul se oprește cu ecranul blocat cât timp egalizatorul e pornit, oprește-l; redarea normală nu are această limită.");n.style.padding="0 18px";p.appendChild(n)})}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)wake()});
 
 /* ---------------- misc ---------------- */
 let toastT=0;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2400)}
@@ -744,13 +830,17 @@ function makeIcon(){try{const c=document.createElement("canvas");c.width=c.heigh
   const p=ls("rola.plays");if(p&&typeof p==="object")plays=p;
   const rf=ls("rola.radiofavs");if(Array.isArray(rf))radioFavs=rf;
   const ac=ls("rola.artcache");if(ac&&typeof ac==="object")artCache=ac;
+  const eqs=ls("rola.eq");if(eqs&&Array.isArray(eqs.gains)&&eqs.gains.length===10)eq=eqs;
+  const rq=ls("rola.radioq");if(typeof rq==="number")radioMinKbps=rq;
+  try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+  if(eq.on)applyEq();
   const st=ls("rola.settings");if(st&&typeof st==="object")settings=Object.assign(settings,st);
   makeIcon();render();
   try{db=await idbOpen();const all=await op("meta","readonly",s=>s.getAll());tracks=sortTracks(all||[]);
     if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}
   catch(e){toast("Stocarea locală e blocată în acest browser")}
   const last=ls("rola.last");
-  if(last&&last.station){mode="radio";station=last.station;radioList=radioFavs.length?radioFavs.slice():[station]}
+  if(last&&last.station){useEl(elRadio);mode="radio";station=last.station;radioList=radioFavs.length?radioFavs.slice():[station]}
   else if(last&&last.id){const i=tracks.findIndex(t=>t.id===last.id);if(i>=0){mode="local";baseList=tracks.slice();queue=baseList.slice();qi=i;cur=tracks[i];resume={id:cur.id,t:+last.t||0};updateMedia()}}
   render();
 })();
