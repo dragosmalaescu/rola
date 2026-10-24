@@ -1657,10 +1657,17 @@ function rQRender(force){const box=$("#rQueue");if(!box)return;const items=rQIte
   ro.addEventListener("pointerdown",e=>{drag=true;lx=x0=e.clientX;acc=0;moved=0;t0=Date.now();held=false;unlock();try{ro.setPointerCapture(e.pointerId)}catch(_){}
     clearTimeout(holdT);holdT=setTimeout(()=>{if(drag&&moved<8){held=true;rHold()}},550)});
   ro.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-lx;lx=e.clientX;moved=Math.max(moved,Math.abs(e.clientX-x0));
-    if(moved>=8)clearTimeout(holdT);rx+=dx;ro.style.setProperty("--rx",rx+"px");acc+=dx;
+    if(moved>=8){clearTimeout(holdT);flushTap()}rx+=dx;ro.style.setProperty("--rx",rx+"px");acc+=dx;
     while(acc>=STEP){acc-=STEP;rStep(1)}while(acc<=-STEP){acc+=STEP;rStep(-1)}});
   /* a tap on the roller (no drag) works like OK; holding it works like holding OK */
-  ro.addEventListener("pointerup",()=>{clearTimeout(holdT);const tap=drag&&moved<8&&!held&&Date.now()-t0<550;drag=false;acc=0;if(tap)rActivate()});
+  let flushTap=()=>{};
+  /* two quick taps go back, like MENU */
+  let tapT=0,lastTap=0;flushTap=()=>{if(tapT){clearTimeout(tapT);tapT=0;rActivate()}};
+  ro.addEventListener("pointerup",()=>{clearTimeout(holdT);const tap=drag&&moved<8&&!held&&Date.now()-t0<550;drag=false;acc=0;if(!tap)return;
+    const now=Date.now();
+    if(tapT&&now-lastTap<320){clearTimeout(tapT);tapT=0;lastTap=0;rPop();return}
+    if(rstack.length<2){rActivate();return}
+    lastTap=now;tapT=setTimeout(()=>{tapT=0;rActivate()},300)});
   ro.addEventListener("pointercancel",()=>{clearTimeout(holdT);drag=false;acc=0});
   ro.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();unlock();rActivate()}});
   ro.addEventListener("wheel",e=>{e.preventDefault();const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;rx-=d/2;ro.style.setProperty("--rx",rx+"px");rStep(d>0?1:-1)},{passive:false});

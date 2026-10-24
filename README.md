@@ -49,6 +49,7 @@ In the scroll wheel themes:
 
 - drag the wheel to move through lists;
 - tap it to select, the same as OK;
+- tap it twice quickly to go back, the same as MENU;
 - hold it to open the options for a song;
 - MENU goes back, and holding it takes you to the main menu.
 
