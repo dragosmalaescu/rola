@@ -8,9 +8,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Rola">
+<meta name="theme-color" id="themeColor" content="#F5F4F7">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Onest:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Onest:wght@400;500;600&family=VT323&family=Chakra+Petch:wght@500;700&display=swap">
 <style>
 /* Layout: phone-first app shell. Header, scrolling content, floating mini player, 4-tab bar; full-screen player sheet tinted by the cover. */
 :root{
@@ -171,6 +172,178 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
 .tech{align-self:center;font-size:11px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.85);background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;min-height:20px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tech:empty{visibility:hidden}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 150px);transform:translateX(-50%);z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+/* Retro theme: handheld with LCD, thumb-roller and five keys (Rola's own design) */
+.retro{position:fixed;inset:0;z-index:15;display:flex;justify-content:center;align-items:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:calc(env(safe-area-inset-top,0px) + 12px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px);
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;font-family:"Chakra Petch",system-ui,sans-serif;
+  --lcd:#1a1106;--ink:#ffb347;--dim:#a0702e;--glow:rgba(255,160,60,.35);--hot:#ff8a1f;--hot-ink:#1a1106;
+  --body:#2a2e33;--body-hi:#3b4048;--edge:#0a0b0d;--key:#1c1f23;--key-ink:#c7ccd4;--label:#858c96;--ground:#101215;
+  background:radial-gradient(120% 80% at 50% 0%,#1b1e23,var(--ground));color:var(--key-ink)}
+.retro[data-lcd="green"]{--lcd:#08170b;--ink:#7dff8a;--dim:#3f9a4a;--glow:rgba(110,255,130,.3);--hot:#4fd65e;--hot-ink:#06200b}
+.retro[data-lcd="blue"]{--lcd:#06111d;--ink:#80ccff;--dim:#3d6f99;--glow:rgba(120,200,255,.3);--hot:#3f9cf0;--hot-ink:#04121f}
+.retro[data-lcd="paper"]{--lcd:#c4c9ae;--ink:#1d2316;--dim:#5d664f;--glow:transparent;--hot:#e8742a;--hot-ink:#1d1006;
+  --body:#d6d6d0;--body-hi:#ededE7;--edge:#8f9095;--key:#c8c8c1;--key-ink:#2a2c2f;--label:#6c6f73;--ground:#cfcdc6;
+  background:radial-gradient(120% 80% at 50% 0%,#ecebe6,var(--ground))}
+.retro .device{width:100%;max-width:400px;height:100%;max-height:800px;display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:30px;
+  background:linear-gradient(160deg,var(--body-hi),var(--body) 40%);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -2px 0 rgba(0,0,0,.3),0 24px 48px rgba(0,0,0,.45)}
+.retro .brand{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--label);padding:0 4px}
+.retro .brand b{color:var(--hot);letter-spacing:.28em}
+.retro .screen{flex:1 1 auto;min-height:0;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--lcd);border:3px solid var(--edge);border-radius:12px;
+  box-shadow:inset 0 0 28px rgba(0,0,0,.55);font-family:"VT323",ui-monospace,Menlo,monospace;color:var(--ink);text-shadow:0 0 6px var(--glow)}
+.retro .screen::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0 2px,rgba(0,0,0,.14) 2px 3px)}
+.rbar{display:flex;justify-content:space-between;gap:10px;padding:4px 10px 3px;font-size:21px;border-bottom:1px solid var(--dim);flex:none}
+.rbar #rTitle{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;text-transform:uppercase;letter-spacing:.04em}
+.rview{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.rrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:1px 10px;font-size:27px;line-height:1.18;white-space:nowrap;cursor:pointer}
+.rrow .l{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rrow .r{color:var(--dim);flex:none;font-size:22px}
+.rrow.sel{background:var(--ink);color:var(--lcd);text-shadow:none}.rrow.sel .r{color:var(--lcd)}
+.rnote{padding:8px 12px;font-size:21px;line-height:1.2;color:var(--dim)}
+.rletter{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:96px;height:96px;display:grid;place-items:center;font-size:84px;line-height:1;background:var(--ink);color:var(--lcd);text-shadow:none;border:3px solid var(--edge);z-index:2}
+.rtoast{position:absolute;left:8px;right:8px;bottom:8px;z-index:3;padding:3px 8px;font-size:21px;line-height:1.15;text-align:center;background:var(--ink);color:var(--lcd);text-shadow:none}
+.rnp{display:flex;flex-direction:column;gap:7px;padding:10px 12px 12px;height:100%}
+.rnp-top{display:flex;gap:12px;align-items:center;flex:1 1 auto;min-height:0}
+.rart{width:44%;max-width:170px;aspect-ratio:1;max-height:100%;flex:none;display:grid;place-items:center;overflow:hidden;border:2px solid var(--dim);font-size:56px;color:var(--dim)}
+.rart img{width:100%;height:100%;object-fit:cover;filter:grayscale(.3) sepia(.25) contrast(1.05)}
+.retro[data-lcd="paper"] .rart img{filter:grayscale(1) contrast(1.2)}
+.rmeta{min-width:0;display:flex;flex-direction:column;gap:4px;font-size:23px;line-height:1.08}
+.rmeta .t{font-size:29px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rmeta .a,.rmeta .d{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rmeta .d{color:var(--dim)}
+.rst{display:flex;justify-content:space-between;gap:8px;font-size:20px;color:var(--dim)}
+.rprog{height:12px;border:2px solid var(--ink);position:relative;cursor:pointer}.rprog i{position:absolute;inset:0 auto 0 0;width:0;background:var(--ink)}
+.rtimes{display:flex;justify-content:space-between;font-size:22px;font-variant-numeric:tabular-nums}
+.rtech{font-size:19px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:20px}
+.retro .rollwrap{display:flex;flex-direction:column;gap:6px;flex:none}
+.retro .roller{--rx:0px;height:58px;border-radius:14px;border:2px solid var(--edge);touch-action:none;cursor:grab;
+  background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(255,255,255,.08) 46%,rgba(0,0,0,.6)),repeating-linear-gradient(90deg,var(--body-hi) 0 4px,var(--edge) 4px 8px);
+  background-position:0 0,var(--rx) 0;box-shadow:inset 0 2px 6px rgba(0,0,0,.5)}
+.retro .roll-label{display:flex;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--label);padding:0 4px}
+.retro .keys{display:grid;grid-template-columns:1.1fr 1fr 1.2fr 1fr 1.1fr;gap:8px;flex:none}
+.retro .key{height:60px;border-radius:14px;border:1px solid var(--edge);display:grid;place-items:center;background:linear-gradient(180deg,var(--body-hi),var(--key));color:var(--key-ink);
+  font:700 12px/1 "Chakra Petch",system-ui,sans-serif;letter-spacing:.12em;box-shadow:0 3px 0 var(--edge),inset 0 1px 0 rgba(255,255,255,.08);cursor:pointer}
+.retro .key:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.retro .key svg{width:22px;height:22px;fill:currentColor}
+.retro .key.ok{background:var(--hot);color:var(--hot-ink)}
+@media (max-height:640px){.retro .key{height:50px}.retro .roller{height:48px}.retro .device{gap:10px;padding:12px}}
+/* Velour skin: warm peach card, round glowing cover, soft roller (same controls as Retro) */
+.ricons{display:none}
+.retro[data-skin="velour"]{--v-bg1:#ffd9ba;--v-bg2:#ff9f93;--v-card:#fff6ea;--v-ink:#4d3b3e;--v-muted:#9a8386;--v-acc:#e0766d;--v-on-acc:#ffffff;--v-soft:#fbe7d8;--v-line:#f0dbcb;--v-glow:rgba(255,180,140,.32);--v-shadow:rgba(170,70,60,.28);
+  background:linear-gradient(165deg,var(--v-bg1),var(--v-bg2));font-family:var(--f-body);color:var(--v-ink)}
+.retro[data-skin="velour"][data-tone="night"]{--v-bg1:#3b2334;--v-bg2:#18121b;--v-card:#241a25;--v-ink:#f6e8e2;--v-muted:#b29ca2;--v-acc:#f28c80;--v-on-acc:#2a1215;--v-soft:#33263a;--v-line:#3e2f42;--v-glow:rgba(242,140,128,.18);--v-shadow:rgba(0,0,0,.55)}
+.retro[data-skin="velour"] .device{background:var(--v-card);border-radius:28px;box-shadow:0 30px 60px var(--v-shadow);gap:12px}
+.retro[data-skin="velour"] .brand{color:var(--v-muted);letter-spacing:.14em;font-family:var(--f-body);font-weight:600}
+.retro[data-skin="velour"] .screen{background:transparent;border:0;box-shadow:none;border-radius:18px;font-family:var(--f-body);color:var(--v-ink);text-shadow:none}
+.retro[data-skin="velour"] .screen::after{display:none}
+.retro[data-skin="velour"] .rbar{border-bottom:1px solid var(--v-line);font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--v-muted);padding:2px 8px 10px}
+.retro[data-skin="velour"] .rview{padding-top:6px}
+.retro[data-skin="velour"] .rrow{font-size:18px;font-weight:500;line-height:1.3;padding:10px 12px;border-radius:14px;margin:1px 0}
+.retro[data-skin="velour"] .rrow .r{font-size:14px;color:var(--v-muted)}
+.retro[data-skin="velour"] .rrow.sel{background:var(--v-soft);color:var(--v-acc)}
+.retro[data-skin="velour"] .rrow.sel .r{color:var(--v-acc)}
+.retro[data-skin="velour"] .rletter{border-radius:50%;background:var(--v-acc);color:var(--v-on-acc);border:0;font-family:var(--f-display);font-size:44px;width:84px;height:84px;box-shadow:0 10px 30px var(--v-shadow)}
+.retro[data-skin="velour"] .rtoast{border-radius:999px;background:var(--v-acc);color:var(--v-on-acc);font-size:14px;font-weight:600;padding:8px 14px;bottom:10px}
+.retro[data-skin="velour"] .rnp{gap:10px;padding:14px 6px 6px}
+.retro[data-skin="velour"] .rnp-top{flex-direction:column;justify-content:center;gap:16px;text-align:center}
+.retro[data-skin="velour"] .rart{width:min(60%,32vh,220px);max-width:none;border-radius:50%;border:0;font-size:48px;color:var(--v-acc);background:var(--v-soft);box-shadow:0 0 0 8px var(--v-glow),0 16px 36px var(--v-shadow)}
+.retro[data-skin="velour"] .rart img{filter:none}
+.retro[data-skin="velour"] .rmeta{align-items:center;gap:3px;width:100%;color:var(--v-muted);font-size:13px}
+.retro[data-skin="velour"] .rmeta .t{font-family:var(--f-display);font-size:24px;font-weight:700;color:var(--v-ink);-webkit-line-clamp:2;line-height:1.15}
+.retro[data-skin="velour"] .rmeta .a{font-size:14px;max-width:100%}
+.retro[data-skin="velour"] .rmeta .d{font-size:12px;max-width:100%;color:var(--v-muted);opacity:.8}
+.retro[data-skin="velour"] .ricons{display:flex;justify-content:space-between;padding:0 16%}
+.ric{width:44px;height:44px;border:0;background:none;color:var(--v-muted);display:grid;place-items:center;border-radius:50%;cursor:pointer;position:relative}
+.ric svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ric.on{color:var(--v-acc)}
+#rFav.on svg{fill:currentColor}
+.ric[data-one="1"]::after{content:"1";position:absolute;right:7px;bottom:7px;font-size:9px;font-weight:700}
+.retro[data-skin="velour"] .rst{font-size:12px;color:var(--v-muted);letter-spacing:.06em}
+.retro[data-skin="velour"] .rprog{height:4px;border:0;border-radius:2px;background:var(--v-line)}
+.retro[data-skin="velour"] .rprog i{background:var(--v-acc);border-radius:2px}
+.retro[data-skin="velour"] .rtimes{font-size:12px;color:var(--v-muted);margin-top:-4px}
+.retro[data-skin="velour"] .rtech{font-size:11px;color:var(--v-muted);text-align:center;letter-spacing:.04em;min-height:14px}
+.retro[data-skin="velour"] .roller{height:52px;border:0;border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.05) 50%,rgba(255,255,255,.2)),repeating-linear-gradient(90deg,var(--v-line) 0 3px,var(--v-soft) 3px 8px);
+  background-position:0 0,var(--rx) 0;box-shadow:inset 0 2px 8px var(--v-shadow)}
+.retro[data-skin="velour"] .roll-label{color:var(--v-muted);letter-spacing:.14em;font-family:var(--f-body)}
+.retro[data-skin="velour"] .key{height:54px;border:0;border-radius:18px;background:var(--v-soft);color:var(--v-ink);box-shadow:none;font-family:var(--f-body);font-weight:600;letter-spacing:.08em}
+.retro[data-skin="velour"] .key:active{transform:scale(.96);box-shadow:none}
+.retro[data-skin="velour"] .key.ok{background:var(--v-acc);color:var(--v-on-acc);box-shadow:0 8px 18px var(--v-shadow)}
+/* Full-screen device: the handheld fills the whole phone screen, no outer backdrop */
+.retro{padding:0!important;background:var(--body)!important}
+.retro .device{max-width:none;max-height:none;width:100%;height:100%;border-radius:0;box-shadow:none;
+  padding-top:calc(env(safe-area-inset-top,0px) + 12px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:linear-gradient(170deg,var(--body-hi),var(--body) 45%)}
+.retro[data-skin="velour"]{background:var(--v-card)!important}
+.retro[data-skin="velour"] .device{background:var(--v-card);box-shadow:none;border-radius:0}
+@media (max-height:640px){.retro .device{padding-top:calc(env(safe-area-inset-top,0px) + 8px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}}
+.vcar{height:100%;display:flex;flex-direction:column;justify-content:center;gap:6px;overflow:hidden;--s:min(48vw,32vh,240px)}
+.vtrack{position:relative;height:calc(var(--s) * 1.32 + 24px);touch-action:none;cursor:grab;perspective:900px;perspective-origin:50% 40%;transform-style:preserve-3d}
+.vtile{position:absolute;left:50%;top:12px;width:var(--s);height:var(--s);margin-left:calc(var(--s) / -2);
+  transform:translateX(calc(var(--x) * var(--s))) translateZ(var(--z)) rotateY(var(--ry));transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.vinyl{position:absolute;inset:4%;border-radius:50%;
+  background:radial-gradient(circle,var(--v-acc) 0 12%,#141012 12.5% 14%,transparent 14.5%),repeating-radial-gradient(circle,#1a1517 0 1.6px,#28211f 1.6px 3.2px);
+  box-shadow:0 8px 20px rgba(0,0,0,.28);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.vinyl{opacity:0}
+.vtile.sel .vinyl{opacity:1;transform:translateX(22%) rotate(40deg)}
+.sleeve{position:absolute;inset:0;border-radius:6px;overflow:hidden;background:var(--v-soft);display:grid;place-items:center;color:var(--v-acc);
+  box-shadow:0 14px 30px var(--v-shadow);transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  -webkit-box-reflect:below 6px linear-gradient(transparent 62%,rgba(255,255,255,.28))}
+.vtile.sel .sleeve{transform:translateX(-8%)}
+.sleeve img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;user-select:none;pointer-events:none}
+.retro img{-webkit-touch-callout:none;-webkit-user-drag:none}
+.sleeve svg{width:34%;height:34%;fill:none;stroke:currentColor;stroke-width:1.5}
+.vcap{text-align:center;padding:0 16px;min-height:72px}
+.vcap .t{font-family:var(--f-display);font-size:21px;font-weight:700;color:var(--v-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vcap .a{font-size:14px;color:var(--v-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vcap .n{font-size:12px;color:var(--v-muted);margin-top:8px;letter-spacing:.1em;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){.vtile,.vinyl,.sleeve{transition:none}}
+/* Velour text palette: crisp black/grey type with a glossy blue selection bar (classic portable-player menu colors) */
+.retro[data-skin="velour"]{--v-ink:#141414;--v-muted:#77777c;--v-tsel:linear-gradient(180deg,#7db4f0 0%,#3d82dc 48%,#2a6cc9 52%,#3a7fd8 100%);--v-tsel-ink:#ffffff;--v-tsel-sub:rgba(255,255,255,.85)}
+.retro[data-skin="velour"][data-tone="night"]{--v-ink:#f4f4f5;--v-muted:#a2a2a8}
+.retro[data-skin="velour"] .rrow.sel{background:var(--v-tsel);color:var(--v-tsel-ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px rgba(42,108,201,.25)}
+.retro[data-skin="velour"] .rrow.sel .r{color:var(--v-tsel-sub)}
+.retro[data-skin="velour"] .rbar{color:var(--v-ink)}
+/* Now Playing (all handheld themes): track counter on top, cover left with three text lines, full-width bar, elapsed / remaining */
+.rnp{justify-content:flex-start}
+.rcount{font-size:22px;line-height:1.1}
+.rnp-top{flex:none;align-items:flex-start}
+.rart{width:42%;max-height:none}
+.rmeta{padding-top:2px}
+.rst{justify-content:flex-start}
+.retro[data-skin="velour"] .rnp{gap:12px;padding:10px 4px 6px}
+.retro[data-skin="velour"] .rcount{font-family:var(--f-body);font-size:15px;font-weight:600;color:var(--v-ink)}
+.retro[data-skin="velour"] .rnp-top{flex-direction:row;justify-content:flex-start;align-items:center;gap:16px;text-align:left}
+.retro[data-skin="velour"] .rart{width:44%;max-width:200px;border-radius:6px;box-shadow:0 10px 24px var(--v-shadow);font-size:40px}
+.retro[data-skin="velour"] .rmeta{align-items:flex-start;gap:6px;min-width:0}
+.retro[data-skin="velour"] .rmeta .t{font-size:21px;-webkit-line-clamp:3}
+.retro[data-skin="velour"] .rmeta .a{font-size:17px;font-weight:600;color:var(--v-ink)}
+.retro[data-skin="velour"] .rmeta .d{font-size:17px;font-weight:600;color:var(--v-ink);opacity:1}
+.retro[data-skin="velour"] .rprog{height:12px;border-radius:2px;background:linear-gradient(180deg,#e3e3e6,#f6f6f7);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.retro[data-skin="velour"][data-tone="night"] .rprog{background:linear-gradient(180deg,#3a3a40,#4a4a52)}
+.retro[data-skin="velour"] .rprog i{border-radius:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 2px,transparent 2px 4px),linear-gradient(180deg,#8cbcf0,#3d7fd0 55%,#2f6cbf)}
+.retro[data-skin="velour"] .rtimes{font-size:15px;font-weight:600;color:var(--v-ink);margin-top:-6px}
+.retro[data-skin="velour"] .ricons{padding:4px 14% 0}
+.retro[data-skin="velour"] .rst{font-size:12px}
+/* Velour selection: flat glossy blue bar, squared like a classic player menu */
+.retro[data-skin="velour"]{--v-tsel:linear-gradient(180deg,#5d9be0 0%,#3b7cc9 100%)}
+.retro[data-skin="velour"] .rrow{border-radius:3px}
+.retro[data-skin="velour"] .rrow.sel{box-shadow:none}
+/* Velour progress: glossy blue bar with moving diagonal stripes while music plays */
+.retro[data-skin="velour"] .rprog i{background:
+    repeating-linear-gradient(-45deg,rgba(255,255,255,.32) 0 5px,rgba(255,255,255,0) 5px 10px),
+    linear-gradient(180deg,#a5d0f7 0%,#5b98de 48%,#3473c4 52%,#4687d6 100%);
+  background-size:14.14px 14.14px,100% 100%;animation:vstripe .7s linear infinite;transition:width .25s linear}
+.retro.paused[data-skin="velour"] .rprog i{animation-play-state:paused}
+@keyframes vstripe{to{background-position:14.14px 0,0 0}}
+@media (prefers-reduced-motion:reduce){.retro[data-skin="velour"] .rprog i{animation:none}}
+/* Repeat / favorite / shuffle row on every handheld theme */
+.retro .ricons{display:flex;justify-content:space-between;padding:2px 14% 0}
+.retro:not([data-skin="velour"]) .ric{color:var(--dim)}
+.retro:not([data-skin="velour"]) .ric.on{color:var(--ink);filter:drop-shadow(0 0 4px var(--glow))}
+.retro:not([data-skin="velour"]) .ric svg{stroke-width:2.2}
+.retro:not([data-skin="velour"]) .ric[data-one="1"]::after{font-family:"VT323",ui-monospace,monospace;font-size:14px}
 .sr{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -183,7 +356,7 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
   <header class="top gut">
     <button class="icon-btn" id="back" hidden aria-label="Înapoi"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
     <h1 id="title">Bibliotecă</h1>
-    <button class="icon-btn" id="action" aria-label="Meniu"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="icon-btn" id="action" aria-label="Setări"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
   </header>
   <main id="main" class="gut"></main>
   <div class="mini" id="mini" hidden role="button" tabindex="0" aria-label="Deschide player-ul">
@@ -221,7 +394,7 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
     <div class="radio-only" style="justify-content:center"><span class="live">LIVE</span></div>
     <div class="tech" id="tech"></div>
     <div class="ctrls">
-      <button class="cb sm local-only" id="plShuffle" aria-label="Amestecare"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+      <button class="cb sm local-only" id="plShuffle" aria-label="Shuffle"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
       <button class="cb" id="plPrev" aria-label="Anterioara"><svg viewBox="0 0 24 24"><path d="M18 6l-9 6 9 6zM5.5 6H8v12H5.5z"/></svg></button>
       <button class="cb big" id="plPlay" aria-label="Redă sau pauză"></button>
       <button class="cb" id="plNext" aria-label="Următoarea"><svg viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM16 6h2.5v12H16z"/></svg></button>
@@ -237,17 +410,51 @@ main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch
   </div>
 </section>
 
+<div class="retro" id="retro" data-lcd="amber" hidden>
+  <div class="device">
+    <div class="brand"><span></span><span id="rCount"></span></div>
+    <div class="screen" aria-live="polite">
+      <div class="rbar"><span id="rTitle">Meniu</span><span id="rState">■</span></div>
+      <div class="rview" id="rView"></div>
+      <div class="rletter" id="rLetter" hidden></div>
+      <div class="rtoast" id="rToast" hidden></div>
+    </div>
+    <div class="rollwrap">
+      <div class="roller" id="rRoller" tabindex="0" role="slider" aria-label="Navigare: trage stânga sau dreapta"></div>
+      <div class="roll-label"><span>◀ sus</span><span id="rHint">listă</span><span>jos ▶</span></div>
+    </div>
+    <div class="keys">
+      <button class="key" id="rkMenu" aria-label="Înapoi">MENIU</button>
+      <button class="key" id="rkPrev" aria-label="Anterioara"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button class="key" id="rkPlay" aria-label="Redă sau pauză"><svg viewBox="0 0 24 24"><path d="M3 5v14l9-7zM14 5h3v14h-3zM19 5h3v14h-3z"/></svg></button>
+      <button class="key" id="rkNext" aria-label="Următoarea"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <button class="key ok" id="rkOk" aria-label="Alege">OK</button>
+    </div>
+  </div>
+</div>
 <div class="sheet" id="sheet" hidden><div class="sheet-p" id="sheetP" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" hidden></div>
 <input type="file" id="pick" class="sr" multiple accept="audio/*,.mp3,.m4a,.aac,.flac,.wav,.aif,.aiff,.ogg,.opus,.alac">
 <input type="file" id="pickDir" class="sr" multiple webkitdirectory>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
 <script>
 (function(){
 "use strict";
+const LANGS={ro:"Română",en:"English",de:"Deutsch",fr:"Français",es:"Español",it:"Italiano"};
+const LIDX={en:0,de:1,fr:2,es:3,it:4};
+let lang="ro";try{const v=JSON.parse(localStorage.getItem("rola.lang"));if(LANGS[v])lang=v}catch(e){}
+const DICT={"Velour · piersică":["Velour · peach","Velour · Pfirsich","Velour · pêche","Velour · melocotón","Velour · pesca"],"Velour · noapte":["Velour · night","Velour · Nacht","Velour · nuit","Velour · noche","Velour · notte"],"Repetă":["Repeat","Wiederholen","Répéter","Repetir","Ripeti"],"Tot":["All","Alle","Tout","Todo","Tutto"],"Piesa":["Track","Titel","Titre","Canción","Brano"],"Shuffle melodii":["Shuffle songs","Titel zufällig","Titres aléatoires","Canciones aleatorias","Brani casuali"],"Formatul acestor fișiere nu poate fi redat pe acest dispozitiv": ["These files are in a format this device can't play", "Dieses Dateiformat kann auf diesem Gerät nicht abgespielt werden", "Ce format de fichier ne peut pas être lu sur cet appareil", "Este formato de archivo no se puede reproducir en este dispositivo", "Questo formato di file non può essere riprodotto su questo dispositivo"], "Niciun fișier audio în selecție": ["No audio files in the selection", "Keine Audiodateien in der Auswahl", "Aucun fichier audio dans la sélection", "No hay archivos de audio en la selección", "Nessun file audio nella selezione"], "Stocarea locală nu e disponibilă": ["Local storage isn't available", "Lokaler Speicher ist nicht verfügbar", "Le stockage local n'est pas disponible", "El almacenamiento local no está disponible", "L'archiviazione locale non è disponibile"], "Spațiu insuficient sau fișier ilizibil": ["Not enough space or unreadable file", "Nicht genug Speicher oder Datei unlesbar", "Espace insuffisant ou fichier illisible", "Espacio insuficiente o archivo ilegible", "Spazio insufficiente o file illeggibile"], " piese adăugate": [" tracks added", " Titel hinzugefügt", " titres ajoutés", " canciones añadidas", " brani aggiunti"], " existau deja": [" already existed", " waren schon da", " existaient déjà", " ya existían", " esistevano già"], " în format nesuportat": [" in an unsupported format", " in nicht unterstütztem Format", " dans un format non pris en charge", " en formato no compatible", " in formato non supportato"], "Activează mai întâi căutarea online": ["Turn on online search first", "Aktiviere zuerst die Online-Suche", "Active d'abord la recherche en ligne", "Activa primero la búsqueda en línea", "Attiva prima la ricerca online"], "Toate albumele au coperți": ["All albums have covers", "Alle Alben haben Cover", "Tous les albums ont une pochette", "Todos los álbumes tienen portada", "Tutti gli album hanno la copertina"], "Caut ": ["Searching for ", "Suche ", "Recherche de ", "Buscando ", "Cerco "], " coperți…": [" covers…", " Cover…", " pochettes…", " portadas…", " copertine…"], "Găsite: ": ["Found: ", "Gefunden: ", "Trouvées : ", "Encontradas: ", "Trovate: "], " din ": [" of ", " von ", " sur ", " de ", " di "], "Favorite": ["Favorites", "Favoriten", "Favoris", "Favoritos", "Preferiti"], "România": ["Romania", "Rumänien", "Roumanie", "Rumanía", "Romania"], "Top mondial": ["Top worldwide", "Weltweit top", "Top mondial", "Top mundial", "Top mondiale"], "Știri": ["News", "Nachrichten", "Infos", "Noticias", "Notizie"], "Clasică": ["Classical", "Klassik", "Classique", "Clásica", "Classica"], "Căști mici": ["Small headphones", "Kleine Kopfhörer", "Petits écouteurs", "Auriculares pequeños", "Auricolari piccoli"], "Personalizat": ["Custom", "Benutzerdefiniert", "Personnalisé", "Personalizado", "Personalizzato"], "Scos din Favorite": ["Removed from Favorites", "Aus Favoriten entfernt", "Retiré des favoris", "Quitado de favoritos", "Rimosso dai preferiti"], "Adăugat la Favorite": ["Added to Favorites", "Zu Favoriten hinzugefügt", "Ajouté aux favoris", "Añadido a favoritos", "Aggiunto ai preferiti"], "Scoasă din Favorite": ["Removed from Favorites", "Aus Favoriten entfernt", "Retiré des favoris", "Quitado de favoritos", "Rimosso dai preferiti"], "Adăugată la Favorite": ["Added to Favorites", "Zu Favoriten hinzugefügt", "Ajouté aux favoris", "Añadido a favoritos", "Aggiunto ai preferiti"], "Opțiuni pentru ": ["Options for ", "Optionen für ", "Options pour ", "Opciones para ", "Opzioni per "], "Adaugă fișiere": ["Add files", "Dateien hinzufügen", "Ajouter des fichiers", "Añadir archivos", "Aggiungi file"], "Ascultă radio": ["Listen to radio", "Radio hören", "Écouter la radio", "Escuchar radio", "Ascolta la radio"], "Bibliotecă": ["Library", "Mediathek", "Bibliothèque", "Biblioteca", "Libreria"], "Redă tot": ["Play all", "Alle abspielen", "Tout lire", "Reproducir todo", "Riproduci tutto"], "Shuffle": ["Shuffle", "Zufall", "Aléatoire", "Aleatorio", "Casuale"], "Shuffle artist": ["Shuffle artist", "Künstler zufällig", "Artiste aléatoire", "Artista aleatorio", "Artista casuale"], "Shuffle pornit": ["Shuffle on", "Zufall an", "Aléatoire activé", "Aleatorio activado", "Casuale attivo"], "Shuffle oprit": ["Shuffle off", "Zufall aus", "Aléatoire désactivé", "Aleatorio desactivado", "Casuale disattivo"], "SHUFFLE": ["SHUFFLE", "ZUFALL", "ALÉATOIRE", "ALEATORIO", "CASUALE"], "Colecție": ["Collection", "Sammlung", "Collection", "Colección", "Collezione"], "Playlisturi": ["Playlists", "Playlists", "Playlists", "Listas", "Playlist"], "Artiști": ["Artists", "Künstler", "Artistes", "Artistas", "Artisti"], "Albume": ["Albums", "Alben", "Albums", "Álbumes", "Album"], "Melodii": ["Songs", "Titel", "Titres", "Canciones", "Brani"], "Genuri": ["Genres", "Genres", "Genres", "Géneros", "Generi"], "Adăugate recent": ["Recently added", "Kürzlich hinzugefügt", "Ajoutés récemment", "Añadidas recientemente", "Aggiunti di recente"], "Ascultate des": ["Played often", "Oft gehört", "Souvent écoutés", "Escuchadas a menudo", "Ascoltati spesso"], "Albumul nu mai există.": ["This album no longer exists.", "Dieses Album existiert nicht mehr.", "Cet album n'existe plus.", "Este álbum ya no existe.", "Questo album non esiste più."], " piesă": [" track", " Titel", " titre", " canción", " brano"], " piese": [" tracks", " Titel", " titres", " canciones", " brani"], "Redă": ["Play", "Abspielen", "Lire", "Reproducir", "Riproduci"], "Toate piesele": ["All tracks", "Alle Titel", "Tous les titres", "Todas las canciones", "Tutti i brani"], "Apasă ⋯ pe o piesă și alege Adaugă la Favorite.": ["Tap ⋯ on a track and choose Add to Favorites.", "Tippe bei einem Titel auf ⋯ und wähle Zu Favoriten hinzufügen.", "Touche ⋯ sur un titre et choisis Ajouter aux favoris.", "Toca ⋯ en una canción y elige Añadir a favoritos.", "Tocca ⋯ su un brano e scegli Aggiungi ai preferiti."], "Încă nimic aici.": ["Nothing here yet.", "Noch nichts hier.", "Rien ici pour l'instant.", "Aún no hay nada.", "Ancora niente qui."], "Urmează la redare": ["Up next", "Als Nächstes", "À suivre", "A continuación", "In coda"], "Cele mai ascultate": ["Most played", "Meistgehört", "Les plus écoutés", "Más escuchadas", "Più ascoltati"], "Nimic în redare.": ["Nothing playing.", "Es läuft nichts.", "Rien en lecture.", "No se reproduce nada.", "Niente in riproduzione."], "Nimic în redare": ["Nothing playing", "Es läuft nichts", "Rien en lecture", "No se reproduce nada", "Niente in riproduzione"], "Urmează": ["Up next", "Als Nächstes", "À suivre", "A continuación", "In coda"], "Acum": ["Now", "Jetzt", "Maintenant", "Ahora", "Ora"], "Coada e goală.": ["The queue is empty.", "Die Warteschlange ist leer.", "La file est vide.", "La cola está vacía.", "La coda è vuota."], "Caută un post (nume, oraș, stil)": ["Search a station (name, city, style)", "Sender suchen (Name, Stadt, Stil)", "Chercher une station (nom, ville, style)", "Buscar emisora (nombre, ciudad, estilo)", "Cerca una stazione (nome, città, stile)"], "Apasă inima de lângă un post ca să-l salvezi aici.": ["Tap the heart next to a station to save it here.", "Tippe auf das Herz neben einem Sender, um ihn hier zu speichern.", "Touche le cœur à côté d'une station pour l'enregistrer ici.", "Toca el corazón junto a una emisora para guardarla aquí.", "Tocca il cuore accanto a una stazione per salvarla qui."], "Piese, artiști, albume, radio": ["Tracks, artists, albums, radio", "Titel, Künstler, Alben, Radio", "Titres, artistes, albums, radio", "Canciones, artistas, álbumes, radio", "Brani, artisti, album, radio"], "Caută în biblioteca ta și în posturile de radio online.": ["Search your library and online radio stations.", "Durchsuche deine Mediathek und Online-Radiosender.", "Cherche dans ta bibliothèque et les radios en ligne.", "Busca en tu biblioteca y en emisoras online.", "Cerca nella tua libreria e nelle radio online."], "Caută": ["Search", "Suche", "Recherche", "Buscar", "Cerca"], "Favorit": ["Favorite", "Favorit", "Favori", "Favorito", "Preferito"], "♥ Favorit": ["♥ Favorite", "♥ Favorit", "♥ Favori", "♥ Favorito", "♥ Preferito"], " posturi fără conexiune securizată (http) au fost ascunse; Safari nu le poate reda aici.": [" stations without a secure connection (http) were hidden; Safari can't play them here.", " Sender ohne sichere Verbindung (http) wurden ausgeblendet; Safari kann sie hier nicht abspielen.", " stations sans connexion sécurisée (http) ont été masquées ; Safari ne peut pas les lire ici.", " emisoras sin conexión segura (http) se ocultaron; Safari no puede reproducirlas aquí.", " stazioni senza connessione sicura (http) sono state nascoste; Safari non può riprodurle qui."], "Niciun post găsit.": ["No stations found.", "Keine Sender gefunden.", "Aucune station trouvée.", "No se encontraron emisoras.", "Nessuna stazione trovata."], "Nu pot accesa directorul de radio. Verifică internetul. Dacă ai deschis player-ul din Claude, deschide versiunea găzduită.": ["Can't reach the radio directory. Check your internet connection. If you opened the player inside Claude, open the hosted version.", "Das Radioverzeichnis ist nicht erreichbar. Prüfe die Internetverbindung. Wenn du den Player in Claude geöffnet hast, öffne die gehostete Version.", "Impossible d'accéder à l'annuaire radio. Vérifie ta connexion. Si tu as ouvert le lecteur dans Claude, ouvre la version hébergée.", "No se puede acceder al directorio de radio. Revisa tu conexión. Si abriste el reproductor en Claude, abre la versión alojada.", "Impossibile raggiungere l'elenco radio. Controlla la connessione. Se hai aperto il player in Claude, apri la versione ospitata."], "Piese": ["Tracks", "Titel", "Titres", "Canciones", "Brani"], "Scrie cel puțin 2 litere.": ["Type at least 2 letters.", "Gib mindestens 2 Buchstaben ein.", "Tape au moins 2 lettres.", "Escribe al menos 2 letras.", "Scrivi almeno 2 lettere."], "Niciun post.": ["No stations.", "Keine Sender.", "Aucune station.", "Ninguna emisora.", "Nessuna stazione."], "Niciun post": ["No stations", "Keine Sender", "Aucune station", "Ninguna emisora", "Nessuna stazione"], "Radio indisponibil fără internet.": ["Radio isn't available offline.", "Radio ist offline nicht verfügbar.", "La radio n'est pas disponible hors ligne.", "La radio no está disponible sin conexión.", "La radio non è disponibile offline."], "Scoate din Favorite": ["Remove from Favorites", "Aus Favoriten entfernen", "Retirer des favoris", "Quitar de favoritos", "Rimuovi dai preferiti"], "Adaugă la Favorite": ["Add to Favorites", "Zu Favoriten hinzufügen", "Ajouter aux favoris", "Añadir a favoritos", "Aggiungi ai preferiti"], "Redă următoarea": ["Play next", "Als Nächstes spielen", "Lire ensuite", "Reproducir a continuación", "Riproduci dopo"], "Pune la finalul cozii": ["Add to end of queue", "Ans Ende der Warteschlange", "Ajouter en fin de file", "Añadir al final de la cola", "Aggiungi in fondo alla coda"], "Pune în coadă": ["Add to queue", "Zur Warteschlange", "Ajouter à la file", "Añadir a la cola", "Aggiungi alla coda"], "Mergi la album": ["Go to album", "Zum Album", "Aller à l'album", "Ir al álbum", "Vai all'album"], "Mergi la artist": ["Go to artist", "Zum Künstler", "Aller à l'artiste", "Ir al artista", "Vai all'artista"], "Adaugă un folder": ["Add a folder", "Ordner hinzufügen", "Ajouter un dossier", "Añadir una carpeta", "Aggiungi una cartella"], "Adaugă muzică": ["Add music", "Musik hinzufügen", "Ajouter de la musique", "Añadir música", "Aggiungi musica"], "Egalizator": ["Equalizer", "Equalizer", "Égaliseur", "Ecualizador", "Equalizzatore"], "Egalizator · ": ["Equalizer · ", "Equalizer · ", "Égaliseur · ", "Ecualizador · ", "Equalizzatore · "], "Oprit": ["Off", "Aus", "Désactivé", "Apagado", "Spento"], "Pornit": ["On", "An", "Activé", "Encendido", "Acceso"], "PORNIT": ["ON", "AN", "ACTIVÉ", "SÍ", "ON"], "OPRIT": ["OFF", "AUS", "DÉSACTIVÉ", "NO", "OFF"], "Ieșire audio": ["Audio output", "Audioausgabe", "Sortie audio", "Salida de audio", "Uscita audio"], "Ieșire audio (AirPlay, Bluetooth)": ["Audio output (AirPlay, Bluetooth)", "Audioausgabe (AirPlay, Bluetooth)", "Sortie audio (AirPlay, Bluetooth)", "Salida de audio (AirPlay, Bluetooth)", "Uscita audio (AirPlay, Bluetooth)"], "Temă": ["Theme", "Design", "Thème", "Tema", "Tema"], "Limbă": ["Language", "Sprache", "Langue", "Idioma", "Lingua"], "Timer de somn": ["Sleep timer", "Schlaf-Timer", "Minuterie de sommeil", "Temporizador", "Timer spegnimento"], "Setări": ["Settings", "Einstellungen", "Réglages", "Ajustes", "Impostazioni"], "Caută coperți online": ["Find covers online", "Cover online suchen", "Chercher les pochettes en ligne", "Buscar portadas online", "Cerca copertine online"], "Descarcă coperțile lipsă": ["Download missing covers", "Fehlende Cover laden", "Télécharger les pochettes manquantes", "Descargar portadas que faltan", "Scarica copertine mancanti"], "Calitate minimă radio": ["Minimum radio quality", "Minimale Radioqualität", "Qualité radio minimale", "Calidad mínima de radio", "Qualità minima radio"], "Spațiu folosit": ["Storage used", "Belegter Speicher", "Espace utilisé", "Espacio usado", "Spazio usato"], "Șterge biblioteca": ["Delete library", "Mediathek löschen", "Supprimer la bibliothèque", "Borrar biblioteca", "Elimina libreria"], "Apasă din nou pentru confirmare": ["Tap again to confirm", "Zum Bestätigen erneut tippen", "Touche à nouveau pour confirmer", "Toca otra vez para confirmar", "Tocca di nuovo per confermare"], "Coperțile lipsă sunt căutate după artist și album pe iTunes și Deezer. Muzica nu părăsește telefonul.": ["Missing covers are looked up by artist and album on iTunes and Deezer. Your music never leaves the phone.", "Fehlende Cover werden nach Künstler und Album bei iTunes und Deezer gesucht. Deine Musik verlässt das Telefon nicht.", "Les pochettes manquantes sont recherchées par artiste et album sur iTunes et Deezer. Ta musique ne quitte pas le téléphone.", "Las portadas que faltan se buscan por artista y álbum en iTunes y Deezer. Tu música no sale del teléfono.", "Le copertine mancanti vengono cercate per artista e album su iTunes e Deezer. La tua musica non lascia il telefono."], "15 minute": ["15 minutes", "15 Minuten", "15 minutes", "15 minutos", "15 minuti"], "30 minute": ["30 minutes", "30 Minuten", "30 minutes", "30 minutos", "30 minuti"], "45 minute": ["45 minutes", "45 Minuten", "45 minutes", "45 minutos", "45 minuti"], "60 minute": ["60 minutes", "60 Minuten", "60 minutes", "60 minutos", "60 minuti"], "La finalul piesei": ["At end of track", "Am Ende des Titels", "À la fin du titre", "Al final de la canción", "A fine brano"], "Final piesă": ["End of track", "Titelende", "Fin du titre", "Fin de canción", "Fine brano"], "Timer: ": ["Timer: ", "Timer: ", "Minuterie : ", "Temporizador: ", "Timer: "], "Timer oprit": ["Timer off", "Timer aus", "Minuterie désactivée", "Temporizador apagado", "Timer spento"], "Timer de somn: pauză": ["Sleep timer: paused", "Schlaf-Timer: pausiert", "Minuterie : en pause", "Temporizador: en pausa", "Timer: in pausa"], "Timer de somn: oprit": ["Sleep timer: stopped", "Schlaf-Timer: gestoppt", "Minuterie : arrêt", "Temporizador: detenido", "Timer: fermato"], "Biblioteca a fost ștearsă": ["Library deleted", "Mediathek gelöscht", "Bibliothèque supprimée", "Biblioteca borrada", "Libreria eliminata"], "Fișierul lipsește din bibliotecă": ["The file is missing from the library", "Die Datei fehlt in der Mediathek", "Le fichier manque dans la bibliothèque", "Falta el archivo en la biblioteca", "Il file manca dalla libreria"], "Apasă ▶ pentru redare": ["Tap ▶ to play", "Tippe ▶ zum Abspielen", "Touche ▶ pour lire", "Toca ▶ para reproducir", "Tocca ▶ per riprodurre"], "Postul nu răspunde": ["The station isn't responding", "Der Sender antwortet nicht", "La station ne répond pas", "La emisora no responde", "La stazione non risponde"], "Postul nu poate fi redat": ["This station can't be played", "Dieser Sender kann nicht abgespielt werden", "Cette station ne peut pas être lue", "No se puede reproducir esta emisora", "Impossibile riprodurre questa stazione"], "Formatul nu poate fi redat": ["This format can't be played", "Dieses Format kann nicht abgespielt werden", "Ce format ne peut pas être lu", "Este formato no se puede reproducir", "Formato non riproducibile"], "Biblioteca e goală": ["The library is empty", "Die Mediathek ist leer", "La bibliothèque est vide", "La biblioteca está vacía", "La libreria è vuota"], "Urmează: ": ["Up next: ", "Als Nächstes: ", "Ensuite : ", "A continuación: ", "Dopo: "], "Adăugată în coadă": ["Added to queue", "Zur Warteschlange hinzugefügt", "Ajouté à la file", "Añadido a la cola", "Aggiunto alla coda"], "Radio live": ["Live radio", "Live-Radio", "Radio en direct", "Radio en directo", "Radio in diretta"], "Timer": ["Timer", "Timer", "Minuterie", "Temporizador", "Timer"], "Posturi": ["Stations", "Sender", "Stations", "Emisoras", "Stazioni"], "Album": ["Album", "Album", "Album", "Álbum", "Album"], "Radio online": ["Online radio", "Online-Radio", "Radio en ligne", "Radio online", "Radio online"], "Repetare oprită": ["Repeat off", "Wiederholen aus", "Répétition désactivée", "Repetir desactivado", "Ripetizione disattivata"], "Repetă tot": ["Repeat all", "Alle wiederholen", "Tout répéter", "Repetir todo", "Ripeti tutto"], "Repetă piesa": ["Repeat track", "Titel wiederholen", "Répéter le titre", "Repetir canción", "Ripeti brano"], "REPETĂ": ["REPEAT", "WIEDERH.", "RÉPÉTER", "REPETIR", "RIPETI"], "REPETĂ 1": ["REPEAT 1", "WIEDERH. 1", "RÉPÉTER 1", "REPETIR 1", "RIPETI 1"], "Orice": ["Any", "Beliebig", "Toutes", "Cualquiera", "Qualsiasi"], "Alege ieșirea din Control Center, butonul AirPlay": ["Choose the output in Control Center, AirPlay button", "Wähle die Ausgabe im Kontrollzentrum über AirPlay", "Choisis la sortie dans le Centre de contrôle, bouton AirPlay", "Elige la salida en el Centro de control, botón AirPlay", "Scegli l'uscita dal Centro di Controllo, pulsante AirPlay"], "Egalizatorul nu e suportat în acest browser": ["The equalizer isn't supported in this browser", "Der Equalizer wird in diesem Browser nicht unterstützt", "L'égaliseur n'est pas pris en charge par ce navigateur", "El ecualizador no es compatible con este navegador", "L'equalizzatore non è supportato da questo browser"], "Se aplică muzicii tale. Radioul rămâne neprocesat.": ["Applies to your music. Radio stays unprocessed.", "Gilt für deine Musik. Radio bleibt unbearbeitet.", "S'applique à ta musique. La radio reste non traitée.", "Se aplica a tu música. La radio no se procesa.", "Si applica alla tua musica. La radio resta non elaborata."], "Dacă pe iPhone-ul tău sunetul se oprește cu ecranul blocat cât timp egalizatorul e pornit, oprește-l; redarea normală nu are această limită.": ["If sound stops when the screen locks while the equalizer is on, turn it off; normal playback doesn't have this limit.", "Wenn der Ton bei gesperrtem Bildschirm mit aktivem Equalizer stoppt, schalte ihn aus; normale Wiedergabe hat diese Grenze nicht.", "Si le son s'arrête écran verrouillé avec l'égaliseur actif, désactive-le ; la lecture normale n'a pas cette limite.", "Si el sonido se detiene con la pantalla bloqueada y el ecualizador activo, apágalo; la reproducción normal no tiene este límite.", "Se l'audio si ferma a schermo bloccato con l'equalizzatore attivo, spegnilo; la riproduzione normale non ha questo limite."], "Modern · automat": ["Modern · automatic", "Modern · automatisch", "Moderne · automatique", "Moderno · automático", "Moderno · automatico"], "Modern · luminos": ["Modern · light", "Modern · hell", "Moderne · clair", "Moderno · claro", "Moderno · chiaro"], "Modern · întunecat": ["Modern · dark", "Modern · dunkel", "Moderne · sombre", "Moderno · oscuro", "Moderno · scuro"], "Retro · chihlimbar": ["Retro · amber", "Retro · Bernstein", "Rétro · ambre", "Retro · ámbar", "Retro · ambra"], "Retro · verde": ["Retro · green", "Retro · grün", "Rétro · vert", "Retro · verde", "Retro · verde"], "Retro · albastru": ["Retro · blue", "Retro · blau", "Rétro · bleu", "Retro · azul", "Retro · blu"], "Retro · hârtie": ["Retro · paper", "Retro · Papier", "Rétro · papier", "Retro · papel", "Retro · carta"], "Redare acum": ["Now playing", "Wiedergabe", "À l'écoute", "Reproduciendo", "In riproduzione"], "Meniu": ["Menu", "Menü", "Menu", "Menú", "Menu"], "Muzică": ["Music", "Musik", "Musique", "Música", "Musica"], "Ține apăsat OK pe o piesă": ["Hold OK on a track", "Halte OK bei einem Titel gedrückt", "Maintiens OK sur un titre", "Mantén OK en una canción", "Tieni premuto OK su un brano"], "Ține apăsat OK pe un post": ["Hold OK on a station", "Halte OK bei einem Sender gedrückt", "Maintiens OK sur une station", "Mantén OK en una emisora", "Tieni premuto OK su una stazione"], "Recente": ["Recent", "Neu", "Récents", "Recientes", "Recenti"], "Încă nimic ascultat": ["Nothing played yet", "Noch nichts gehört", "Rien écouté pour l'instant", "Aún no has escuchado nada", "Ancora niente ascoltato"], "Se încarcă…": ["Loading…", "Lädt…", "Chargement…", "Cargando…", "Caricamento…"], "Fără conexiune": ["No connection", "Keine Verbindung", "Pas de connexion", "Sin conexión", "Nessuna connessione"], "Opțiuni": ["Options", "Optionen", "Options", "Opciones", "Opzioni"], "posturi": ["stations", "Sender", "stations", "emisoras", "stazioni"], "derulare": ["seek", "spulen", "avance", "avance", "scorri"], "listă": ["list", "Liste", "liste", "lista", "lista"], "Biblioteca e goală. Alege Adaugă muzică sau ascultă Radio.": ["The library is empty. Choose Add music or listen to Radio.", "Die Mediathek ist leer. Wähle Musik hinzufügen oder hör Radio.", "La bibliothèque est vide. Choisis Ajouter de la musique ou écoute la Radio.", "La biblioteca está vacía. Elige Añadir música o escucha la Radio.", "La libreria è vuota. Scegli Aggiungi musica o ascolta la Radio."], "Stocarea locală e blocată în acest browser": ["Local storage is blocked in this browser", "Lokaler Speicher ist in diesem Browser blockiert", "Le stockage local est bloqué dans ce navigateur", "El almacenamiento local está bloqueado en este navegador", "L'archiviazione locale è bloccata in questo browser"], "Adaugă muzica ta": ["Add your music", "Füge deine Musik hinzu", "Ajoute ta musique", "Añade tu música", "Aggiungi la tua musica"], "În Files, pune melodiile într-un folder.": ["In Files, put your songs in a folder.", "Lege deine Titel in der Dateien-App in einen Ordner.", "Dans Fichiers, mets tes morceaux dans un dossier.", "En Archivos, pon tus canciones en una carpeta.", "In File, metti i brani in una cartella."], "Apasă <b>Adaugă fișiere</b>, deschide folderul.": ["Tap <b>Add files</b> and open the folder.", "Tippe auf <b>Dateien hinzufügen</b> und öffne den Ordner.", "Touche <b>Ajouter des fichiers</b> et ouvre le dossier.", "Toca <b>Añadir archivos</b> y abre la carpeta.", "Tocca <b>Aggiungi file</b> e apri la cartella."], "Apasă <b>Select</b>, apoi <b>Select All</b> și <b>Open</b>.": ["Tap <b>Select</b>, then <b>Select All</b> and <b>Open</b>.", "Tippe auf <b>Auswählen</b>, dann <b>Alle auswählen</b> und <b>Öffnen</b>.", "Touche <b>Sélectionner</b>, puis <b>Tout sélectionner</b> et <b>Ouvrir</b>.", "Toca <b>Seleccionar</b>, luego <b>Seleccionar todo</b> y <b>Abrir</b>.", "Tocca <b>Seleziona</b>, poi <b>Seleziona tutto</b> e <b>Apri</b>."], "Se importă muzica": ["Importing music", "Musik wird importiert", "Import de la musique", "Importando música", "Importazione musica"], "Album necunoscut": ["Unknown album", "Unbekanntes Album", "Album inconnu", "Álbum desconocido", "Album sconosciuto"], "Artist necunoscut": ["Unknown artist", "Unbekannter Künstler", "Artiste inconnu", "Artista desconocido", "Artista sconosciuto"], "Necunoscut": ["Unknown", "Unbekannt", "Inconnu", "Desconocido", "Sconosciuto"], "Redare": ["Playing", "Wiedergabe", "Lecture", "Reproduciendo", "Riproduzione"], "Ieșire": ["Output", "Ausgabe", "Sortie", "Salida", "Uscita"], "MENIU": ["MENU", "MENÜ", "MENU", "MENÚ", "MENU"], "◀ sus": ["◀ up", "◀ hoch", "◀ haut", "◀ arriba", "◀ su"], "jos ▶": ["down ▶", "runter ▶", "bas ▶", "abajo ▶", "giù ▶"], "Înapoi": ["Back", "Zurück", "Retour", "Atrás", "Indietro"], "Deschide player-ul": ["Open player", "Player öffnen", "Ouvrir le lecteur", "Abrir reproductor", "Apri il player"], "Redă sau pauză": ["Play or pause", "Abspielen oder Pause", "Lecture ou pause", "Reproducir o pausa", "Riproduci o pausa"], "Următoarea": ["Next", "Weiter", "Suivant", "Siguiente", "Successivo"], "Anterioara": ["Previous", "Zurück", "Précédent", "Anterior", "Precedente"], "Închide": ["Close", "Schließen", "Fermer", "Cerrar", "Chiudi"], "Poziție în piesă": ["Position in track", "Position im Titel", "Position dans le titre", "Posición en la canción", "Posizione nel brano"], "Repetare": ["Repeat", "Wiederholen", "Répéter", "Repetir", "Ripeti"], "Alege": ["Select", "Auswählen", "Choisir", "Elegir", "Scegli"], "Navigare: trage stânga sau dreapta": ["Navigation: drag left or right", "Navigation: nach links oder rechts ziehen", "Navigation : glisse à gauche ou à droite", "Navegación: arrastra a izquierda o derecha", "Navigazione: trascina a sinistra o destra"]};
+const T=x=>{if(lang==="ro"||x==null)return x;const e=DICT[x];return e?e[LIDX[lang]]:x};
+document.documentElement.lang=lang;
+if(lang!=="ro"){
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);const ns=[];while(w.nextNode())ns.push(w.currentNode);
+  ns.forEach(n=>{const t=n.nodeValue.trim();if(t&&DICT[t])n.nodeValue=n.nodeValue.replace(t,T(t))});
+  document.querySelectorAll("[aria-label],[placeholder]").forEach(el=>{["aria-label","placeholder"].forEach(a=>{const v=el.getAttribute(a);if(v&&DICT[v])el.setAttribute(a,T(v))})});
+}
 const $=s=>document.querySelector(s);
-const h=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e};
+const DATAK={"Album necunoscut":1,"Artist necunoscut":1,"Necunoscut":1};
+const h=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=DATAK[txt]?T(txt):txt;return e};
 const SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
 const AUDIO_RE=/\.(mp3|m4a|m4b|aac|flac|wav|aif|aiff|ogg|oga|opus|alac|mp4|caf)$/i;
 const UNK_AL="Album necunoscut",UNK_AR="Artist necunoscut";
@@ -272,6 +479,7 @@ const I={
   globe:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>',
   eq:'<svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
   out:'<svg viewBox="0 0 24 24"><path d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/><path d="M12 15l5 6H7z"/></svg>',
+  theme:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 000-18z" fill="currentColor"/></svg>',
   hq:'<svg viewBox="0 0 24 24"><path d="M2 12h3l3-8 4 16 3-10 2 2h5"/></svg>',
   disk:'<svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/></svg>'
 };
@@ -325,8 +533,8 @@ function mime(n){const e=(n.split(".").pop()||"").toLowerCase();
 async function addFiles(list){
   const all=[...list].filter(f=>/^audio\//.test(f.type)||AUDIO_RE.test(f.name));
   const files=all.filter(f=>elLocal.canPlayType(f.type||mime(f.name))!=="");const bad=all.length-files.length;
-  if(!files.length)return toast(bad?"Formatul acestor fișiere nu poate fi redat pe acest dispozitiv":"Niciun fișier audio în selecție");
-  if(!db)return toast("Stocarea locală nu e disponibilă");
+  if(!files.length)return toast(bad?T("Formatul acestor fișiere nu poate fi redat pe acest dispozitiv"):T("Niciun fișier audio în selecție"));
+  if(!db)return toast(T("Stocarea locală nu e disponibilă"));
   const known=new Set(tracks.map(t=>t.key));let added=0,skipped=0;
   busy={n:0,total:files.length,name:""};render();
   for(const f of files){
@@ -345,10 +553,10 @@ async function addFiles(list){
       if(pic)await op("art","readwrite",s=>s.put(pic,id));
       await op("meta","readwrite",s=>s.put(meta));
       tracks.push(meta);known.add(key);added++;
-    }catch(e){toast("Spațiu insuficient sau fișier ilizibil");break}
+    }catch(e){toast(T("Spațiu insuficient sau fișier ilizibil"));break}
   }
-  busy=null;sortTracks(tracks);render();
-  toast(added+" piese adăugate"+(skipped?" · "+skipped+" existau deja":"")+(bad?" · "+bad+" în format nesuportat":""));
+  busy=null;sortTracks(tracks);render();rRefresh();
+  toast(added+T(" piese adăugate")+(skipped?" · "+skipped+T(" existau deja"):"")+(bad?" · "+bad+T(" în format nesuportat"):""));
 }
 $("#pick").addEventListener("change",e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=""});
 $("#pickDir").addEventListener("change",e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=""});
@@ -391,14 +599,14 @@ function fillArt(box,t,fallback){
 const io="IntersectionObserver" in window?new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){io.unobserve(e.target);const f=e.target.__art;if(f)f()}})},{root:null,rootMargin:"300px"}):null;
 function lazyArt(box,t,fb){box.innerHTML=fb||I.note;if(!io)return fillArt(box,t,fb);box.__art=()=>fillArt(box,t,fb);io.observe(box)}
 async function fetchMissingArt(){
-  if(!settings.online)return toast("Activează mai întâi căutarea online");
+  if(!settings.online)return toast(T("Activează mai întâi căutarea online"));
   const seen=new Set(),todo=[];
   for(const t of tracks){if(t.hasArt)continue;const k=onlineKey(t);if(seen.has(k)||(k in artCache&&artCache[k]))continue;
     if(t.album!==UNK_AL&&tracks.some(x=>x.hasArt&&x.album===t.album&&x.artist===t.artist))continue;seen.add(k);delete artCache[k];todo.push(t)}
-  if(!todo.length)return toast("Toate albumele au coperți");
-  toast("Caut "+todo.length+" coperți…");let found=0;
+  if(!todo.length)return toast(T("Toate albumele au coperți"));
+  toast(T("Caut ")+todo.length+T(" coperți…"));let found=0;
   await Promise.all(todo.map(t=>artFor(t).then(u=>{if(u)found++})));
-  toast("Găsite: "+found+" din "+todo.length);render()}
+  toast(T("Găsite: ")+found+T(" din ")+todo.length);render()}
 
 /* ---------------- radio (radio-browser.info) ---------------- */
 const RB=["https://de1.api.radio-browser.info","https://fi1.api.radio-browser.info","https://de2.api.radio-browser.info"];
@@ -414,18 +622,18 @@ function cleanStations(list){const seen=new Set(),out=[];let http=0;
     out.push({id:s.stationuuid,name:s.name.trim(),url:u,favicon:/^https:/i.test(s.favicon||"")?s.favicon:"",tags:(s.tags||"").split(",").filter(Boolean).slice(0,3).join(" · "),cc:s.countrycode||"",bitrate:s.bitrate||0,codec:s.codec||""})}
   return{list:out,http}}
 const RADIO_CATS=[
-  {id:"fav",label:"Favorite"},
-  {id:"ro",label:"România",path:"/json/stations/bycountrycodeexact/RO?hidebroken=true&order=clickcount&reverse=true&limit=200"},
-  {id:"top",label:"Top mondial",path:"/json/stations/topclick/150?hidebroken=true"},
+  {id:"fav",label:T("Favorite")},
+  {id:"ro",label:T("România"),path:"/json/stations/bycountrycodeexact/RO?hidebroken=true&order=clickcount&reverse=true&limit=200"},
+  {id:"top",label:T("Top mondial"),path:"/json/stations/topclick/150?hidebroken=true"},
   {id:"jazz",label:"Jazz",path:"/json/stations/bytagexact/jazz?hidebroken=true&order=clickcount&reverse=true&limit=120"},
-  {id:"classical",label:"Clasică",path:"/json/stations/bytagexact/classical?hidebroken=true&order=clickcount&reverse=true&limit=120"},
+  {id:"classical",label:T("Clasică"),path:"/json/stations/bytagexact/classical?hidebroken=true&order=clickcount&reverse=true&limit=120"},
   {id:"rock",label:"Rock",path:"/json/stations/bytagexact/rock?hidebroken=true&order=clickcount&reverse=true&limit=120"},
-  {id:"news",label:"Știri",path:"/json/stations/bytagexact/news?hidebroken=true&order=clickcount&reverse=true&limit=120"},
+  {id:"news",label:T("Știri"),path:"/json/stations/bytagexact/news?hidebroken=true&order=clickcount&reverse=true&limit=120"},
   {id:"chill",label:"Chillout",path:"/json/stations/bytagexact/chillout?hidebroken=true&order=clickcount&reverse=true&limit=120"},
   {id:"dance",label:"Dance",path:"/json/stations/bytagexact/dance?hidebroken=true&order=clickcount&reverse=true&limit=120"}];
 let radioCat=null;
 const isRadioFav=s=>radioFavs.some(x=>x.id===s.id);
-function toggleRadioFav(s){if(isRadioFav(s)){radioFavs=radioFavs.filter(x=>x.id!==s.id);toast("Scos din Favorite")}else{radioFavs.push(s);toast("Adăugat la Favorite")}ls("rola.radiofavs",radioFavs);syncPlayer()}
+function toggleRadioFav(s){if(isRadioFav(s)){radioFavs=radioFavs.filter(x=>x.id!==s.id);toast(T("Scos din Favorite"))}else{radioFavs.push(s);toast(T("Adăugat la Favorite"))}ls("rola.radiofavs",radioFavs);syncPlayer()}
 
 /* ---------------- navigation ---------------- */
 let tab="lib";
@@ -456,8 +664,8 @@ function songRow(t,list,i,opts){opts=opts||{};
   const r=h("div","row"+(mode==="local"&&cur&&cur.id===t.id?" playing":""));r.dataset.id=t.id;r.tabIndex=0;r.setAttribute("role","button");
   if(opts.num){r.appendChild(h("span","num",t.track?String(t.track):"·"))}
   else{const th=h("div","thumb");lazyArt(th,t);r.appendChild(th)}
-  const x=h("div","txt");x.appendChild(h("div","t1",t.title));x.appendChild(h("div","t2",opts.num?(favs.has(t.id)?"♥ ":"")+t.artist:(favs.has(t.id)?"♥ ":"")+t.artist+" · "+t.album));r.appendChild(x);
-  const mo=h("button","more");mo.innerHTML=I.dots;mo.setAttribute("aria-label","Opțiuni pentru "+t.title);
+  const x=h("div","txt");x.appendChild(h("div","t1",t.title));x.appendChild(h("div","t2",opts.num?(favs.has(t.id)?"♥ ":"")+T(t.artist):(favs.has(t.id)?"♥ ":"")+T(t.artist)+" · "+T(t.album)));r.appendChild(x);
+  const mo=h("button","more");mo.innerHTML=I.dots;mo.setAttribute("aria-label",T("Opțiuni pentru ")+t.title);
   mo.addEventListener("click",e=>{e.stopPropagation();trackSheet(t)});r.appendChild(mo);
   r.addEventListener("click",()=>{unlock();playList(list,i)});
   r.addEventListener("keydown",e=>{if(e.key==="Enter"){unlock();playList(list,i)}});
@@ -470,57 +678,57 @@ function albums(list){const m=new Map();for(const t of list){const k=albumId(t);
   return[...m.values()].sort((a,b)=>coll.compare(a.album,b.album))}
 function groupBy(list,f){const m=new Map();for(const t of list){const k=f(t);if(!m.has(k))m.set(k,[]);m.get(k).push(t)}return m}
 function emptyLib(m){const e=h("div","empty");
-  e.innerHTML='<h2>Adaugă muzica ta</h2><ol><li>În Files, pune melodiile într-un folder.</li><li>Apasă <b>Adaugă fișiere</b>, deschide folderul.</li><li>Apasă <b>Select</b>, apoi <b>Select All</b> și <b>Open</b>.</li></ol>';
-  const b=h("div","btns");const a=h("button","btn primary");a.innerHTML=I.file.replace("<svg",'<svg fill="none" stroke="currentColor" stroke-width="2"')+"Adaugă fișiere";
-  a.addEventListener("click",()=>$("#pick").click());const r=h("button","btn","Ascultă radio");r.addEventListener("click",()=>setTab("radio"));
+  e.innerHTML='<h2>'+T("Adaugă muzica ta")+'</h2><ol><li>'+T("În Files, pune melodiile într-un folder.")+'</li><li>'+T("Apasă <b>Adaugă fișiere</b>, deschide folderul.")+'</li><li>'+T("Apasă <b>Select</b>, apoi <b>Select All</b> și <b>Open</b>.")+'</li></ol>';
+  const b=h("div","btns");const a=h("button","btn primary");a.innerHTML=I.file.replace("<svg",'<svg fill="none" stroke="currentColor" stroke-width="2"')+T("Adaugă fișiere");
+  a.addEventListener("click",()=>$("#pick").click());const r=h("button","btn",T("Ascultă radio"));r.addEventListener("click",()=>setTab("radio"));
   b.append(a,r);e.appendChild(b);m.appendChild(e)}
 function busyBanner(m){if(!busy)return;const b=h("div","banner");b.id="busy";
-  b.innerHTML='<div class="t1">Se importă muzica</div><div class="t2" id="busyT"></div><div class="bar"><i id="busyBar"></i></div>';m.appendChild(b);updateBusy()}
+  b.innerHTML='<div class="t1">'+T("Se importă muzica")+'</div><div class="t2" id="busyT"></div><div class="bar"><i id="busyBar"></i></div>';m.appendChild(b);updateBusy()}
 function updateBusy(){if(!busy)return;const t=$("#busyT"),b=$("#busyBar");if(!t||!b)return;
-  t.textContent=busy.n+" din "+busy.total+" · "+busy.name;b.style.width=Math.round(busy.n/busy.total*100)+"%"}
+  t.textContent=busy.n+T(" din ")+busy.total+" · "+busy.name;b.style.width=Math.round(busy.n/busy.total*100)+"%"}
 
 const VIEWS={
   lib(m){
     busyBanner(m);
-    if(!tracks.length&&!busy){emptyLib(m);return"Bibliotecă"}
+    if(!tracks.length&&!busy){emptyLib(m);return T("Bibliotecă")}
     const btns=h("div","btns");
-    const p=h("button","btn primary");p.innerHTML=I.play+"Redă tot";p.addEventListener("click",()=>{unlock();shuffle=false;saveModes();playList(sortTracks(tracks.slice()),0)});
-    const s=h("button","btn");s.innerHTML=I.shuffle+"Amestecă";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(tracks,Math.floor(Math.random()*tracks.length))});
+    const p=h("button","btn primary");p.innerHTML=I.play+T("Redă tot");p.addEventListener("click",()=>{unlock();shuffle=false;saveModes();playList(sortTracks(tracks.slice()),0)});
+    const s=h("button","btn");s.innerHTML=I.shuffle+T("Shuffle");s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(tracks,Math.floor(Math.random()*tracks.length))});
     btns.append(p,s);m.appendChild(btns);
-    m.appendChild(h("div","h2","Colecție"));
+    m.appendChild(h("div","h2",T("Colecție")));
     const r=rows();const al=albums(tracks);
-    r.appendChild(chevRow("Playlisturi","",()=>go({v:"playlists"}),I.queue));
-    r.appendChild(chevRow("Artiști",groupBy(tracks,t=>t.artist).size,()=>go({v:"artists"}),I.person));
-    r.appendChild(chevRow("Albume",al.length,()=>setTab("alb"),I.album));
-    r.appendChild(chevRow("Melodii",tracks.length,()=>go({v:"songs",title:"Melodii",list:"all"}),I.note));
-    r.appendChild(chevRow("Genuri",groupBy(tracks,t=>t.genre||"Necunoscut").size,()=>go({v:"genres"}),I.globe));
+    r.appendChild(chevRow(T("Playlisturi"),"",()=>go({v:"playlists"}),I.queue));
+    r.appendChild(chevRow(T("Artiști"),groupBy(tracks,t=>t.artist).size,()=>go({v:"artists"}),I.person));
+    r.appendChild(chevRow(T("Albume"),al.length,()=>setTab("alb"),I.album));
+    r.appendChild(chevRow(T("Melodii"),tracks.length,()=>go({v:"songs",title:T("Melodii"),list:"all"}),I.note));
+    r.appendChild(chevRow(T("Genuri"),groupBy(tracks,t=>t.genre||"Necunoscut").size,()=>go({v:"genres"}),I.globe));
     m.appendChild(r);
     const recent=al.slice().sort((a,b)=>b.added-a.added).slice(0,12);
-    if(recent.length){const hh=h("div","h2","Adăugate recent");m.appendChild(hh);const st=h("div","strip");recent.forEach(a=>st.appendChild(albumTile(a)));m.appendChild(st)}
+    if(recent.length){const hh=h("div","h2",T("Adăugate recent"));m.appendChild(hh);const st=h("div","strip");recent.forEach(a=>st.appendChild(albumTile(a)));m.appendChild(st)}
     const most=tracks.filter(t=>plays[t.id]).sort((a,b)=>plays[b.id]-plays[a.id]).slice(0,5);
-    if(most.length){m.appendChild(h("div","h2","Ascultate des"));const rr=rows();most.forEach((t,i)=>rr.appendChild(songRow(t,most,i)));m.appendChild(rr)}
-    return"Bibliotecă"},
+    if(most.length){m.appendChild(h("div","h2",T("Ascultate des")));const rr=rows();most.forEach((t,i)=>rr.appendChild(songRow(t,most,i)));m.appendChild(rr)}
+    return T("Bibliotecă")},
   albums(m){busyBanner(m);
-    if(!tracks.length){emptyLib(m);return"Albume"}
-    const g=h("div","grid");albums(tracks).forEach(a=>g.appendChild(albumTile(a)));m.appendChild(g);return"Albume"},
+    if(!tracks.length){emptyLib(m);return T("Albume")}
+    const g=h("div","grid");albums(tracks).forEach(a=>g.appendChild(albumTile(a)));m.appendChild(g);return T("Albume")},
   album(m,v){
-    const list=sortTracks(tracks.filter(t=>albumId(t)===v.id));if(!list.length){m.appendChild(h("p","note","Albumul nu mai există."));return""}
+    const list=sortTracks(tracks.filter(t=>albumId(t)===v.id));if(!list.length){m.appendChild(h("p","note",T("Albumul nu mai există.")));return""}
     const hero=h("div","hero");const c=h("div","cover");fillArt(c,list[0],I.album);hero.appendChild(c);
     hero.appendChild(h("h2",null,list[0].album));const ar=h("p",null,list[0].artist);ar.style.cursor="pointer";ar.addEventListener("click",()=>go({v:"artist",name:list[0].artist}));hero.appendChild(ar);
-    const yr=list.find(t=>t.year);hero.appendChild(h("div","meta",[list[0].genre!=="Necunoscut"?list[0].genre:"",yr?yr.year:"",list.length+(list.length===1?" piesă":" piese")].filter(Boolean).join(" · ")));
+    const yr=list.find(t=>t.year);hero.appendChild(h("div","meta",[list[0].genre!=="Necunoscut"?list[0].genre:"",yr?yr.year:"",list.length+(list.length===1?T(" piesă"):T(" piese"))].filter(Boolean).join(" · ")));
     m.appendChild(hero);
-    const b=h("div","btns");const p=h("button","btn primary");p.innerHTML=I.play+"Redă";p.addEventListener("click",()=>{unlock();shuffle=false;saveModes();playList(list,0)});
-    const s=h("button","btn");s.innerHTML=I.shuffle+"Amestecă";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});
+    const b=h("div","btns");const p=h("button","btn primary");p.innerHTML=I.play+T("Redă");p.addEventListener("click",()=>{unlock();shuffle=false;saveModes();playList(list,0)});
+    const s=h("button","btn");s.innerHTML=I.shuffle+T("Shuffle");s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});
     b.append(p,s);m.appendChild(b);m.appendChild(h("div","h2",""));
     const r=rows();list.forEach((t,i)=>r.appendChild(songRow(t,list,i,{num:true})));m.appendChild(r);return""},
   artists(m){const g=groupBy(tracks,t=>t.artist);const r=rows();
     [...g.keys()].sort(coll.compare).forEach(a=>{const row=chevRow(a,g.get(a).length,()=>go({v:"artist",name:a}));
       const th=h("div","thumb");lazyArt(th,g.get(a)[0],I.person);row.insertBefore(th,row.firstChild);r.appendChild(row)});
-    m.appendChild(r);return"Artiști"},
+    m.appendChild(r);return T("Artiști")},
   artist(m,v){const list=sortTracks(tracks.filter(t=>t.artist===v.name));
-    const b=h("div","btns");const s=h("button","btn primary");s.innerHTML=I.shuffle+"Amestecă artistul";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});b.appendChild(s);m.appendChild(b);
-    m.appendChild(h("div","h2","Albume"));const g=h("div","grid");albums(list).forEach(a=>g.appendChild(albumTile(a)));m.appendChild(g);
-    m.appendChild(h("div","h2","Toate piesele"));const r=rows();list.forEach((t,i)=>r.appendChild(songRow(t,list,i)));m.appendChild(r);return v.name},
+    const b=h("div","btns");const s=h("button","btn primary");s.innerHTML=I.shuffle+T("Shuffle artist");s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});b.appendChild(s);m.appendChild(b);
+    m.appendChild(h("div","h2",T("Albume")));const g=h("div","grid");albums(list).forEach(a=>g.appendChild(albumTile(a)));m.appendChild(g);
+    m.appendChild(h("div","h2",T("Toate piesele")));const r=rows();list.forEach((t,i)=>r.appendChild(songRow(t,list,i)));m.appendChild(r);return v.name},
   songs(m,v){let list;
     if(v.list==="all")list=tracks.slice().sort((a,b)=>coll.compare(a.title,b.title));
     else if(v.list==="fav")list=tracks.filter(t=>favs.has(t.id));
@@ -528,114 +736,118 @@ const VIEWS={
     else if(v.list==="most")list=tracks.filter(t=>plays[t.id]).sort((a,b)=>plays[b.id]-plays[a.id]).slice(0,50);
     else if(v.list==="genre")list=sortTracks(tracks.filter(t=>(t.genre||"Necunoscut")===v.genre));
     else list=[];
-    if(!list.length){m.appendChild(h("p","note",v.list==="fav"?"Apasă ⋯ pe o piesă și alege Adaugă la Favorite.":"Încă nimic aici."));return v.title}
-    const b=h("div","btns");const s=h("button","btn");s.innerHTML=I.shuffle+"Amestecă";s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});b.appendChild(s);m.appendChild(b);
-    m.appendChild(h("div","h2","",));m.lastChild.appendChild(h("small",null,list.length+" piese"));
+    if(!list.length){m.appendChild(h("p","note",v.list==="fav"?T("Apasă ⋯ pe o piesă și alege Adaugă la Favorite."):T("Încă nimic aici.")));return v.title}
+    const b=h("div","btns");const s=h("button","btn");s.innerHTML=I.shuffle+T("Shuffle");s.addEventListener("click",()=>{unlock();shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length))});b.appendChild(s);m.appendChild(b);
+    m.appendChild(h("div","h2","",));m.lastChild.appendChild(h("small",null,list.length+T(" piese")));
     const r=rows();list.forEach((t,i)=>r.appendChild(songRow(t,list,i)));m.appendChild(r);return v.title},
   genres(m){const g=groupBy(tracks,t=>t.genre||"Necunoscut");const r=rows();
-    [...g.keys()].sort(coll.compare).forEach(k=>r.appendChild(chevRow(k,g.get(k).length,()=>go({v:"songs",title:k,list:"genre",genre:k}))));m.appendChild(r);return"Genuri"},
+    [...g.keys()].sort(coll.compare).forEach(k=>r.appendChild(chevRow(k,g.get(k).length,()=>go({v:"songs",title:k,list:"genre",genre:k}))));m.appendChild(r);return T("Genuri")},
   playlists(m){const r=rows();
-    r.appendChild(chevRow("Favorite",tracks.filter(t=>favs.has(t.id)).length,()=>go({v:"songs",title:"Favorite",list:"fav"}),I.heart.replace("<svg",'<svg fill="none" stroke="currentColor" stroke-width="1.8"')));
-    r.appendChild(chevRow("Urmează la redare",mode==="local"?Math.max(0,queue.length-qi-1):0,()=>go({v:"queue"}),I.queue));
-    r.appendChild(chevRow("Adăugate recent","",()=>go({v:"songs",title:"Adăugate recent",list:"recent"}),I.note));
-    r.appendChild(chevRow("Cele mai ascultate",tracks.filter(t=>plays[t.id]).length,()=>go({v:"songs",title:"Cele mai ascultate",list:"most"}),I.note));
-    m.appendChild(r);return"Playlisturi"},
-  queue(m){if(mode!=="local"||!cur){m.appendChild(h("p","note","Nimic în redare."));return"Urmează"}
-    m.appendChild(h("div","h2","Acum"));const a=rows();a.appendChild(songRow(cur,[cur],0));m.appendChild(a);
-    const rest=queue.slice(qi+1);m.appendChild(h("div","h2","Urmează"));
-    if(!rest.length){m.appendChild(h("p","note","Coada e goală."));return"Urmează"}
+    r.appendChild(chevRow(T("Favorite"),tracks.filter(t=>favs.has(t.id)).length,()=>go({v:"songs",title:T("Favorite"),list:"fav"}),I.heart.replace("<svg",'<svg fill="none" stroke="currentColor" stroke-width="1.8"')));
+    r.appendChild(chevRow(T("Urmează la redare"),mode==="local"?Math.max(0,queue.length-qi-1):0,()=>go({v:"queue"}),I.queue));
+    r.appendChild(chevRow(T("Adăugate recent"),"",()=>go({v:"songs",title:T("Adăugate recent"),list:"recent"}),I.note));
+    r.appendChild(chevRow(T("Cele mai ascultate"),tracks.filter(t=>plays[t.id]).length,()=>go({v:"songs",title:T("Cele mai ascultate"),list:"most"}),I.note));
+    m.appendChild(r);return T("Playlisturi")},
+  queue(m){if(mode!=="local"||!cur){m.appendChild(h("p","note",T("Nimic în redare.")));return T("Urmează")}
+    m.appendChild(h("div","h2",T("Acum")));const a=rows();a.appendChild(songRow(cur,[cur],0));m.appendChild(a);
+    const rest=queue.slice(qi+1);m.appendChild(h("div","h2",T("Urmează")));
+    if(!rest.length){m.appendChild(h("p","note",T("Coada e goală.")));return T("Urmează")}
     const r=rows();rest.forEach((t,k)=>{const row=songRow(t,rest,k);row.onclick=null;
-      row.addEventListener("click",ev=>{if(ev.target.closest(".more"))return;ev.stopImmediatePropagation();qi=qi+1+k;loadAndPlay(true);render()},true);r.appendChild(row)});m.appendChild(r);return"Urmează"},
+      row.addEventListener("click",ev=>{if(ev.target.closest(".more"))return;ev.stopImmediatePropagation();qi=qi+1+k;loadAndPlay(true);render()},true);r.appendChild(row)});m.appendChild(r);return T("Urmează")},
   radio(m){
     if(!radioCat)radioCat=radioFavs.length?"fav":"ro";
-    const f=h("input","field");f.type="search";f.id="radioQ";f.placeholder="Caută un post (nume, oraș, stil)";f.enterKeyHint="search";
+    const f=h("input","field");f.type="search";f.id="radioQ";f.placeholder=T("Caută un post (nume, oraș, stil)");f.enterKeyHint="search";
     f.addEventListener("keydown",e=>{if(e.key==="Enter"&&f.value.trim()){f.blur();go({v:"radioSearch",q:f.value.trim()})}});m.appendChild(f);
     const ch=h("div","chips");RADIO_CATS.forEach(c=>{const b=h("button","chip"+(c.id===radioCat?" on":""),c.label);b.addEventListener("click",()=>{radioCat=c.id;render()});ch.appendChild(b)});m.appendChild(ch);
     const cat=RADIO_CATS.find(c=>c.id===radioCat);
-    if(cat.id==="fav"){if(!radioFavs.length){m.appendChild(h("p","note","Apasă inima de lângă un post ca să-l salvezi aici."));return"Radio"}
+    if(cat.id==="fav"){if(!radioFavs.length){m.appendChild(h("p","note",T("Apasă inima de lângă un post ca să-l salvezi aici.")));return"Radio"}
       stationList(m,radioFavs.slice(),0);return"Radio"}
     loadStations(m,cat.path);return"Radio"},
   radioSearch(m,v){loadStations(m,"/json/stations/search?name="+encodeURIComponent(v.q)+"&hidebroken=true&order=clickcount&reverse=true&limit=80");return"„"+v.q+"”"},
   search(m,v){
-    const f=h("input","field");f.type="search";f.id="q";f.placeholder="Piese, artiști, albume, radio";f.enterKeyHint="search";f.value=v.q||"";m.appendChild(f);
+    const f=h("input","field");f.type="search";f.id="q";f.placeholder=T("Piese, artiști, albume, radio");f.enterKeyHint="search";f.value=v.q||"";m.appendChild(f);
     const out=h("div");m.appendChild(out);let t=0;
     const run=()=>{v.q=f.value;searchResults(out,f.value.trim())};
     f.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,300)});
-    if(v.q)run();else out.appendChild(h("p","note","Caută în biblioteca ta și în posturile de radio online."));
-    return"Caută"}
+    if(v.q)run();else out.appendChild(h("p","note",T("Caută în biblioteca ta și în posturile de radio online.")));
+    return T("Caută")}
 };
 function stationRow(s,list,i){const r=h("div","row"+(mode==="radio"&&station&&station.id===s.id?" playing":""));r.dataset.sid=s.id;r.tabIndex=0;r.setAttribute("role","button");
   const th=h("div","thumb");th.textContent=(s.name.match(/[A-Za-z0-9]/)||["•"])[0].toUpperCase();
   if(s.favicon){const im=new Image();im.alt="";im.loading="lazy";im.referrerPolicy="no-referrer";im.onload=()=>{if(im.naturalWidth>8){th.textContent="";th.appendChild(im)}};im.src=s.favicon}
   r.appendChild(th);
   const x=h("div","txt");x.appendChild(h("div","t1",s.name));x.appendChild(h("div","t2",[s.tags,s.bitrate?s.bitrate+" kbps":"",s.cc].filter(Boolean).join(" · ")||"Radio"));r.appendChild(x);
-  const st=h("button","more star"+(isRadioFav(s)?" on":""));st.innerHTML=I.heart;st.setAttribute("aria-label","Favorit");
+  const st=h("button","more star"+(isRadioFav(s)?" on":""));st.innerHTML=I.heart;st.setAttribute("aria-label",T("Favorit"));
   st.addEventListener("click",e=>{e.stopPropagation();toggleRadioFav(s);st.classList.toggle("on",isRadioFav(s))});r.appendChild(st);
   r.addEventListener("click",()=>{unlock();playStation(list,i)});r.addEventListener("keydown",e=>{if(e.key==="Enter"){unlock();playStation(list,i)}});
   return r}
 function stationList(m,list,http){const r=rows();list.forEach((s,i)=>r.appendChild(stationRow(s,list,i)));m.appendChild(r);
-  if(http)m.appendChild(h("p","note",http+" posturi fără conexiune securizată (http) au fost ascunse; Safari nu le poate reda aici."))}
+  if(http)m.appendChild(h("p","note",http+T(" posturi fără conexiune securizată (http) au fost ascunse; Safari nu le poate reda aici.")))}
 function loadStations(m,path){
   const box=h("div");m.appendChild(box);const sk=h("div","rows");for(let i=0;i<6;i++)sk.appendChild(h("div","skeleton"));box.appendChild(sk);
   rb(path).then(d=>{if(!box.isConnected)return;box.innerHTML="";const c=cleanStations(d);
-    if(!c.list.length){box.appendChild(h("p","note","Niciun post găsit."));return}stationList(box,c.list,c.http)})
-  .catch(()=>{if(!box.isConnected)return;box.innerHTML="";box.appendChild(h("p","note","Nu pot accesa directorul de radio. Verifică internetul. Dacă ai deschis player-ul din Claude, deschide versiunea găzduită."))})}
-function searchResults(out,q){out.innerHTML="";if(!q){out.appendChild(h("p","note","Caută în biblioteca ta și în posturile de radio online."));return}
+    if(!c.list.length){box.appendChild(h("p","note",T("Niciun post găsit.")));return}stationList(box,c.list,c.http)})
+  .catch(()=>{if(!box.isConnected)return;box.innerHTML="";box.appendChild(h("p","note",T("Nu pot accesa directorul de radio. Verifică internetul. Dacă ai deschis player-ul din Claude, deschide versiunea găzduită.")))})}
+function searchResults(out,q){out.innerHTML="";if(!q){out.appendChild(h("p","note",T("Caută în biblioteca ta și în posturile de radio online.")));return}
   const n=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();const nq=n(q);
   const songs=tracks.filter(t=>n(t.title).includes(nq)||n(t.artist).includes(nq)||n(t.album).includes(nq)).slice(0,40);
   const al=albums(tracks).filter(a=>n(a.album).includes(nq)||n(a.artist).includes(nq)).slice(0,12);
   const ar=[...groupBy(tracks,t=>t.artist).keys()].filter(a=>n(a).includes(nq)).slice(0,10);
-  if(ar.length){out.appendChild(h("div","h2","Artiști"));const r=rows();ar.forEach(a=>r.appendChild(chevRow(a,"",()=>go({v:"artist",name:a}),I.person)));out.appendChild(r)}
-  if(al.length){out.appendChild(h("div","h2","Albume"));const st=h("div","strip");al.forEach(a=>st.appendChild(albumTile(a)));out.appendChild(st)}
-  if(songs.length){out.appendChild(h("div","h2","Piese"));const r=rows();songs.forEach((t,i)=>r.appendChild(songRow(t,songs,i)));out.appendChild(r)}
+  if(ar.length){out.appendChild(h("div","h2",T("Artiști")));const r=rows();ar.forEach(a=>r.appendChild(chevRow(a,"",()=>go({v:"artist",name:a}),I.person)));out.appendChild(r)}
+  if(al.length){out.appendChild(h("div","h2",T("Albume")));const st=h("div","strip");al.forEach(a=>st.appendChild(albumTile(a)));out.appendChild(st)}
+  if(songs.length){out.appendChild(h("div","h2",T("Piese")));const r=rows();songs.forEach((t,i)=>r.appendChild(songRow(t,songs,i)));out.appendChild(r)}
   out.appendChild(h("div","h2","Radio"));const box=h("div");out.appendChild(box);
-  if(q.length<2){box.appendChild(h("p","note","Scrie cel puțin 2 litere."));return}
+  if(q.length<2){box.appendChild(h("p","note",T("Scrie cel puțin 2 litere.")));return}
   box.appendChild(h("div","skeleton"));
   rb("/json/stations/search?name="+encodeURIComponent(q)+"&hidebroken=true&order=clickcount&reverse=true&limit=15").then(d=>{if(!box.isConnected)return;box.innerHTML="";const c=cleanStations(d);
-    if(!c.list.length){box.appendChild(h("p","note","Niciun post."));return}stationList(box,c.list.slice(0,10),0)})
-  .catch(()=>{if(box.isConnected){box.innerHTML="";box.appendChild(h("p","note","Radio indisponibil fără internet."))}})}
+    if(!c.list.length){box.appendChild(h("p","note",T("Niciun post.")));return}stationList(box,c.list.slice(0,10),0)})
+  .catch(()=>{if(box.isConnected){box.innerHTML="";box.appendChild(h("p","note",T("Radio indisponibil fără internet.")))}})}
 
 /* ---------------- sheets ---------------- */
 function openSheet(build){const p=$("#sheetP");p.innerHTML="";build(p);$("#sheet").hidden=false}
 function closeSheet(){$("#sheet").hidden=true}
 $("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#sheet").hidden)closeSheet();else if(playerOpen())closePlayer();else back()}});
+document.addEventListener("keydown",e=>{if(isRetro())return;if(e.key==="Escape"){if(!$("#sheet").hidden)closeSheet();else if(playerOpen())closePlayer();else back()}});
 function sItem(p,icon,label,fn,val,cls){const b=h("button","s-item"+(cls?" "+cls:""));b.innerHTML=icon||"";const g=h("span","grow",label);b.appendChild(g);
   if(val!=null)b.appendChild(h("span","val",val));b.addEventListener("click",()=>{unlock();fn(b)});p.appendChild(b);return b}
 function sHead(p,t,title,sub){const hd=h("div","s-head");const th=h("div","thumb");if(t)fillArt(th,t);hd.appendChild(th);
   const x=h("div","txt");x.appendChild(h("div","t1",title));x.appendChild(h("div","t2",sub));hd.appendChild(x);p.appendChild(hd)}
 function trackSheet(t){openSheet(p=>{sHead(p,t,t.title,t.artist+" · "+t.album);
-  sItem(p,I.heart,favs.has(t.id)?"Scoate din Favorite":"Adaugă la Favorite",()=>{toggleFav(t);closeSheet()});
-  sItem(p,I.next,"Redă următoarea",()=>{playNext(t);closeSheet()});
-  sItem(p,I.queue,"Pune la finalul cozii",()=>{queueLast(t);closeSheet()});
-  sItem(p,I.album,"Mergi la album",()=>{closeSheet();closePlayer();if(tab!=="alb")tab="alb",document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="alb"));stacks.alb=[{v:"albums"},{v:"album",id:albumId(t)}];render()});
-  sItem(p,I.person,"Mergi la artist",()=>{closeSheet();closePlayer();tab="lib";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="lib"));stacks.lib=[{v:"lib"},{v:"artist",name:t.artist}];render()});
+  sItem(p,I.heart,favs.has(t.id)?T("Scoate din Favorite"):T("Adaugă la Favorite"),()=>{toggleFav(t);closeSheet()});
+  sItem(p,I.next,T("Redă următoarea"),()=>{playNext(t);closeSheet()});
+  sItem(p,I.queue,T("Pune la finalul cozii"),()=>{queueLast(t);closeSheet()});
+  sItem(p,I.album,T("Mergi la album"),()=>{closeSheet();closePlayer();if(tab!=="alb")tab="alb",document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="alb"));stacks.alb=[{v:"albums"},{v:"album",id:albumId(t)}];render()});
+  sItem(p,I.person,T("Mergi la artist"),()=>{closeSheet();closePlayer();tab="lib";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="lib"));stacks.lib=[{v:"lib"},{v:"artist",name:t.artist}];render()});
 })}
 function libSheet(){openSheet(p=>{
-  sItem(p,I.file,"Adaugă fișiere",()=>{closeSheet();$("#pick").click()});
-  sItem(p,I.folder,"Adaugă un folder",()=>{closeSheet();$("#pickDir").click()});
-  sItem(p,I.eq,"Egalizator",()=>eqSheet(),eq.on?eq.preset:"Oprit");
-  sItem(p,I.out,"Ieșire audio",()=>{closeSheet();pickOutput()});
-  sItem(p,I.moon,"Timer de somn",()=>sleepSheet(),sleepLabel());
-  sItem(p,I.gear,"Setări",()=>settingsSheet())})}
+  sItem(p,I.file,T("Adaugă fișiere"),()=>{closeSheet();$("#pick").click()});
+  sItem(p,I.folder,T("Adaugă un folder"),()=>{closeSheet();$("#pickDir").click()});
+  sItem(p,I.eq,T("Egalizator"),()=>eqSheet(),eq.on?T(eq.preset):T("Oprit"));
+  sItem(p,I.out,T("Ieșire audio"),()=>{closeSheet();pickOutput()});
+  sItem(p,I.theme,T("Temă"),()=>themeSheet(),themeLabel());
+  sItem(p,I.globe,T("Limbă"),()=>langSheet(),LANGS[lang]);
+  sItem(p,I.moon,T("Timer de somn"),()=>sleepSheet(),sleepLabel());
+  sItem(p,I.gear,T("Setări"),()=>settingsSheet())})}
 function settingsSheet(){let armed=false;openSheet(p=>{
-  sItem(p,I.globe,"Caută coperți online",b=>{settings.online=!settings.online;ls("rola.settings",settings);b.querySelector(".val").textContent=settings.online?"Pornit":"Oprit"},settings.online?"Pornit":"Oprit");
-  sItem(p,I.image,"Descarcă coperțile lipsă",()=>{closeSheet();fetchMissingArt()});
-  sItem(p,I.eq,"Egalizator",()=>eqSheet(),eq.on?eq.preset:"Oprit");
-  sItem(p,I.out,"Ieșire audio (AirPlay, Bluetooth)",()=>{closeSheet();pickOutput()});
+  sItem(p,I.theme,T("Temă"),()=>themeSheet(),themeLabel());
+  sItem(p,I.globe,T("Limbă"),()=>langSheet(),LANGS[lang]);
+  sItem(p,I.globe,T("Caută coperți online"),b=>{settings.online=!settings.online;ls("rola.settings",settings);b.querySelector(".val").textContent=settings.online?T("Pornit"):T("Oprit")},settings.online?T("Pornit"):T("Oprit"));
+  sItem(p,I.image,T("Descarcă coperțile lipsă"),()=>{closeSheet();fetchMissingArt()});
+  sItem(p,I.eq,T("Egalizator"),()=>eqSheet(),eq.on?T(eq.preset):T("Oprit"));
+  sItem(p,I.out,T("Ieșire audio (AirPlay, Bluetooth)"),()=>{closeSheet();pickOutput()});
   const RQ=[0,128,192,256];
-  sItem(p,I.hq,"Calitate minimă radio",b=>{radioMinKbps=RQ[(RQ.indexOf(radioMinKbps)+1)%RQ.length];ls("rola.radioq",radioMinKbps);b.querySelector(".val").textContent=rqLabel();if(tab==="radio")render()},rqLabel());
-  const sp=sItem(p,I.disk,"Spațiu folosit",()=>{},"…");
+  sItem(p,I.hq,T("Calitate minimă radio"),b=>{radioMinKbps=RQ[(RQ.indexOf(radioMinKbps)+1)%RQ.length];ls("rola.radioq",radioMinKbps);b.querySelector(".val").textContent=rqLabel();if(tab==="radio")render()},rqLabel());
+  const sp=sItem(p,I.disk,T("Spațiu folosit"),()=>{},"…");
   if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(e=>{sp.querySelector(".val").textContent=fmtBytes(e.usage||0)}).catch(()=>{});
-  sItem(p,I.trash,"Șterge biblioteca",b=>{if(!armed){armed=true;b.querySelector(".grow").textContent="Apasă din nou pentru confirmare";return}closeSheet();wipe()},null,"danger");
-  p.appendChild(h("p","note","Coperțile lipsă sunt căutate după artist și album pe iTunes și Deezer. Muzica nu părăsește telefonul."));p.lastChild.style.padding="0 18px"})}
-function sleepSheet(){openSheet(p=>{[["Oprit",0],["15 minute",15],["30 minute",30],["45 minute",45],["60 minute",60],["La finalul piesei","end"]]
-  .forEach(([l,v])=>sItem(p,I.moon,l,()=>{setSleep(v);closeSheet();toast(v?"Timer: "+l:"Timer oprit")}))})}
+  sItem(p,I.trash,T("Șterge biblioteca"),b=>{if(!armed){armed=true;b.querySelector(".grow").textContent=T("Apasă din nou pentru confirmare");return}closeSheet();wipe()},null,"danger");
+  p.appendChild(h("p","note",T("Coperțile lipsă sunt căutate după artist și album pe iTunes și Deezer. Muzica nu părăsește telefonul.")));p.lastChild.style.padding="0 18px"})}
+function sleepSheet(){openSheet(p=>{[[T("Oprit"),0],[T("15 minute"),15],[T("30 minute"),30],[T("45 minute"),45],[T("60 minute"),60],[T("La finalul piesei"),"end"]]
+  .forEach(([l,v])=>sItem(p,I.moon,l,()=>{setSleep(v);closeSheet();toast(v?T("Timer: ")+l:T("Timer oprit"))}))})}
 const fmtBytes=b=>b>1e9?(b/1e9).toFixed(1)+" GB":Math.round(b/1e6)+" MB";
 async function wipe(){audio.pause();audio.removeAttribute("src");mode=null;cur=null;loadedId=null;queue=[];qi=-1;
   try{for(const s of["meta","files","art"])await op(s,"readwrite",x=>x.clear())}catch(e){}
   objURL.forEach(u=>URL.revokeObjectURL(u));objURL.clear();tracks=[];favs=new Set();plays={};
-  ls("rola.last",null);ls("rola.favs",[]);ls("rola.plays",{});closePlayer();render();toast("Biblioteca a fost ștearsă")}
+  ls("rola.last",null);ls("rola.favs",[]);ls("rola.plays",{});closePlayer();render();toast(T("Biblioteca a fost ștearsă"))}
 
 /* ---------------- playback ---------------- */
 function unlock(){wake();if(unlocked)return;unlocked=true;[elLocal,elRadio].forEach(a=>{try{if(!a.src){a.src=SILENT;const p=a.play();if(p)p.catch(()=>{})}}catch(e){}})}
@@ -648,17 +860,17 @@ function rebuildQueue(){if(mode!=="local"||!cur)return;const src=baseList.length
   if(shuffle){queue=[cur].concat(shuf(src.filter(t=>t.id!==cur.id)));qi=0}else{queue=src.slice();qi=Math.max(0,queue.findIndex(t=>t.id===cur.id))}}
 async function loadAndPlay(auto){const t=queue[qi];if(!t)return;mode="local";cur=t;station=null;syncAll();
   let blob=null;try{blob=await getFile(t.id)}catch(e){}
-  if(cur!==t)return;if(!blob)return toast("Fișierul lipsește din bibliotecă");
+  if(cur!==t)return;if(!blob)return toast(T("Fișierul lipsește din bibliotecă"));
   useEl(elLocal);wake();if(curURL)URL.revokeObjectURL(curURL);curURL=URL.createObjectURL(blob);audio.src=curURL;loadedId=t.id;counted=null;curSize=blob.size;curTech=null;setTech();parseTech(blob,t).then(r=>{if(cur===t){curTech=r;setTech()}});
-  if(auto){try{await audio.play()}catch(e){toast("Apasă ▶ pentru redare")}}
+  if(auto){try{await audio.play()}catch(e){toast(T("Apasă ▶ pentru redare"))}}
   saveLast();updateMedia();syncAll()}
 function playStation(list,i){radioList=list.slice();const s=radioList[i];if(!s)return;mode="radio";station=s;cur=null;loadedId=null;
   useEl(elRadio);elLocal.removeAttribute("src");if(curURL){URL.revokeObjectURL(curURL);curURL=null}
-  audio.src=s.url;audio.play().catch(()=>toast("Postul nu răspunde"));
+  audio.src=s.url;audio.play().catch(()=>toast(T("Postul nu răspunde")));
   ls("rola.last",{station:s});updateMedia();syncAll()}
 function toggle(){
-  if(mode==="radio"&&station){if(audio.paused){if(!audio.src||audio.src===SILENT||audio.error){audio.src=station.url}audio.play().catch(()=>toast("Postul nu răspunde"))}else audio.pause();return}
-  if(!cur){if(tracks.length)playList(sortTracks(tracks.slice()),0);else toast("Biblioteca e goală");return}
+  if(mode==="radio"&&station){if(audio.paused){if(!audio.src||audio.src===SILENT||audio.error){audio.src=station.url}audio.play().catch(()=>toast(T("Postul nu răspunde")))}else audio.pause();return}
+  if(!cur){if(tracks.length)playList(sortTracks(tracks.slice()),0);else toast(T("Biblioteca e goală"));return}
   if(loadedId!==cur.id)return loadAndPlay(true);
   if(audio.paused)audio.play().catch(()=>{});else audio.pause()}
 function next(auto){
@@ -668,12 +880,12 @@ function next(auto){
 function prev(){
   if(mode==="radio"){if(!radioList.length)return;const n=radioList.length;const i=(radioList.findIndex(s=>s.id===station.id)-1+n)%n;return playStation(radioList,i)}
   if(!queue.length)return;if(audio.currentTime>3){audio.currentTime=0;return}qi=qi>0?qi-1:queue.length-1;loadAndPlay(true)}
-function toggleFav(t){if(favs.has(t.id)){favs.delete(t.id);toast("Scoasă din Favorite")}else{favs.add(t.id);toast("Adăugată la Favorite")}ls("rola.favs",[...favs]);syncPlayer();render()}
-function playNext(t){if(mode!=="local"||!cur)return playList([t],0);queue.splice(qi+1,0,t);toast("Urmează: "+t.title)}
-function queueLast(t){if(mode!=="local"||!cur)return playList([t],0);queue.push(t);toast("Adăugată în coadă")}
+function toggleFav(t){if(favs.has(t.id)){favs.delete(t.id);toast(T("Scoasă din Favorite"))}else{favs.add(t.id);toast(T("Adăugată la Favorite"))}ls("rola.favs",[...favs]);syncPlayer();render()}
+function playNext(t){if(mode!=="local"||!cur)return playList([t],0);queue.splice(qi+1,0,t);toast(T("Urmează: ")+t.title)}
+function queueLast(t){if(mode!=="local"||!cur)return playList([t],0);queue.push(t);toast(T("Adăugată în coadă"))}
 function setSleep(v){clearTimeout(sleepTimer);sleepAt=0;sleepEnd=false;
-  if(v==="end")sleepEnd=true;else if(v){sleepAt=Date.now()+v*60000;sleepTimer=setTimeout(()=>{audio.pause();sleepAt=0;syncAll();toast("Timer de somn: pauză")},v*60000)}syncAll()}
-function sleepLabel(){if(sleepEnd)return"Final piesă";if(sleepAt)return Math.max(1,Math.ceil((sleepAt-Date.now())/60000))+" min";return"Oprit"}
+  if(v==="end")sleepEnd=true;else if(v){sleepAt=Date.now()+v*60000;sleepTimer=setTimeout(()=>{audio.pause();sleepAt=0;syncAll();toast(T("Timer de somn: pauză"))},v*60000)}syncAll()}
+function sleepLabel(){if(sleepEnd)return T("Final piesă");if(sleepAt)return Math.max(1,Math.ceil((sleepAt-Date.now())/60000))+" min";return T("Oprit")}
 function saveModes(){ls("rola.modes",{shuffle,repeat})}
 function saveLast(){if(mode==="local"&&cur)ls("rola.last",{id:cur.id,t:audio.currentTime||0})}
 
@@ -683,14 +895,14 @@ onAudio("timeupdate",()=>{progress();
   const now=Date.now();if(now-lastSave>5000){lastSave=now;saveLast()}});
 onAudio("loadedmetadata",()=>{setTech();if(resume&&cur&&resume.id===cur.id&&resume.t>0){try{audio.currentTime=resume.t}catch(e){}}resume=null;progress()});
 onAudio("play",syncAll);onAudio("pause",()=>{syncAll();saveLast()});
-onAudio("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast("Timer de somn: oprit")}
+onAudio("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast(T("Timer de somn: oprit"))}
   if(mode==="radio"){audio.src=station.url;audio.play().catch(()=>{});return}
   if(repeat==="one"){audio.currentTime=0;audio.play().catch(()=>{});return}next(true)});
-onAudio("error",()=>{if(audio.src&&audio.src!==SILENT&&(mode==="radio"||loadedId))toast(mode==="radio"?"Postul nu poate fi redat":"Formatul nu poate fi redat")});
+onAudio("error",()=>{if(audio.src&&audio.src!==SILENT&&(mode==="radio"||loadedId))toast(mode==="radio"?T("Postul nu poate fi redat"):T("Formatul nu poate fi redat"))});
 
 /* lock screen / Control Center */
 async function updateMedia(){if(!("mediaSession" in navigator))return;
-  try{if(mode==="radio"&&station){navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:station.tags||"Radio",album:"Radio live",artwork:station.favicon?[{src:station.favicon,sizes:"256x256"}]:[]})}
+  try{if(mode==="radio"&&station){navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:station.tags||"Radio",album:T("Radio live"),artwork:station.favicon?[{src:station.favicon,sizes:"256x256"}]:[]})}
   else if(cur){const t=cur;const u=await artFor(t);if(cur!==t)return;navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,album:t.album,artwork:u?[{src:u,sizes:"600x600"}]:[]})}}catch(e){}}
 if("mediaSession" in navigator){const sh=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
   sh("play",()=>{if(audio.paused)toggle()});sh("pause",()=>audio.pause());sh("previoustrack",prev);sh("nexttrack",()=>next(false));
@@ -699,7 +911,7 @@ if("mediaSession" in navigator){const sh=(a,f)=>{try{navigator.mediaSession.setA
 /* ---------------- mini & full player ---------------- */
 const fmt=s=>{if(!isFinite(s)||s<0)s=0;s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
 let miniFor=null,plFor=null,scrubbing=false;
-function syncAll(){syncMini();syncPlayer();
+function syncAll(){syncMini();syncPlayer();rSync();
   document.querySelectorAll(".row[data-id]").forEach(r=>r.classList.toggle("playing",mode==="local"&&!!cur&&r.dataset.id===cur.id));
   document.querySelectorAll(".row[data-sid]").forEach(r=>r.classList.toggle("playing",mode==="radio"&&!!station&&r.dataset.sid===station.id))}
 function syncMini(){const has=(mode==="local"&&cur)||(mode==="radio"&&station);$("#mini").hidden=!has;if(!has)return;
@@ -710,7 +922,7 @@ function syncMini(){const has=(mode==="local"&&cur)||(mode==="radio"&&station);$
       if(station.favicon){const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.onload=()=>{th.innerHTML="";th.appendChild(im)};im.src=station.favicon}}
     else{$("#miniT").textContent=cur.title;$("#miniS").textContent=cur.artist;fillArt($("#miniArt"),cur)}}
   progress()}
-function progress(){const d=audio.duration,c=audio.currentTime,p=mode==="local"&&d?c/d*100:0;
+function progress(){rTick();const d=audio.duration,c=audio.currentTime,p=mode==="local"&&d?c/d*100:0;
   $("#miniProg").style.width=p+"%";
   if(!playerOpen()||mode!=="local"||scrubbing)return;const s=$("#scrub");s.value=d?Math.round(c/d*1000):0;s.style.setProperty("--p",p+"%");
   $("#tCur").textContent=fmt(c);$("#tRem").textContent="-"+fmt((d||0)-c)}
@@ -730,25 +942,25 @@ function syncPlayer(){if(!playerOpen())return;const P=$("#player");
   $("#plPlay").innerHTML=audio.paused?I.play:I.pause;
   $("#plShuffle").classList.toggle("on",shuffle);$("#plRepeat").classList.toggle("on",repeat!=="off");$("#repBadge").textContent=repeat==="one"?"1":"";
   $("#plEq").classList.toggle("on",eq.on);setTech();
-  $("#sleepLbl").textContent=sleepAt||sleepEnd?sleepLabel():"Timer";$("#plSleep").classList.toggle("on",!!(sleepAt||sleepEnd));
-  if(mode==="radio"&&station){$("#plFav").classList.toggle("on",isRadioFav(station));$("#goLbl").textContent="Posturi"}
-  else if(cur){$("#plFav").classList.toggle("on",favs.has(cur.id));$("#goLbl").textContent="Album"}
+  $("#sleepLbl").textContent=sleepAt||sleepEnd?sleepLabel():T("Timer");$("#plSleep").classList.toggle("on",!!(sleepAt||sleepEnd));
+  if(mode==="radio"&&station){$("#plFav").classList.toggle("on",isRadioFav(station));$("#goLbl").textContent=T("Posturi")}
+  else if(cur){$("#plFav").classList.toggle("on",favs.has(cur.id));$("#goLbl").textContent=T("Album")}
   const key=mode==="radio"&&station?"r:"+station.id:cur?"t:"+cur.id:null;if(!key||plFor===key){progress();return}plFor=key;
   const art=$("#plArt"),bg=$("#plBg");bg.hidden=true;P.style.removeProperty("--tint");
   const setImg=u=>{if(plFor!==key||!u)return;const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.onload=()=>{if(plFor!==key)return;art.innerHTML="";art.appendChild(im);bg.src=u;bg.hidden=false;tint(u).then(c=>{if(c&&plFor===key)P.style.setProperty("--tint",c)})};im.src=u};
-  if(mode==="radio"){$("#plT").textContent=station.name;$("#plS").textContent=[station.tags,station.bitrate?station.bitrate+" kbps":""].filter(Boolean).join(" · ")||"Radio online";
-    $("#plSrc").textContent="Radio live";art.innerHTML=I.radio;if(station.favicon)setImg(station.favicon)}
-  else{$("#plT").textContent=cur.title;$("#plS").textContent=cur.artist+" — "+cur.album;$("#plSrc").textContent=cur.album;art.innerHTML=I.note;artFor(cur).then(setImg)}
+  if(mode==="radio"){$("#plT").textContent=station.name;$("#plS").textContent=[station.tags,station.bitrate?station.bitrate+" kbps":""].filter(Boolean).join(" · ")||T("Radio online");
+    $("#plSrc").textContent=T("Radio live");art.innerHTML=I.radio;if(station.favicon)setImg(station.favicon)}
+  else{$("#plT").textContent=cur.title;$("#plS").textContent=T(cur.artist)+" — "+T(cur.album);$("#plSrc").textContent=T(cur.album);art.innerHTML=I.note;artFor(cur).then(setImg)}
   progress()}
 $("#plClose").addEventListener("click",closePlayer);
 $("#plPlay").addEventListener("click",()=>{unlock();toggle()});
 $("#plNext").addEventListener("click",()=>next(false));$("#plPrev").addEventListener("click",prev);
-$("#plShuffle").addEventListener("click",()=>{shuffle=!shuffle;saveModes();rebuildQueue();syncPlayer();toast(shuffle?"Amestecare pornită":"Amestecare oprită")});
-$("#plRepeat").addEventListener("click",()=>{repeat={off:"all",all:"one",one:"off"}[repeat];saveModes();syncPlayer();toast({off:"Repetare oprită",all:"Repetă tot",one:"Repetă piesa"}[repeat])});
+$("#plShuffle").addEventListener("click",()=>{shuffle=!shuffle;saveModes();rebuildQueue();syncPlayer();toast(shuffle?T("Shuffle pornit"):T("Shuffle oprit"))});
+$("#plRepeat").addEventListener("click",()=>{repeat={off:"all",all:"one",one:"off"}[repeat];saveModes();syncPlayer();toast({off:T("Repetare oprită"),all:T("Repetă tot"),one:T("Repetă piesa")}[repeat])});
 $("#plFav").addEventListener("click",()=>{if(mode==="radio"&&station)toggleRadioFav(station);else if(cur)toggleFav(cur)});
 $("#plMore").addEventListener("click",()=>{if(mode==="local"&&cur)trackSheet(cur);else if(station)openSheet(p=>{sHead(p,null,station.name,station.tags||"Radio");
-  sItem(p,I.heart,isRadioFav(station)?"Scoate din Favorite":"Adaugă la Favorite",()=>{toggleRadioFav(station);closeSheet()});
-  sItem(p,I.moon,"Timer de somn",()=>sleepSheet(),sleepLabel())})});
+  sItem(p,I.heart,isRadioFav(station)?T("Scoate din Favorite"):T("Adaugă la Favorite"),()=>{toggleRadioFav(station);closeSheet()});
+  sItem(p,I.moon,T("Timer de somn"),()=>sleepSheet(),sleepLabel())})});
 $("#plQueue").addEventListener("click",()=>{closePlayer();tab="lib";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab==="lib"));stacks.lib=[{v:"lib"},{v:"queue"}];render()});
 $("#plSleep").addEventListener("click",sleepSheet);
 $("#plOut").addEventListener("click",pickOutput);
@@ -764,7 +976,7 @@ scrub.addEventListener("change",()=>{const d=audio.duration;if(d)audio.currentTi
   P.addEventListener("touchend",e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;y0=null;if(dy>90)closePlayer()},{passive:true})})();
 
 /* ---------------- audio quality, output, EQ ---------------- */
-const rqLabel=()=>radioMinKbps?radioMinKbps+" kbps+":"Orice";
+const rqLabel=()=>radioMinKbps?radioMinKbps+" kbps+":T("Orice");
 function findBytes(b,s){const c=[...s].map(x=>x.charCodeAt(0));outer:for(let i=0;i<b.length-c.length;i++){for(let k=0;k<c.length;k++)if(b[i+k]!==c[k])continue outer;return i}return -1}
 async function parseTech(blob,t){
   const ext=((t.key||"").split("|")[0].split(".").pop()||"").toLowerCase();
@@ -789,23 +1001,23 @@ function setTech(){const el=$("#tech");if(!el)return;
   const khz=t.sr?(t.sr/1000).toFixed(1).replace(/\.0$/,"")+" kHz":"";
   el.textContent=[t.codec,hires?"Hi-Res":lossless?"Lossless":"",t.bits&&khz?t.bits+"-bit/"+khz:khz,kb?kb+" kbps":""].filter(Boolean).join(" · ")}
 function pickOutput(){const a=audio;if(a&&typeof a.webkitShowPlaybackTargetPicker==="function"){try{a.webkitShowPlaybackTargetPicker();return}catch(e){}}
-  toast("Alege ieșirea din Control Center, butonul AirPlay")}
+  toast(T("Alege ieșirea din Control Center, butonul AirPlay"))}
 function ensureGraph(){if(actx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
   try{actx=new AC();const src=actx.createMediaElementSource(elLocal);preNode=actx.createGain();src.connect(preNode);let node=preNode;
     eqNodes=EQ_F.map((f,i)=>{const b=actx.createBiquadFilter();b.type=i===0?"lowshelf":i===EQ_F.length-1?"highshelf":"peaking";b.frequency.value=f;b.Q.value=1.1;b.gain.value=0;node.connect(b);node=b;return b});
     node.connect(actx.destination);return true}catch(e){actx=null;return false}}
 function applyEq(){if(!eq.on&&!actx)return;
-  if(eq.on&&!ensureGraph()){eq.on=false;saveEq();return toast("Egalizatorul nu e suportat în acest browser")}
+  if(eq.on&&!ensureGraph()){eq.on=false;saveEq();return toast(T("Egalizatorul nu e suportat în acest browser"))}
   eqNodes.forEach((b,i)=>{b.gain.value=eq.on?eq.gains[i]:0});
   const mx=Math.max(0,...eq.gains);preNode.gain.value=eq.on?Math.pow(10,-mx/20):1;wake()}
 const saveEq=()=>ls("rola.eq",eq);
 const fmtDb=v=>(v>0?"+":"")+(+v).toFixed(1).replace(/\.0$/,"")+" dB";
 function eqSheet(){openSheet(p=>{
-  const hd=h("div","s-head");const x=h("div","txt");x.appendChild(h("div","t1","Egalizator · "+(eq.on?eq.preset:"oprit")));x.appendChild(h("div","t2","Se aplică muzicii tale. Radioul rămâne neprocesat."));hd.appendChild(x);p.appendChild(hd);
+  const hd=h("div","s-head");const x=h("div","txt");x.appendChild(h("div","t1",T("Egalizator · ")+(eq.on?T(eq.preset):T("Oprit"))));x.appendChild(h("div","t2",T("Se aplică muzicii tale. Radioul rămâne neprocesat.")));hd.appendChild(x);p.appendChild(hd);
   let wrap;
-  sItem(p,I.eq,"Egalizator",b=>{eq.on=!eq.on;saveEq();applyEq();b.querySelector(".val").textContent=eq.on?"Pornit":"Oprit";wrap.style.opacity=eq.on?1:.45;syncPlayer()},eq.on?"Pornit":"Oprit");
+  sItem(p,I.eq,T("Egalizator"),b=>{eq.on=!eq.on;saveEq();applyEq();b.querySelector(".val").textContent=eq.on?T("Pornit"):T("Oprit");wrap.style.opacity=eq.on?1:.45;syncPlayer()},eq.on?T("Pornit"):T("Oprit"));
   wrap=h("div","eqwrap");wrap.style.opacity=eq.on?1:.45;
-  const ch=h("div","chips");Object.keys(EQ_P).forEach(n=>{const c=h("button","chip"+(eq.on&&eq.preset===n?" on":""),n);
+  const ch=h("div","chips");Object.keys(EQ_P).forEach(n=>{const c=h("button","chip"+(eq.on&&eq.preset===n?" on":""),T(n));
     c.addEventListener("click",()=>{unlock();eq.preset=n;eq.gains=EQ_P[n].slice();eq.on=true;saveEq();applyEq();syncPlayer();eqSheet()});ch.appendChild(c)});wrap.appendChild(ch);
   EQ_F.forEach((f,i)=>{const r=h("label","eqrow");r.appendChild(h("span","eqf",f>=1000?(f/1000)+"k":String(f)));
     const sl=h("input","eqs");sl.type="range";sl.min="-12";sl.max="12";sl.step="0.5";sl.value=String(eq.gains[i]);sl.setAttribute("aria-label",f+" Hz");
@@ -813,11 +1025,206 @@ function eqSheet(){openSheet(p=>{
     sl.addEventListener("input",()=>{unlock();eq.gains[i]=+sl.value;eq.preset="Personalizat";eq.on=true;v.textContent=fmtDb(+sl.value);wrap.style.opacity=1;applyEq()});
     sl.addEventListener("change",()=>{saveEq();syncPlayer()});r.append(sl,v);wrap.appendChild(r)});
   p.appendChild(wrap);
-  const n=h("p","note","Dacă pe iPhone-ul tău sunetul se oprește cu ecranul blocat cât timp egalizatorul e pornit, oprește-l; redarea normală nu are această limită.");n.style.padding="0 18px";p.appendChild(n)})}
+  const n=h("p","note",T("Dacă pe iPhone-ul tău sunetul se oprește cu ecranul blocat cât timp egalizatorul e pornit, oprește-l; redarea normală nu are această limită."));n.style.padding="0 18px";p.appendChild(n)})}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)wake()});
 
+/* ---------------- themes ---------------- */
+const THEMES=[{id:"auto",label:T("Modern · automat")},{id:"light",label:T("Modern · luminos")},{id:"dark",label:T("Modern · întunecat")},
+  {id:"retro-amber",label:T("Retro · chihlimbar")},{id:"retro-green",label:T("Retro · verde")},{id:"retro-blue",label:T("Retro · albastru")},{id:"retro-paper",label:T("Retro · hârtie")},
+  {id:"velour-peach",label:T("Velour · piersică")},{id:"velour-night",label:T("Velour · noapte")}];
+let theme="auto";
+const isRetro=()=>theme.indexOf("retro")===0||theme.indexOf("velour")===0;
+const themeLabel=()=>(THEMES.find(t=>t.id===theme)||THEMES[0]).label;
+function setLang(k){if(k===lang)return;ls("rola.lang",k);location.reload()}
+function langSheet(){openSheet(p=>{Object.keys(LANGS).forEach(k=>sItem(p,I.globe,LANGS[k],()=>setLang(k),k===lang?"✓":""))})}
+function applyTheme(id){if(!THEMES.some(t=>t.id===id))id="auto";theme=id;ls("rola.theme",id);
+  const root=document.documentElement;if(id==="light"||id==="dark")root.setAttribute("data-theme",id);else if(!isRetro())root.removeAttribute("data-theme");
+  const retro=isRetro();$("#app").hidden=retro;$("#player").hidden=retro;$("#retro").hidden=!retro;closeSheet();
+  themeColor();
+  if(retro){const RR=$("#retro");if(id.indexOf("velour")===0){RR.dataset.skin="velour";RR.dataset.tone=id.slice(7);RR.dataset.lcd=""}else{RR.dataset.skin="";RR.dataset.tone="";RR.dataset.lcd=id.slice(6)}closePlayer();rstack=[rRoot()];rRender()}else render()}
+function themeColor(){const m=$("#themeColor");if(!m)return;
+  const map={"retro-amber":"#3b4048","retro-green":"#3b4048","retro-blue":"#3b4048","retro-paper":"#ededE7","velour-peach":"#fff6ea","velour-night":"#241a25"};
+  let c=map[theme];if(!c){const dark=theme==="dark"||(theme==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);c=dark?"#0E0D11":"#F5F4F7"}
+  m.setAttribute("content",c)}
+function themeSheet(){openSheet(p=>{THEMES.forEach(t=>sItem(p,I.theme,t.label,()=>applyTheme(t.id),theme===t.id?"✓":""))})}
+
+/* ---------------- retro UI ---------------- */
+let rstack=[],rNPfor=null,rLetterT=0;
+const rTop=()=>rstack[rstack.length-1];
+const rList=(title,build)=>({kind:"list",title,build,items:[],sel:0});
+function rPush(v){rstack.push(v);rRender()}
+function rPop(){if(rstack.length>1){rstack.pop();rRender()}}
+function rNP(){if(rTop().kind!=="np")rPush({kind:"np",title:T("Redare acum")});else rRender()}
+const rNeed=fn=>()=>tracks.length?fn():toast(T("Biblioteca e goală"));
+const playing=()=>(mode==="local"&&cur)||(mode==="radio"&&station);
+function rRoot(){return rList(T("Meniu"),()=>{const it=[];
+  it.push({label:T("Playlisturi"),go:()=>rPush(rPlaylists())});
+  it.push({label:T("Artiști"),go:rNeed(()=>rPush(rArtists()))});
+  it.push({label:T("Albume"),go:rNeed(()=>rPush(rAlbums(tracks,T("Albume"))))});
+  it.push({label:T("Melodii"),go:rNeed(()=>rPush(rAllSongs()))});
+  it.push({label:T("Genuri"),go:rNeed(()=>rPush(rGenres()))});
+  it.push({label:"Radio",go:()=>rPush(rRadio())});
+  it.push({label:T("Setări"),go:()=>rPush(rSettings())});
+  if(playing()&&!audio.paused)it.push({label:T("Redare acum"),go:rNP});
+  return it})}
+function rAllSongs(){const list=tracks.slice().sort((a,b)=>coll.compare(a.title,b.title));
+  const v=rSongs(list,T("Melodii"));const base=v.build;
+  v.build=()=>[{label:T("Shuffle"),r:"",go:()=>{shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length));rNP()}}].concat(base());return v}
+function rSettings(){return rList(T("Setări"),()=>[
+  {label:T("Shuffle"),r:shuffle?T("Pornit"):T("Oprit"),go:()=>{shuffle=!shuffle;saveModes();rebuildQueue();rRefresh()}},
+  {label:T("Repetă"),r:T({off:"Oprit",all:"Tot",one:"Piesa"}[repeat]),go:()=>{repeat={off:"all",all:"one",one:"off"}[repeat];saveModes();rRefresh()}},
+  {label:T("Egalizator"),r:eq.on?T(eq.preset):T("Oprit"),go:()=>rPush(rEq())},
+  {label:T("Timer de somn"),r:sleepLabel(),go:()=>rPush(rSleep())},
+  {label:T("Temă"),go:()=>rPush(rThemes())},
+  {label:T("Limbă"),r:lang.toUpperCase(),go:()=>rPush(rList(T("Limbă"),()=>Object.keys(LANGS).map(k=>({label:LANGS[k],r:k===lang?"●":"",go:()=>setLang(k)}))))},
+  {label:T("Adaugă muzică"),go:()=>$("#pick").click()}])}
+function rSongs(list,title){return rList(title,()=>list.map((t,i)=>({label:t.title,r:favs.has(t.id)?"♥":"",hold:()=>rPush(rOpts(t)),go:()=>{playList(list,i);rNP()}})))}
+function rMusic(){return rList(T("Muzică"),()=>[
+  {label:T("Shuffle melodii"),go:rNeed(()=>{shuffle=true;saveModes();playList(tracks,Math.floor(Math.random()*tracks.length));rNP()})},
+  {label:T("Artiști"),go:rNeed(()=>rPush(rArtists()))},
+  {label:T("Albume"),go:rNeed(()=>rPush(rAlbums(tracks,T("Albume"))))},
+  {label:T("Melodii"),r:tracks.length,go:rNeed(()=>rPush(rSongs(tracks.slice().sort((a,b)=>coll.compare(a.title,b.title)),T("Melodii"))))},
+  {label:T("Genuri"),go:rNeed(()=>rPush(rGenres()))}])}
+function rArtists(){return rList(T("Artiști"),()=>{const g=groupBy(tracks,t=>t.artist);
+  return[...g.keys()].sort(coll.compare).map(a=>({label:a,r:g.get(a).length,go:()=>{const l=g.get(a);if(albums(l).length===1)rPush(rSongs(sortTracks(l.slice()),a));else rPush(rAlbums(l,a,true))}}))})}
+function rAlbums(list,title,withAll){const v=rList(title,()=>{const it=albums(list).map(al=>({label:al.album,al,r:al.tracks.length,go:()=>rPush(rSongs(sortTracks(al.tracks.slice()),T(al.album)))}));
+  if(withAll)it.unshift({label:T("Toate piesele"),r:list.length,go:()=>rPush(rSongs(sortTracks(list.slice()),title))});return it});v.carousel=true;return v}
+/* Velour: albums as a sideways shelf of square record sleeves */
+const isVelour=()=>theme.indexOf("velour")===0;
+function rRenderCarousel(v){const el=$("#rView");el.innerHTML="";
+  const car=h("div","vcar"),tr=h("div","vtrack"),cap=h("div","vcap");tr.id="vTrack";cap.id="vCap";car.append(tr,cap);el.appendChild(car);
+  let x0=null,acc=0,moved=false;
+  tr.addEventListener("pointerdown",e=>{x0=e.clientX;acc=0;moved=false;unlock();try{tr.setPointerCapture(e.pointerId)}catch(_){}});
+  tr.addEventListener("pointermove",e=>{if(x0==null)return;const dx=e.clientX-x0;x0=e.clientX;acc+=dx;if(Math.abs(acc)>6)moved=true;
+    while(acc<=-44){acc+=44;rMove(1)}while(acc>=44){acc-=44;rMove(-1)}});
+  const up=()=>{x0=null};tr.addEventListener("pointerup",up);tr.addEventListener("pointercancel",up);tr.addEventListener("dragstart",e=>e.preventDefault());
+  tr.addEventListener("click",e=>{if(moved){moved=false;return}const hit=document.elementFromPoint(e.clientX,e.clientY);const t=hit&&hit.closest(".vtile");if(!t)return;const i=+t.dataset.i;
+    if(i===rTop().sel)rActivate();else{rTop().sel=i;rCarUpdate()}});
+  rCarUpdate()}
+function rTile(it,i){const t=h("div","vtile");t.dataset.i=i;const vin=h("div","vinyl"),sl=h("div","sleeve");
+  if(it.al)fillArt(sl,it.al.tracks[0],I.album);else{sl.innerHTML=I.note;sl.classList.add("all")}
+  t.append(vin,sl);return t}
+function rCarUpdate(){const v=rTop(),tr=$("#vTrack");if(!tr)return;const n=v.items.length,keep=new Set();
+  for(let i=Math.max(0,v.sel-5);i<=Math.min(n-1,v.sel+5);i++)keep.add(i);
+  [...tr.children].forEach(c=>{if(!keep.has(+c.dataset.i))c.remove()});
+  keep.forEach(i=>{let t=tr.querySelector('.vtile[data-i="'+i+'"]');if(!t){t=rTile(v.items[i],i);tr.appendChild(t)}
+    const d=i-v.sel,ad=Math.abs(d),sg=d>0?1:-1;
+    t.style.setProperty("--x",String(d===0?0:sg*(0.66+0.2*(ad-1))));t.style.setProperty("--ry",d===0?"0deg":(-sg*62)+"deg");t.style.setProperty("--z",d===0?"40px":"-90px");
+    t.style.opacity=ad>4?"0":"1";t.style.zIndex=String(10-ad);t.classList.toggle("sel",d===0)});
+  const it=v.items[v.sel],cap=$("#vCap");cap.innerHTML="";if(!it)return;
+  cap.appendChild(h("div","t",T(it.label)));
+  cap.appendChild(h("div","a",it.al?T(it.al.artist)+" · "+it.al.tracks.length+(it.al.tracks.length===1?T(" piesă"):T(" piese"))+(it.al.year?" · "+it.al.year:""):it.r+T(" piese")));
+  cap.appendChild(h("div","n",(v.sel+1)+" / "+n))}
+function rGenres(){return rList(T("Genuri"),()=>{const g=groupBy(tracks,t=>t.genre||"Necunoscut");
+  return[...g.keys()].sort(coll.compare).map(k=>({label:k,r:g.get(k).length,go:()=>rPush(rSongs(sortTracks(g.get(k).slice()),k))}))})}
+function rPlaylists(){return rList(T("Playlisturi"),()=>{
+  const fav=tracks.filter(t=>favs.has(t.id)),rec=tracks.slice().sort((a,b)=>b.added-a.added).slice(0,100),most=tracks.filter(t=>plays[t.id]).sort((a,b)=>plays[b.id]-plays[a.id]).slice(0,50);
+  return[{label:T("Favorite"),r:fav.length,go:()=>fav.length?rPush(rSongs(fav,T("Favorite"))):toast(T("Ține apăsat OK pe o piesă"))},
+    {label:T("Urmează"),r:mode==="local"&&cur?Math.max(0,queue.length-qi-1):0,go:()=>{if(mode!=="local"||!cur)return toast(T("Nimic în redare"));
+      const rest=queue.slice(qi+1);rPush(rList(T("Urmează"),()=>rest.map((t,k)=>({label:t.title,go:()=>{qi=qi+1+k;loadAndPlay(true);rNP()}}))))}},
+    {label:T("Adăugate recent"),go:rNeed(()=>rPush(rSongs(rec,T("Recente"))))},
+    {label:T("Cele mai ascultate"),r:most.length,go:()=>most.length?rPush(rSongs(most,T("Ascultate des"))):toast(T("Încă nimic ascultat"))}]})}
+function rStationItems(list){return list.map((s,i)=>({label:s.name,r:isRadioFav(s)?"♥":"",hold:()=>{toggleRadioFav(s);rRefresh()},go:()=>{playStation(list,i);rNP()}}))}
+function rRadio(){return rList("Radio",()=>{
+  const it=[{label:T("Favorite"),r:radioFavs.length,go:()=>radioFavs.length?rPush(rList(T("Favorite"),()=>rStationItems(radioFavs.slice()))):toast(T("Ține apăsat OK pe un post"))}];
+  RADIO_CATS.filter(c=>c.path).forEach(c=>it.push({label:c.label,go:()=>{
+    const v=rList(c.label,()=>v.data?rStationItems(v.data):[{label:v.err||T("Se încarcă…")}]);rPush(v);
+    rb(c.path).then(d=>{const l=cleanStations(d).list;if(l.length)v.data=l;else v.err=T("Niciun post")}).catch(()=>{v.err=T("Fără conexiune")}).finally(()=>{if(rTop()===v)rRefresh()})}}));
+  return it})}
+function rOpts(t){return rList(T("Opțiuni"),()=>[
+  {label:favs.has(t.id)?T("Scoate din Favorite"):T("Adaugă la Favorite"),go:()=>{toggleFav(t);rRefresh()}},
+  {label:T("Redă următoarea"),go:()=>{playNext(t);rPop()}},
+  {label:T("Pune în coadă"),go:()=>{queueLast(t);rPop()}},
+  {label:T("Mergi la album"),go:()=>{const l=sortTracks(tracks.filter(x=>albumId(x)===albumId(t)));rstack=[rstack[0]];rPush(rSongs(l,t.album))}}])}
+function rEq(){return rList(T("Egalizator"),()=>[{label:T("Egalizator"),r:eq.on?T("PORNIT"):T("OPRIT"),go:()=>{eq.on=!eq.on;saveEq();applyEq();rRefresh()}}]
+  .concat(Object.keys(EQ_P).map(n=>({label:T(n),r:eq.on&&eq.preset===n?"●":"",go:()=>{eq.preset=n;eq.gains=EQ_P[n].slice();eq.on=true;saveEq();applyEq();rRefresh()}}))))}
+function rSleep(){return rList(T("Timer de somn"),()=>[[T("Oprit"),0],[T("15 minute"),15],[T("30 minute"),30],[T("45 minute"),45],[T("60 minute"),60],[T("Final piesă"),"end"]]
+  .map(([l,v])=>({label:l,go:()=>{setSleep(v);toast(v?T("Timer: ")+l:T("Timer oprit"));rPop()}})))}
+function rThemes(){return rList(T("Temă"),()=>THEMES.map(t=>({label:t.label,r:theme===t.id?"●":"",go:()=>applyTheme(t.id)})))}
+
+function rRender(){if(!isRetro())return;const v=rTop();$("#rTitle").textContent=v.title;
+  $("#rHint").textContent=v.kind==="np"?(mode==="radio"?T("posturi"):T("derulare")):T("listă");
+  if(v.kind==="np")rRenderNP();else{v.items=v.build();v.sel=Math.min(v.sel,Math.max(0,v.items.length-1));rRenderList(v)}rState()}
+function rRefresh(){if(!isRetro())return;const v=rTop();if(v.kind==="list"){v.items=v.build();v.sel=Math.min(v.sel,Math.max(0,v.items.length-1));rRenderList(v)}else rFillNP();rState()}
+function rRenderList(v){if(v.carousel&&isVelour())return rRenderCarousel(v);const el=$("#rView");el.innerHTML="";const fr=document.createDocumentFragment();
+  v.items.forEach((it,i)=>{const d=h("div","rrow"+(i===v.sel?" sel":""));d.dataset.i=i;d.appendChild(h("span","l",it.label));
+    d.appendChild(h("span","r",it.r!=null&&it.r!==""?String(it.r):(it.go?"›":"")));fr.appendChild(d)});
+  el.appendChild(fr);rScroll()}
+function rScroll(){const r=$("#rView").children[rTop().sel];if(r&&r.scrollIntoView)r.scrollIntoView({block:"nearest"})}
+function rMove(d){const v=rTop();if(v.kind!=="list"||!v.items.length)return;const ns=Math.max(0,Math.min(v.items.length-1,v.sel+d));if(ns===v.sel)return;
+  if(v.carousel&&isVelour()){v.sel=ns;rCarUpdate();return}
+  const el=$("#rView");if(el.children[v.sel])el.children[v.sel].classList.remove("sel");if(el.children[ns])el.children[ns].classList.add("sel");v.sel=ns;rScroll();
+  if(v.items.length>=30){const L=$("#rLetter");L.textContent=initial(v.items[ns].label);L.hidden=false;clearTimeout(rLetterT);rLetterT=setTimeout(()=>{L.hidden=true},700)}}
+function rActivate(){const v=rTop();if(v.kind==="np"){if(mode==="local"&&cur)rPush(rOpts(cur));else if(mode==="radio"&&station){toggleRadioFav(station);rFillNP()}return}
+  const it=v.items[v.sel];if(it&&it.go)it.go()}
+function rHold(){const v=rTop();if(v.kind==="np"){rActivate();return true}const it=v.items[v.sel];if(it&&it.hold){it.hold();return true}return false}
+function rRenderNP(){$("#rView").innerHTML='<div class="rnp"><div class="rcount" id="rI"></div><div class="rnp-top"><div class="rart" id="rArt">♪</div><div class="rmeta"><div class="t" id="rT"></div><div class="a" id="rA"></div><div class="d" id="rL"></div></div></div>'+
+  '<div class="rprog" id="rProg"><i id="rP"></i></div><div class="rtimes"><span id="rC"></span><span id="rR"></span></div>'+
+  '<div class="ricons"><button class="ric" id="rRep" aria-label="'+T("Repetare")+'"><svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 01-3 3H3"/></svg></button>'+
+  '<button class="ric" id="rFav" aria-label="'+T("Favorit")+'"><svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.4-9.3-9.2C1.5 8 3.6 4.5 7.1 4.5c2 0 3.5 1.1 4.9 2.9 1.4-1.8 2.9-2.9 4.9-2.9 3.5 0 5.6 3.5 4.4 6.8-1.8 4.8-9.3 9.2-9.3 9.2z"/></svg></button>'+
+  '<button class="ric" id="rShuf" aria-label="'+T("Shuffle")+'"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button></div>'+
+  '<div class="rst"><span id="rM"></span></div><div class="rtech" id="rTech"></div></div>';
+  $("#rProg").addEventListener("click",e=>{if(mode!=="local"||!audio.duration)return;const r=e.currentTarget.getBoundingClientRect();audio.currentTime=(e.clientX-r.left)/r.width*audio.duration});
+  $("#rRep").addEventListener("click",()=>{unlock();repeat={off:"all",all:"one",one:"off"}[repeat];saveModes();rFillNP()});
+  $("#rFav").addEventListener("click",()=>{unlock();if(mode==="local"&&cur)toggleFav(cur);else if(mode==="radio"&&station)toggleRadioFav(station);rFillNP()});
+  $("#rShuf").addEventListener("click",()=>{unlock();shuffle=!shuffle;saveModes();rebuildQueue();rFillNP()});
+  rNPfor=null;rFillNP()}
+function rImg(box,u,key){if(!u)return;const im=new Image();im.alt="";im.referrerPolicy="no-referrer";im.onload=()=>{if(rNPfor===key){box.innerHTML="";box.appendChild(im)}};im.src=u}
+function rFillNP(){if(!isRetro()||rTop().kind!=="np"||!$("#rT"))return;setTech();
+  if(mode==="radio"&&station){$("#rT").textContent=station.name;$("#rA").textContent=station.tags||"Radio";$("#rL").textContent=isRadioFav(station)?T("♥ Favorit"):T("Radio live");
+    $("#rI").textContent="LIVE";$("#rM").textContent="";const k="r:"+station.id;if(rNPfor!==k){rNPfor=k;$("#rArt").innerHTML="♪";rImg($("#rArt"),station.favicon,k)}}
+  else if(mode==="local"&&cur){$("#rT").textContent=cur.title;$("#rA").textContent=T(cur.artist);$("#rL").textContent=T(cur.album);$("#rI").textContent=(qi+1)+T(" din ")+queue.length;
+    $("#rM").textContent=[favs.has(cur.id)?"♥":"",shuffle?T("SHUFFLE"):"",{off:"",all:T("REPETĂ"),one:T("REPETĂ 1")}[repeat]].filter(Boolean).join(" · ");
+    const k="t:"+cur.id,t=cur;if(rNPfor!==k){rNPfor=k;$("#rArt").innerHTML="♪";artFor(t).then(u=>rImg($("#rArt"),u,k))}}
+  else{$("#rT").textContent=T("Nimic în redare");$("#rA").textContent="";$("#rL").textContent=""}
+  const rr=$("#rRep");if(rr){rr.classList.toggle("on",repeat!=="off");rr.dataset.one=repeat==="one"?"1":"";
+    $("#rFav").classList.toggle("on",mode==="local"&&cur?favs.has(cur.id):(mode==="radio"&&station?isRadioFav(station):false));$("#rShuf").classList.toggle("on",shuffle)}
+  rTick()}
+function rTick(){if(!isRetro()||!rstack.length||rTop().kind!=="np")return;const p=$("#rP");if(!p)return;
+  if(mode==="radio"){p.style.width="100%";$("#rC").textContent="";$("#rR").textContent=""}
+  else{const d=audio.duration,c=audio.currentTime;p.style.width=(d?c/d*100:0)+"%";$("#rC").textContent=fmt(c);$("#rR").textContent="-"+fmt((d||0)-c)}
+  const tt=$("#tech");$("#rTech").textContent=tt?tt.textContent:""}
+function rState(){if(!isRetro())return;$("#retro").classList.toggle("paused",audio.paused);$("#rState").textContent=(sleepAt||sleepEnd?"z ":"")+(!playing()?"■":audio.paused?"❚❚":"▶");
+  $("#rCount").textContent=tracks.length+(tracks.length===1?T(" piesă"):T(" piese"))}
+function rSync(){if(!isRetro()||!rstack.length)return;rState();const v=rTop();if(v.kind==="np")rFillNP();else if(v===rstack[0])rRefresh()}
+function rStep(d){const v=rTop();if(v.kind==="np"){if(mode==="local"&&audio.duration){audio.currentTime=Math.max(0,Math.min(audio.duration-.5,audio.currentTime+d*5));rTick()}}else rMove(d)}
+(function(){
+  $("#rView").addEventListener("click",e=>{unlock();if(rHeld){rHeld=false;return}const row=e.target.closest(".rrow");if(!row)return;const v=rTop();if(v.kind!=="list")return;
+    const i=+row.dataset.i;if(i!==v.sel){const a=$("#rView").children[v.sel];if(a)a.classList.remove("sel");row.classList.add("sel");v.sel=i}rActivate()});
+  let rHeld=false,ht=0;
+  $("#rView").addEventListener("pointerdown",e=>{const row=e.target.closest(".rrow");if(!row||rTop().kind!=="list")return;rHeld=false;clearTimeout(ht);
+    ht=setTimeout(()=>{const v=rTop();const i=+row.dataset.i;const a=$("#rView").children[v.sel];if(a)a.classList.remove("sel");row.classList.add("sel");v.sel=i;if(rHold())rHeld=true},550)});
+  ["pointerup","pointercancel","pointerleave"].forEach(ev=>$("#rView").addEventListener(ev,()=>clearTimeout(ht)));
+  $("#rView").addEventListener("scroll",()=>clearTimeout(ht),{passive:true});
+  $("#rView").addEventListener("contextmenu",e=>e.preventDefault());
+  const k=(id,fn)=>$(id).addEventListener("click",()=>{unlock();fn()});
+  k("#rkPrev",prev);k("#rkNext",()=>next(false));k("#rkPlay",toggle);k("#rkMenu",rPop);
+  let okT=0,okF=false;const ok=$("#rkOk");
+  ok.addEventListener("pointerdown",()=>{okF=false;clearTimeout(okT);okT=setTimeout(()=>{if(rHold())okF=true},550)});
+  ["pointerup","pointercancel","pointerleave"].forEach(ev=>ok.addEventListener(ev,()=>clearTimeout(okT)));
+  ok.addEventListener("click",()=>{unlock();if(okF){okF=false;return}rActivate()});ok.addEventListener("contextmenu",e=>e.preventDefault());
+  let mT=0;const mk=$("#rkMenu");mk.addEventListener("pointerdown",()=>{clearTimeout(mT);mT=setTimeout(()=>{rstack=[rstack[0]];rRender()},700)});
+  ["pointerup","pointercancel","pointerleave"].forEach(ev=>mk.addEventListener(ev,()=>clearTimeout(mT)));
+  const ro=$("#rRoller");let rx=0,acc=0,drag=false,lx=0;const STEP=20;
+  let moved=0,x0=0,t0=0,holdT=0,held=false;
+  ro.addEventListener("pointerdown",e=>{drag=true;lx=x0=e.clientX;acc=0;moved=0;t0=Date.now();held=false;unlock();try{ro.setPointerCapture(e.pointerId)}catch(_){}
+    clearTimeout(holdT);holdT=setTimeout(()=>{if(drag&&moved<8){held=true;rHold()}},550)});
+  ro.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-lx;lx=e.clientX;moved=Math.max(moved,Math.abs(e.clientX-x0));
+    if(moved>=8)clearTimeout(holdT);rx+=dx;ro.style.setProperty("--rx",rx+"px");acc+=dx;
+    while(acc>=STEP){acc-=STEP;rStep(1)}while(acc<=-STEP){acc+=STEP;rStep(-1)}});
+  /* a tap on the roller (no drag) works like OK; holding it works like holding OK */
+  ro.addEventListener("pointerup",()=>{clearTimeout(holdT);const tap=drag&&moved<8&&!held&&Date.now()-t0<550;drag=false;acc=0;if(tap)rActivate()});
+  ro.addEventListener("pointercancel",()=>{clearTimeout(holdT);drag=false;acc=0});
+  ro.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();unlock();rActivate()}});
+  ro.addEventListener("wheel",e=>{e.preventDefault();const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;rx-=d/2;ro.style.setProperty("--rx",rx+"px");rStep(d>0?1:-1)},{passive:false});
+  document.addEventListener("keydown",e=>{if(!isRetro())return;const key=e.key;
+    if(key==="ArrowDown"){e.preventDefault();rStep(1)}else if(key==="ArrowUp"){e.preventDefault();rStep(-1)}
+    else if(key==="Enter"){e.preventDefault();unlock();rActivate()}else if(key==="Escape"||key==="Backspace"){e.preventDefault();rPop()}
+    else if(key===" "){e.preventDefault();unlock();toggle()}else if(key==="ArrowRight")next(false);else if(key==="ArrowLeft")prev()});
+})();
+
 /* ---------------- misc ---------------- */
-let toastT=0;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2400)}
+let toastT=0;function toast(m){const t=isRetro()?$("#rToast"):$("#toast");$("#toast").hidden=true;$("#rToast").hidden=true;t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2400)}
 function makeIcon(){try{const c=document.createElement("canvas");c.width=c.height=180;const x=c.getContext("2d");
   const g=x.createLinearGradient(0,0,180,180);g.addColorStop(0,"#F0619D");g.addColorStop(1,"#7A1E52");x.fillStyle=g;x.fillRect(0,0,180,180);
   x.strokeStyle="rgba(255,255,255,.95)";x.lineWidth=10;x.lineCap="round";[30,48,66].forEach(r=>{x.beginPath();x.arc(90,90,r,-.9,.9);x.stroke();x.beginPath();x.arc(90,90,r,Math.PI-.9,Math.PI+.9);x.stroke()});
@@ -838,11 +1245,11 @@ function makeIcon(){try{const c=document.createElement("canvas");c.width=c.heigh
   makeIcon();render();
   try{db=await idbOpen();const all=await op("meta","readonly",s=>s.getAll());tracks=sortTracks(all||[]);
     if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}
-  catch(e){toast("Stocarea locală e blocată în acest browser")}
+  catch(e){toast(T("Stocarea locală e blocată în acest browser"))}
   const last=ls("rola.last");
   if(last&&last.station){useEl(elRadio);mode="radio";station=last.station;radioList=radioFavs.length?radioFavs.slice():[station]}
   else if(last&&last.id){const i=tracks.findIndex(t=>t.id===last.id);if(i>=0){mode="local";baseList=tracks.slice();queue=baseList.slice();qi=i;cur=tracks[i];resume={id:cur.id,t:+last.t||0};updateMedia()}}
-  render();
+  applyTheme(ls("rola.theme")||"auto");
 })();
 })();
 </script>
