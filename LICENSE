@@ -1,0 +1,60 @@
+Rola
+Copyright (c) 2026 Dragoș Mălăescu. All rights reserved.
+
+This license covers the Rola source code, design and documentation in this
+repository ("the Software"). It does not cover the third-party components
+listed at the end, which keep their own licenses.
+
+1. What you may do
+
+   a. Use the hosted Software, at https://dragosmalaescu.github.io/rola/ or
+      any other address published by the author, for your own personal,
+      non-commercial listening.
+   b. Read the source code to understand how it works.
+
+2. What you may not do without the author's prior written permission
+
+   a. Copy, redistribute, sublicense or sell the Software, in whole or in
+      part.
+   b. Publish, host or distribute modified versions of the Software, or apps
+      and websites derived from it.
+   c. Use the Software, or any part of it, for commercial purposes. This
+      includes selling it, bundling it with a product or service, showing
+      ads in it, or offering it as a paid or hosted service.
+   d. Remove or change this copyright notice or this license.
+   e. Use the name "Rola" or the author's name to promote any product or
+      service.
+
+   GitHub's Terms of Service let users view and fork public repositories on
+   GitHub. That does not give any of the rights listed in section 2.
+
+3. Permission
+
+   To ask for permission for anything in section 2, open an issue in this
+   repository or contact the author through his GitHub profile.
+
+4. No warranty
+
+   The Software is provided "as is", without warranty of any kind, express or
+   implied, including warranties of merchantability, fitness for a particular
+   purpose and non-infringement. In no event shall the author be liable for
+   any claim, damages or other liability arising from the use of the Software,
+   including loss of data such as an imported music library.
+
+5. Third-party components
+
+   These are used by the Software and remain under their own licenses:
+
+   - jsmediatags, Copyright (c) 2009 Opera Software ASA and contributors,
+     BSD 3-Clause License. https://github.com/aadsm/jsmediatags
+   - DSEG font family, Copyright (c) 2017 keshikan, SIL Open Font License,
+     Version 1.1. https://www.keshikan.net/fonts-e.html
+   - Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch and Share Tech Mono,
+     served by Google Fonts under the SIL Open Font License, Version 1.1.
+   - Data and services from Radio Browser, the iTunes Search API, the Deezer
+     API and AutoEQ are used under their own terms. The author claims no
+     rights over them.
+
+6. Governing law
+
+   This license is governed by the laws of Romania.
