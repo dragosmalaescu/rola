@@ -16,6 +16,7 @@ I have a lot of music in files, some of it in FLAC, and I didn't want to upload 
 - Has online radio with search, categories and favorite stations.
 - Has a 10-band equalizer and can import AutoEQ profiles for your headphones.
 - Has a sleep timer, shuffle and repeat, and remembers where you left off.
+- Lets you drag the progress bar to jump anywhere in a song. Hold the next or previous button to skip forward or back, 5 seconds at a time at first and then 10.
 - Speaks English, Romanian, German, French, Spanish and Italian. It starts in English and you can switch in Settings.
 
 ## Install it on your phone
