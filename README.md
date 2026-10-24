@@ -11,7 +11,7 @@ I have a lot of music in files, some of it in FLAC, and I didn't want to upload 
 ## What it does
 
 - Plays your local music: MP3, AAC/M4A, ALAC, FLAC, WAV and AIFF, including 24-bit files.
-- Reads the title, artist, album, genre and cover art from your files. If an album has no cover, it looks one up online.
+- Reads the title, artist, album, genre and cover art from your files. On import it also tidies messy names (like "[Official Video 4K]") and fills in the right title, artist, album and cover from iTunes or Deezer.
 - Lets you browse by artists, albums, songs and genres. There are favorites, recently added, most played and an up next queue.
 - Has online radio with search, categories and favorite stations.
 - Has a 10-band equalizer and can import AutoEQ profiles for your headphones.
@@ -69,7 +69,7 @@ Your music is never uploaded. The files, favorites, playlists, listening history
 
 Only a few things go over the internet:
 
-- the artist and album name, when a missing cover is looked up on iTunes or Deezer (you can turn this off in Settings);
+- the song title and artist name, when tags and covers are matched on iTunes or Deezer (you can turn this off in Settings);
 - requests to the radio directory, and the audio of the stations you listen to;
 - the fonts and the tag reading library, loaded when the page opens.
 
