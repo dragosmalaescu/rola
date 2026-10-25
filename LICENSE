@@ -47,12 +47,14 @@ listed at the end, which keep their own licenses.
 
    - jsmediatags, Copyright (c) 2009 Opera Software ASA and contributors,
      BSD 3-Clause License. https://github.com/aadsm/jsmediatags
+   - rusty-chromaprint and rusty-chromaprint-wasm, MIT License.
+     https://github.com/darksv/rusty-chromaprint
    - DSEG font family, Copyright (c) 2017 keshikan, SIL Open Font License,
      Version 1.1. https://www.keshikan.net/fonts-e.html
    - Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch and Share Tech Mono,
      served by Google Fonts under the SIL Open Font License, Version 1.1.
    - Data and services from Radio Browser, MusicBrainz (core data CC0),
-     the Cover Art Archive, the iTunes Search API, the Deezer API and AutoEQ are used under their own terms. The author claims no
+     the Cover Art Archive, AcoustID, the iTunes Search API, the Deezer API and AutoEQ are used under their own terms. The author claims no
      rights over them.
 
 6. Governing law
