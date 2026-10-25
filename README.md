@@ -7,9 +7,9 @@ Rola is a private music player for audio files you own, plus online radio. It ru
 **Web app:** [dragosmalaescu.github.io/rola](https://dragosmalaescu.github.io/rola/)
 An Android build for Google Play is in testing.
 
-## Why I built it
+## Why I’ve built it
 
-I wanted a player for my own phone that could handle a local collection, FLAC included, without pushing anything to a cloud service. I also missed the old pocket players, so several themes use a scroll wheel and hardware-style keys you can operate without looking at the screen.
+I’ve always wanted a player for my own phone that could handle a local collection, FLAC included, without pushing anything to a cloud service. I also missed the old pocket players, so several themes use a scroll wheel and hardware-style keys you can operate without looking at the screen.
 
 ## Features
 
@@ -128,7 +128,7 @@ Station data comes from [Radio Browser](https://www.radio-browser.info/). Statio
 
 No accounts, no analytics, no ad trackers. Your music files are never uploaded.
 
-Stored locally on the device: imported files, favorites, playlists, play history and counts, queue and playback state, settings.
+Stored locally on your device: imported files, favorites, playlists, play history and counts, queue and playback state, settings.
 
 Network requests happen only for:
 
