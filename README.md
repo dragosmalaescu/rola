@@ -11,7 +11,7 @@ I have a lot of music in files, some of it in FLAC, and I didn't want to upload 
 ## What it does
 
 - Plays your local music: MP3, AAC/M4A, ALAC, FLAC, WAV and AIFF, including 24-bit files.
-- Reads the title, artist, album, genre and cover art from your files. On import it also tidies messy names (like "[Official Video 4K]") and fills in the right title, artist, album and cover from iTunes or Deezer.
+- Reads the title, artist, album, genre and cover art from your files. On import it also tidies messy names (like "[Official Video 4K]") and fills in the right title, artist, album and cover from iTunes or Deezer, with MusicBrainz as a fallback. The Google Play version uses only MusicBrainz.
 - Lets you browse by artists, albums, songs and genres. There are favorites, recently added, most played and an up next queue.
 - Has online radio with search, categories and favorite stations.
 - Has a 10-band equalizer and can import AutoEQ profiles for your headphones.
@@ -59,7 +59,7 @@ On the Now Playing screen, the current album or playlist is listed under the son
 
 There are two modes.
 
-**Graphic, 10 bands**, with presets for careful listening: Loudness based on ISO 226, a Harman-style bass shelf, warm and bright tilt, vocal presence, de-ess and a few more. The graph shows the real curve.
+**Graphic, 10 bands**, with presets for careful listening: Loudness based on ISO 226, a bass shelf, warm and bright tilt, vocal presence, de-ess and a few more. The graph shows the real curve.
 
 **AutoEQ headphone profile.** Find your headphone model on autoeq.app, choose Parametric EQ, copy the text and paste it into Rola. It's the most accurate way to correct a specific pair of headphones.
 
@@ -71,7 +71,7 @@ Your music is never uploaded. The files, favorites, playlists, listening history
 
 Only a few things go over the internet:
 
-- the song title and artist name, when tags and covers are matched on iTunes or Deezer (you can turn this off in Settings);
+- the song title and artist name, when tags and covers are matched on iTunes, Deezer, MusicBrainz or the Cover Art Archive (you can turn this off in Settings);
 - requests to the radio directory, and the audio of the stations you listen to;
 - the fonts and the tag reading library, loaded when the page opens.
 
@@ -98,7 +98,8 @@ Rola is not open source. You're welcome to use the hosted app for your own perso
 - [DSEG](https://www.keshikan.net/fonts-e.html), the seven segment font in the Quartz theme (SIL Open Font License 1.1)
 - [Radio Browser](https://www.radio-browser.info/), the public station directory
 - [AutoEQ](https://autoeq.app/), for headphone profiles
-- iTunes Search API and Deezer API, for missing covers
+- iTunes Search API and Deezer API, for song details and missing covers in the web version
+- [MusicBrainz](https://musicbrainz.org/) and the [Cover Art Archive](https://coverartarchive.org/), for song details, genres and missing covers
 - Google Fonts: Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch and Share Tech Mono (SIL Open Font License 1.1)
 
 A personal project by Dragoș Mălăescu.
