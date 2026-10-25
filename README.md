@@ -34,7 +34,7 @@ I have a lot of music in files, some of it in FLAC, and I didn't want to upload 
 3. Open the folder, tap Select, then Select All and Open.
 4. Keep the screen on until it finishes. Your music is copied into the player once.
 
-**Play from external storage without copying** (a USB stick, or a microSD card on Android). Choose Play without copying (external storage) or Play a folder without copying in the add menu. Rola plays the files straight from the stick or card and uses no space on the phone. iOS only allows access while the app is open, so after you close it completely you pick the files again. Any song you like can be imported into the library with a swipe to the right.
+**Play from external storage without copying** (a USB stick, or a microSD card on Android). Choose External storage in the add menu and select the songs (in a folder, tap Select, then Select All). Rola plays the files straight from the stick or card and uses no space on the phone. iOS only allows access while the app is open, so after you close it completely you pick the files again. Any song you like can be imported into the library with a swipe to the right.
 
 Songs bought or downloaded from Apple Music can't be used. They are protected, and iOS doesn't share them with other apps.
 
