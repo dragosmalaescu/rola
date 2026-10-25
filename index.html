@@ -1543,21 +1543,14 @@ function lockPlay(){if(!audio.paused)return;
   if(document.hidden&&mode==="radio"&&station){audio.src=station.url;const p=audio.play();if(p&&p.catch)p.catch(()=>{});return}
   toggle()}
 function mediaHandlers(){if(!("mediaSession" in navigator))return;const ms=navigator.mediaSession,sh=(a,f)=>{try{ms.setActionHandler(a,f)}catch(e){}};
-  sh("play",()=>lockPlay());sh("pause",()=>audio.pause());
+  sh("play",()=>{if(audio.paused)toggle()});sh("pause",()=>audio.pause());
   sh("previoustrack",()=>prev());sh("nexttrack",()=>next(false));
   sh("seekto",d=>{if(mode==="local"&&d&&isFinite(d.seekTime))audio.currentTime=d.seekTime})}
 mediaHandlers();
 function posState(){if(!("mediaSession" in navigator)||!navigator.mediaSession.setPositionState)return;
   try{const d=audio.duration;if(mode==="local"&&isFinite(d)&&d>0)navigator.mediaSession.setPositionState({duration:d,position:Math.min(Math.max(audio.currentTime||0,0),d),playbackRate:1})}catch(e){}}
 ["loadedmetadata","seeked","play","pause","durationchange"].forEach(ev=>onAudio(ev,posState));
-/* an explicit playback state makes iOS hand the lock screen to the page's handlers (previous / next) instead of its default ±10 s skips;
-   it is set only from what the audio element really does, so it cannot drift */
-function msState(v){try{if("mediaSession" in navigator)navigator.mediaSession.playbackState=v}catch(e){}}
-/* home-screen app on iOS: a page that reports "paused" while hidden gets put to sleep, and a lock-screen play then runs the clock
-   with no sound. While hidden and paused the state is left to iOS ("none"), which is how it behaved when that play worked */
-function msSync(){msState(!audio.paused?"playing":document.hidden?"none":"paused")}
-onAudio("play",()=>{msState("playing");mediaHandlers()});onAudio("playing",msSync);onAudio("pause",msSync);onAudio("ended",msSync);
-document.addEventListener("visibilitychange",msSync);window.addEventListener("pagehide",()=>{if(audio.paused)msState("none")});
+
 
 /* ---------------- mini & full player ---------------- */
 const fmt=s=>{if(!isFinite(s)||s<0)s=0;s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
