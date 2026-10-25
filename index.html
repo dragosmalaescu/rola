@@ -1509,9 +1509,9 @@ function saveLast(){if(mode==="local"&&cur&&!cur.temp)ls("rola.last",{id:cur.id,
 onAudio("timeupdate",()=>{progress();
   if(mode!=="local"||!cur||loadedId!==cur.id)return;const d=audio.duration,c=audio.currentTime;lastTU=c;lastTUAt=Date.now();
   if(counted!==cur.id&&d&&c>d*.5&&!cur.temp){counted=cur.id;plays[cur.id]=(plays[cur.id]||0)+1;ls("rola.plays",plays)}
-  const now=Date.now();if(now-lastSave>5000){lastSave=now;saveLast()}});
+  const now=Date.now();if(now-lastSave>5000){lastSave=now;saveLast();mediaState()}});
 onAudio("loadedmetadata",()=>{setTech();if(resume&&cur&&resume.id===cur.id&&resume.t>0){try{audio.currentTime=resume.t}catch(e){}}resume=null;progress()});
-onAudio("play",syncAll);onAudio("pause",()=>{syncAll();saveLast()});
+onAudio("play",()=>{syncAll();mediaHandlers();mediaState()});onAudio("pause",()=>{syncAll();saveLast();mediaState()});onAudio("seeked",mediaState);onAudio("loadedmetadata",mediaState);
 onAudio("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast(T("Timer de somn: oprit"))}
   if(mode==="radio"){audio.src=station.url;audio.play().catch(()=>{});return}
   if(mode==="local"&&cur&&audio.duration&&lastTU<audio.duration-3&&Date.now()-lastTUAt<3000&&Date.now()-lastRevive>5000){revive(lastTU,true);return}
@@ -1522,9 +1522,16 @@ onAudio("error",()=>{if(audio.src&&audio.src!==SILENT&&(mode==="radio"||loadedId
 async function updateMedia(){if(!("mediaSession" in navigator))return;
   try{if(mode==="radio"&&station){navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:station.tags||"Radio",album:T("Radio live"),artwork:station.favicon?[{src:station.favicon,sizes:"256x256"}]:[]})}
   else if(cur){const t=cur;const u=await artFor(t);if(cur!==t)return;navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,album:t.album,artwork:u?[{src:u,sizes:"600x600"}]:[]})}}catch(e){}}
-if("mediaSession" in navigator){const sh=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
-  sh("play",()=>{if(audio.paused)toggle()});sh("pause",()=>audio.pause());sh("previoustrack",prev);sh("nexttrack",()=>next(false));
-  sh("seekto",d=>{if(mode==="local"&&d&&isFinite(d.seekTime))audio.currentTime=d.seekTime})}
+/* iOS can drop the handlers when the active media element changes, so they are set again on every play;
+   no seek-forward/back handlers, so the lock screen keeps previous / next track buttons */
+function mediaHandlers(){if(!("mediaSession" in navigator))return;const ms=navigator.mediaSession,sh=(a,f)=>{try{ms.setActionHandler(a,f)}catch(e){}};
+  sh("play",()=>{if(audio.paused)toggle()});sh("pause",()=>{if(!audio.paused){if(mode==="local")softPause();else audio.pause()}});
+  sh("previoustrack",()=>prev());sh("nexttrack",()=>next(false));sh("seekbackward",null);sh("seekforward",null);
+  sh("seekto",d=>{if(mode==="local"&&d&&isFinite(d.seekTime)){try{audio.currentTime=d.seekTime}catch(e){}mediaState()}})}
+function mediaState(){if(!("mediaSession" in navigator))return;const ms=navigator.mediaSession;
+  try{ms.playbackState=(mode==="local"&&cur)||(mode==="radio"&&station)?(audio.paused?"paused":"playing"):"none"}catch(e){}
+  try{const d=audio.duration;if(mode==="local"&&cur&&isFinite(d)&&d>0&&ms.setPositionState)ms.setPositionState({duration:d,position:Math.min(Math.max(0,audio.currentTime||0),d),playbackRate:audio.playbackRate||1})}catch(e){}}
+mediaHandlers();
 
 /* ---------------- mini & full player ---------------- */
 const fmt=s=>{if(!isFinite(s)||s<0)s=0;s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
