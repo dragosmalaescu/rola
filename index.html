@@ -1458,8 +1458,8 @@ function revive(pos,play){if(mode!=="local"||!cur)return;lastRevive=Date.now();r
 function watchPlay(){const t0=audio.currentTime,id=cur&&cur.id;setTimeout(()=>{if(mode!=="local"||!cur||cur.id!==id||audio.paused)return;
   if(Math.abs(audio.currentTime-t0)>=.05)return;if(actx&&actx.state!=="running"){wake();return}
   if(dead()&&Date.now()-lastRevive>5000)revive(t0,true)},3000)}
-function playLocal(){wake();if(dead()){revive(audio.readyState===0?lastTU:(audio.ended?0:audio.currentTime),true);return}if(audio.ended){try{audio.currentTime=0}catch(e){}}
-  const p=audio.play();if(p&&p.then)p.then(watchPlay,()=>revive(audio.readyState===0?lastTU:audio.currentTime,true));else watchPlay()}
+function playLocal(){if(dead()){wake();revive(audio.readyState===0?lastTU:(audio.ended?0:audio.currentTime),true);return}if(audio.ended){try{audio.currentTime=0}catch(e){}}
+  if(actx&&actx.state==="suspended")wake();const p=audio.play();if(p&&p.catch)p.then(watchPlay,()=>{if(dead())revive(lastTU,true)})}
 const shuf=l=>{const a=l.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function playList(list,i){mode="local";station=null;baseList=list.slice();
   if(shuffle){const f=list[i];queue=[f].concat(shuf(list.filter(t=>t!==f)));qi=0}else{queue=baseList.slice();qi=i}
@@ -1504,7 +1504,7 @@ onAudio("timeupdate",()=>{progress();
   if(counted!==cur.id&&d&&c>d*.5&&!cur.temp){counted=cur.id;plays[cur.id]=(plays[cur.id]||0)+1;ls("rola.plays",plays)}
   const now=Date.now();if(now-lastSave>5000){lastSave=now;saveLast()}});
 onAudio("loadedmetadata",()=>{setTech();if(resume&&cur&&resume.id===cur.id&&resume.t>0){try{audio.currentTime=resume.t}catch(e){}}resume=null;progress()});
-onAudio("play",()=>{syncAll();mediaHandlers()});onAudio("pause",()=>{syncAll();saveLast()});
+let hEl=null;onAudio("play",()=>{syncAll();if(audio!==hEl){hEl=audio;mediaHandlers()}});onAudio("pause",()=>{syncAll();saveLast()});
 onAudio("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast(T("Timer de somn: oprit"))}
   if(mode==="radio"){audio.src=station.url;audio.play().catch(()=>{});return}
   if(mode==="local"&&cur&&audio.duration&&lastTU<audio.duration-3&&Date.now()-lastTUAt<3000&&Date.now()-lastRevive>5000){revive(lastTU,true);return}
