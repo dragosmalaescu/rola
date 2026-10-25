@@ -13,7 +13,7 @@ I have a lot of music in files, some of it in FLAC, and I didn't want to upload 
 - Plays your local music: MP3, AAC/M4A, ALAC, FLAC, WAV and AIFF, including 24-bit files.
 - Reads the title, artist, album, genre and cover art from your files. On import it also tidies messy names (like "[Official Video 4K]") and fills in the right title, artist, album and cover from iTunes or Deezer, with MusicBrainz as a fallback. The Google Play version uses only MusicBrainz.
 - Can recognise songs with missing or wrong tags by their sound, using an AcoustID fingerprint (the web version has a key built in; in the Android app you add your own free AcoustID key in Settings, the i button explains how).
-- Lists the tracks that still need attention (no artist, no album, a generic title or not recognised) under Settings, Tracks to review, where you can edit the tags by hand or search online with what you typed and pick the right match.
+- Lists the tracks that still need attention (no artist, no album, a generic title or not recognised) under Settings, Tools, Tracks to review, where you can edit the tags by hand or search online with what you typed and pick the right match.
 - Lets you browse by artists, albums, songs and genres. There are favorites, recently added, most played and an up next queue.
 - Has online radio with search, categories and favorite stations.
 - Has a 10-band equalizer and can import AutoEQ profiles for your headphones.
@@ -30,7 +30,7 @@ I have a lot of music in files, some of it in FLAC, and I didn't want to upload 
 ## Add your music
 
 1. Put your songs in a folder in the Files app. On iPhone the easiest place is On My iPhone, in a folder called Music.
-2. In Rola open the settings and choose Add files (in the scroll wheel themes: Settings, then Add music).
+2. In Rola open the menu and choose Add music (in the scroll wheel themes: Settings, then Add music).
 3. Open the folder, tap Select, then Select All and Open.
 4. Keep the screen on until it finishes. Your music is copied into the player once.
 
