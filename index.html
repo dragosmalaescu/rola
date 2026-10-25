@@ -1453,11 +1453,13 @@ function wake(){if(actx&&actx.state!=="running")actx.resume().catch(()=>{})}
 /* iOS can drop the decoder of a backgrounded track: detect a stuck element and reload it at the right position */
 let lastTU=0,lastTUAt=0,lastRevive=0;
 const healthy=()=>!audio.error&&audio.readyState>=1&&!!audio.getAttribute("src");
+const dead=()=>!!audio.error||audio.readyState===0||!audio.getAttribute("src");
 function revive(pos,play){if(mode!=="local"||!cur)return;lastRevive=Date.now();resume={id:cur.id,t:Math.max(0,pos||0)};loadedId=null;loadAndPlay(play!==false)}
 function watchPlay(){const t0=audio.currentTime,id=cur&&cur.id;setTimeout(()=>{if(mode!=="local"||!cur||cur.id!==id||audio.paused)return;
-  if(Math.abs(audio.currentTime-t0)<.05&&Date.now()-lastRevive>5000)revive(t0,true)},2000)}
-function playLocal(){wake();if(!healthy()){revive(audio.readyState===0?lastTU:(audio.ended?0:audio.currentTime),true);return}if(audio.ended){try{audio.currentTime=0}catch(e){}}
-  const p=audio.play();if(p&&p.then)p.then(watchPlay,()=>revive(audio.readyState===0?lastTU:audio.currentTime,true));else watchPlay()}
+  if(Math.abs(audio.currentTime-t0)>=.05)return;if(actx&&actx.state!=="running"){wake();return}
+  if(dead()&&Date.now()-lastRevive>5000)revive(t0,true)},3000)}
+function playLocal(){wake();if(dead()){revive(audio.readyState===0?lastTU:(audio.ended?0:audio.currentTime),true);return}if(audio.ended){try{audio.currentTime=0}catch(e){}}
+  softStart();const p=audio.play();if(p&&p.then)p.then(watchPlay,()=>revive(audio.readyState===0?lastTU:audio.currentTime,true));else watchPlay()}
 const shuf=l=>{const a=l.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function playList(list,i){mode="local";station=null;baseList=list.slice();
   if(shuffle){const f=list[i];queue=[f].concat(shuf(list.filter(t=>t!==f)));qi=0}else{queue=baseList.slice();qi=i}
@@ -1480,14 +1482,21 @@ function toggle(){
     if(audio.paused)audio.play().catch(()=>toast(T("Postul nu răspunde")));else audio.pause();return}
   if(!cur){if(tracks.length)playList(sortTracks(tracks.slice()),0);else toast(T("Biblioteca e goală"));return}
   if(loadedId!==cur.id)return loadAndPlay(true);
-  if(audio.paused)playLocal();else audio.pause()}
+  if(audio.paused)playLocal();else softPause()}
+function gainBase(){return Math.pow(10,(eqPreDb||0)/20)}
+function softPause(){if(!actx||!preNode||actx.state!=="running"||audio!==elLocal){audio.pause();return}
+  const g=preNode.gain,t=actx.currentTime;try{g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0.0001,t+0.06)}catch(e){}
+  setTimeout(()=>{audio.pause();try{g.cancelScheduledValues(actx.currentTime);g.value=gainBase()}catch(e){}},70)}
+function softStart(){if(!actx||!preNode||audio!==elLocal)return;const g=preNode.gain,t=actx.currentTime;
+  try{g.cancelScheduledValues(t);g.setValueAtTime(0.0001,t);g.linearRampToValueAtTime(gainBase(),t+0.08)}catch(e){}
+  setTimeout(()=>{try{g.cancelScheduledValues(actx.currentTime);g.value=gainBase()}catch(e){}},200)}
 function next(auto){
   if(mode==="radio"){if(!radioList.length)return;const i=(radioList.findIndex(s=>s.id===station.id)+1)%radioList.length;return playStation(radioList,i)}
   if(!queue.length)return;if(qi<queue.length-1)qi++;else if(repeat==="all"||!auto)qi=0;else{audio.pause();syncAll();return}
   loadAndPlay(true)}
 function prev(){
   if(mode==="radio"){if(!radioList.length)return;const n=radioList.length;const i=(radioList.findIndex(s=>s.id===station.id)-1+n)%n;return playStation(radioList,i)}
-  if(!queue.length)return;if(audio.currentTime>3||audio.ended){const go=!audio.paused||audio.ended;if(!healthy()){revive(0,true);return}try{audio.currentTime=0}catch(e){}if(go&&audio.paused)playLocal();return}qi=qi>0?qi-1:queue.length-1;loadAndPlay(true)}
+  if(!queue.length)return;if(audio.currentTime>3||audio.ended){const go=!audio.paused||audio.ended;if(dead()){revive(0,true);return}try{audio.currentTime=0}catch(e){}if(go&&audio.paused)playLocal();return}qi=qi>0?qi-1:queue.length-1;loadAndPlay(true)}
 function toggleFav(t){if(t&&t.temp)return tempBlock();if(favs.has(t.id)){favs.delete(t.id);toast(T("Scoasă din Favorite"))}else{favs.add(t.id);toast(T("Adăugată la Favorite"))}ls("rola.favs",[...favs]);syncPlayer();render()}
 function playNext(t){if(mode!=="local"||!cur)return playList([t],0);queue.splice(qi+1,0,t);toast(T("Urmează: ")+t.title)}
 function queueLast(t){if(mode!=="local"||!cur)return playList([t],0);queue.push(t);toast(T("Adăugată în coadă"))}
@@ -1732,7 +1741,7 @@ function eqImportSheet(){openSheet(p=>{
   ok.addEventListener("click",()=>{unlock();const r=parseAutoEQ(ta.value);if(!r)return toast(T("Textul nu conține filtre AutoEQ"));
     eq.param=r;eq.mode="param";eq.on=true;saveEq();applyEq();syncPlayer();rRefresh();toast(T("Profil aplicat"));eqSheet()});
   no.addEventListener("click",()=>eqSheet());b.append(ok,no);w.appendChild(b);p.appendChild(w)})}
-document.addEventListener("visibilitychange",()=>{if(document.hidden)return;wake();if(mode==="local"&&cur&&loadedId===cur.id&&(audio.error||(audio.readyState<2&&!audio.paused)))revive(lastTU,!audio.paused)});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)return;wake();if(mode==="local"&&cur&&loadedId===cur.id&&dead())revive(lastTU,!audio.paused)});
 
 /* ---------------- themes ---------------- */
 const THEMES=[{id:"auto",label:T("Modern · automat")},{id:"light",label:T("Modern · luminos")},{id:"dark",label:T("Modern · întunecat")},
