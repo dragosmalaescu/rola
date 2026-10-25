@@ -1543,6 +1543,10 @@ mediaHandlers();
 function posState(){if(!("mediaSession" in navigator)||!navigator.mediaSession.setPositionState)return;
   try{const d=audio.duration;if(mode==="local"&&isFinite(d)&&d>0)navigator.mediaSession.setPositionState({duration:d,position:Math.min(Math.max(audio.currentTime||0,0),d),playbackRate:1})}catch(e){}}
 ["loadedmetadata","seeked","play","pause","durationchange"].forEach(ev=>onAudio(ev,posState));
+/* an explicit playback state makes iOS hand the lock screen to the page's handlers (previous / next) instead of its default ±10 s skips;
+   it is set only from what the audio element really does, so it cannot drift */
+function msState(v){try{if("mediaSession" in navigator)navigator.mediaSession.playbackState=v}catch(e){}}
+onAudio("play",()=>{msState("playing");mediaHandlers()});onAudio("playing",()=>msState("playing"));onAudio("pause",()=>msState("paused"));onAudio("ended",()=>{if(audio.paused)msState("paused")});
 
 /* ---------------- mini & full player ---------------- */
 const fmt=s=>{if(!isFinite(s)||s<0)s=0;s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
