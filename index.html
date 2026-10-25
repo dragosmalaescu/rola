@@ -731,15 +731,15 @@ let shuffle=false,repeat="off";
 let favs=new Set(),plays={},counted=null,resume=null,lastSave=0;
 let radioFavs=[],artCache={},settings={online:true};
 let sleepTimer=0,sleepAt=0,sleepEnd=false;
-const elLocal=new Audio(),elRadio=new Audio(),elRadioRaw=new Audio();
-[elLocal,elRadio,elRadioRaw].forEach(a=>{a.preload="auto";a.setAttribute("playsinline","");a.setAttribute("x-webkit-airplay","allow")});
+const elLocal=new Audio(),elRadio=new Audio(),elRadioRaw=new Audio(),elLocalRaw=new Audio();
+[elLocal,elRadio,elRadioRaw,elLocalRaw].forEach(a=>{a.preload="auto";a.setAttribute("playsinline","");a.setAttribute("x-webkit-airplay","allow")});
 /* elRadio asks the station for permission to process (CORS) so the equalizer can work on it; elRadioRaw plays stations that refuse */
 elRadio.crossOrigin="anonymous";
 let audio=elLocal;
 const noCors=new Set();
 elRadio.addEventListener("error",()=>{if(audio!==elRadio||mode!=="radio"||!station||!elRadio.getAttribute("src"))return;
   noCors.add(station.id);audio=elRadioRaw;elRadioRaw.src=station.url;elRadioRaw.play().catch(()=>{});setTimeout(()=>{try{elRadio.removeAttribute("src");elRadio.load()}catch(e){}},0)});
-const onAudio=(ev,fn)=>[elLocal,elRadio,elRadioRaw].forEach(a=>a.addEventListener(ev,e=>{if(e.target===audio)fn(e)}));
+const onAudio=(ev,fn)=>[elLocal,elRadio,elRadioRaw,elLocalRaw].forEach(a=>a.addEventListener(ev,e=>{if(e.target===audio)fn(e)}));
 function useEl(el){if(audio!==el){try{audio.pause()}catch(e){}audio=el}}
 const EQ_F=[31,62,125,250,500,1000,2000,4000,8000,16000];
 const EQ_P={"Flat": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Loudness (ISO 226)": [6, 4.5, 2.5, 0.5, 0, 0, -0.5, 0.5, 2, 3], "Bass shelf": [6, 5.5, 3, 0.5, 0, 0, 0, 0, -0.5, -1.5], "Tilt cald": [4.5, 3.6, 2.7, 1.8, 0.9, 0, -0.9, -1.8, -2.7, -3.6], "Tilt luminos": [-3.6, -2.7, -1.8, -0.9, 0, 0.9, 1.8, 2.7, 3.6, 4.5], "Analog cald": [2, 2.5, 1.5, 0.5, 0, 0, -0.5, -1, -2, -3.5], "Prezență vocală": [0, 0, -1, -1, 0, 1, 2.5, 2, 0, 0], "Anti-sibilanțe": [0, 0, 0, 0, 0, 0, 0, -1.5, -3.5, -1.5], "Sub-bass": [7, 4, 1, 0, 0, 0, 0, 0, 0, 0], "Clasică": [2, 1.5, 0.5, 0, -0.5, 0, 0.5, 1, 1.5, 1], "Căști mici": [5, 4, 2, 0, -0.5, 0, 1, 1.5, 2, 1.5], "Rock": [4, 3, 1, -1, -2, -1, 1, 3, 4, 4], "Jazz": [3, 2, 1, 2, -1, -1, 0, 1, 2, 3], "Electronic": [5, 4, 1, 0, -2, 1, 0, 1, 4, 5]};
@@ -1448,18 +1448,29 @@ async function wipe(){audio.pause();audio.removeAttribute("src");mode=null;cur=n
   ls("rola.last",null);ls("rola.favs",[]);ls("rola.plays",{});closePlayer();render();toast(T("Biblioteca a fost ștearsă"))}
 
 /* ---------------- playback ---------------- */
-function unlock(){wake();if(unlocked)return;unlocked=true;[elLocal,elRadio,elRadioRaw].forEach(a=>{try{if(!a.src){a.src=SILENT;const p=a.play();if(p)p.catch(()=>{})}}catch(e){}})}
+function unlock(){wake();if(unlocked)return;unlocked=true;[elLocal,elRadio].forEach(a=>{try{if(!a.src){a.src=SILENT;const p=a.play();if(p)p.catch(()=>{})}}catch(e){}})}
 function wake(){if(actx&&actx.state!=="running")actx.resume().catch(()=>{})}
 /* iOS can drop the decoder of a backgrounded track: detect a stuck element and reload it at the right position */
 let lastTU=0,lastTUAt=0,lastRevive=0;
 const healthy=()=>!audio.error&&audio.readyState>=1&&!!audio.getAttribute("src");
 const dead=()=>!!audio.error||audio.readyState===0||!audio.getAttribute("src");
+const broken=()=>!!audio.error||!audio.getAttribute("src");
 function revive(pos,play){if(mode!=="local"||!cur)return;lastRevive=Date.now();resume={id:cur.id,t:Math.max(0,pos||0)};loadedId=null;loadAndPlay(play!==false)}
 function watchPlay(){const t0=audio.currentTime,id=cur&&cur.id;setTimeout(()=>{if(mode!=="local"||!cur||cur.id!==id||audio.paused)return;
   if(Math.abs(audio.currentTime-t0)>=.05)return;if(actx&&actx.state!=="running"){wake();return}
   if(dead()&&Date.now()-lastRevive>5000)revive(t0,true)},3000)}
-function playLocal(){if(dead()){wake();revive(audio.readyState===0?lastTU:(audio.ended?0:audio.currentTime),true);return}if(audio.ended){try{audio.currentTime=0}catch(e){}}
-  if(actx&&actx.state==="suspended")wake();const p=audio.play();if(p&&p.catch)p.then(watchPlay,()=>{if(dead())revive(lastTU,true)})}
+/* iOS will not restart the EQ graph from the lock screen (the clock runs, no sound). A play started while the app is hidden
+   goes through a plain element without EQ; the EQ path comes back as soon as the app is in front again */
+const viaGraph=()=>!!actx&&audio===elLocal;
+function swapLocal(to,play){const from=audio;if(from===to||!curURL||!cur)return false;const t=from.currentTime||lastTU||0;
+  useEl(to);from.removeAttribute("src");try{from.load()}catch(e){}resume={id:cur.id,t};lastTU=t;to.src=curURL;
+  if(play){const p=to.play();if(p&&p.catch)p.catch(()=>{})}syncAll();return true}
+function backToGraph(){if(audio!==elLocalRaw||mode!=="local"||!cur||!actx)return;wake();
+  const go=()=>{if(audio!==elLocalRaw)return;if(actx.state!=="running")return false;swapLocal(elLocal,!audio.paused);return true};
+  setTimeout(()=>{if(go()===false){const once=()=>{document.removeEventListener("pointerdown",once,true);wake();setTimeout(go,120)};document.addEventListener("pointerdown",once,true)}},300)}
+function playLocal(){if(document.hidden&&viaGraph()&&!broken()){swapLocal(elLocalRaw,true);return}
+  if(broken()){revive(lastTU,true);return}if(audio.ended){try{audio.currentTime=0}catch(e){}}
+  wake();const p=audio.play();if(p&&p.catch)p.then(watchPlay,()=>{if(dead())revive(lastTU,true)})}
 const shuf=l=>{const a=l.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function playList(list,i){mode="local";station=null;baseList=list.slice();
   if(shuffle){const f=list[i];queue=[f].concat(shuf(list.filter(t=>t!==f)));qi=0}else{queue=baseList.slice();qi=i}
@@ -1469,12 +1480,12 @@ function rebuildQueue(){if(mode!=="local"||!cur)return;const src=baseList.length
 async function loadAndPlay(auto){const t=queue[qi];if(!t)return;mode="local";cur=t;station=null;syncAll();
   let blob=null;try{blob=await getFile(t.id)}catch(e){}
   if(cur!==t)return;if(!blob)return toast(T("Fișierul lipsește din bibliotecă"));
-  useEl(elLocal);wake();if(curURL)URL.revokeObjectURL(curURL);curURL=URL.createObjectURL(blob);audio.src=curURL;loadedId=t.id;counted=null;lastTU=resume&&resume.id===t.id?resume.t:0;curSize=blob.size;curTech=null;setTech();parseTech(blob,t).then(r=>{if(cur===t){curTech=r;setTech()}});
+  const raw=document.hidden&&!!actx&&(audio===elLocalRaw||audio.paused||actx.state!=="running");useEl(raw?elLocalRaw:elLocal);(raw?elLocal:elLocalRaw).removeAttribute("src");if(mode==="local"){[elRadio,elRadioRaw].forEach(r=>{if(r.getAttribute("src")&&r.src!==SILENT){r.removeAttribute("src");try{r.load()}catch(e){}}})}wake();if(curURL)URL.revokeObjectURL(curURL);curURL=URL.createObjectURL(blob);audio.src=curURL;loadedId=t.id;counted=null;lastTU=resume&&resume.id===t.id?resume.t:0;curSize=blob.size;curTech=null;setTech();parseTech(blob,t).then(r=>{if(cur===t){curTech=r;setTech()}});
   if(auto){try{await audio.play()}catch(e){toast(T("Apasă ▶ pentru redare"))}}
   saveLast();updateMedia();syncAll()}
 function playStation(list,i){radioList=list.slice();const s=radioList[i];if(!s)return;mode="radio";station=s;cur=null;loadedId=null;
   const raw=noCors.has(s.id)||/\.m3u8(\?|$)/i.test(s.url);useEl(raw?elRadioRaw:elRadio);(raw?elRadio:elRadioRaw).removeAttribute("src");
-  elLocal.removeAttribute("src");if(curURL){URL.revokeObjectURL(curURL);curURL=null}
+  elLocal.removeAttribute("src");elLocalRaw.removeAttribute("src");if(curURL){URL.revokeObjectURL(curURL);curURL=null}
   audio.src=s.url;audio.play().catch(()=>toast(T("Postul nu răspunde")));
   ls("rola.last",{station:s});updateMedia();syncAll()}
 function toggle(){
@@ -1482,7 +1493,8 @@ function toggle(){
     if(audio.paused)audio.play().catch(()=>toast(T("Postul nu răspunde")));else audio.pause();return}
   if(!cur){if(tracks.length)playList(sortTracks(tracks.slice()),0);else toast(T("Biblioteca e goală"));return}
   if(loadedId!==cur.id)return loadAndPlay(true);
-  if(audio.paused)playLocal();else audio.pause()}
+  if(audio.paused)playLocal();else softPause()}
+function softPause(){if(!actx||!preNode||actx.state!=="running"||audio===elLocalRaw){audio.pause();return}const el=audio;envSet(0,.05);setTimeout(()=>{if(el===audio&&!el.paused)el.pause();else envSet(envGain())},60)}
 function next(auto){
   if(mode==="radio"){if(!radioList.length)return;const i=(radioList.findIndex(s=>s.id===station.id)+1)%radioList.length;return playStation(radioList,i)}
   if(!queue.length)return;if(qi<queue.length-1)qi++;else if(repeat==="all"||!auto)qi=0;else{audio.pause();syncAll();return}
@@ -1504,7 +1516,13 @@ onAudio("timeupdate",()=>{progress();
   if(counted!==cur.id&&d&&c>d*.5&&!cur.temp){counted=cur.id;plays[cur.id]=(plays[cur.id]||0)+1;ls("rola.plays",plays)}
   const now=Date.now();if(now-lastSave>5000){lastSave=now;saveLast()}});
 onAudio("loadedmetadata",()=>{setTech();if(resume&&cur&&resume.id===cur.id&&resume.t>0){try{audio.currentTime=resume.t}catch(e){}}resume=null;progress()});
-let hEl=null;onAudio("play",()=>{syncAll();if(audio!==hEl){hEl=audio;mediaHandlers()}});onAudio("pause",()=>{syncAll();saveLast()});
+/* soft edges when the sound runs through the EQ graph: a short gain ramp hides the click at start/stop */
+let envT=0;const envGain=()=>Math.pow(10,eqPreDb/20);
+function envSet(v,dur){if(!actx||!preNode)return;try{const g=preNode.gain,t=actx.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);if(dur)g.linearRampToValueAtTime(v,t+dur);else g.setValueAtTime(v,t)}catch(e){try{preNode.gain.value=v}catch(_){}}}
+function envIn(){clearTimeout(envT);envT=0;if(!actx||!preNode)return;wake();envSet(envGain(),.08)}
+function envGuard(){clearTimeout(envT);envT=setTimeout(envIn,700)}
+onAudio("play",()=>{syncAll();mediaHandlers();if(actx&&preNode&&audio!==elRadioRaw&&audio!==elLocalRaw){envSet(0);envGuard()}});
+onAudio("playing",()=>{mediaHandlers();envIn()});onAudio("timeupdate",()=>{if(actx&&preNode&&audio!==elLocalRaw&&audio!==elRadioRaw&&!audio.paused&&preNode.gain.value<envGain()*.5&&!envT)envIn()});onAudio("pause",()=>{syncAll();saveLast();mediaHandlers();clearTimeout(envT);envT=0;envSet(envGain())});
 onAudio("ended",()=>{if(sleepEnd){sleepEnd=false;syncAll();return toast(T("Timer de somn: oprit"))}
   if(mode==="radio"){audio.src=station.url;audio.play().catch(()=>{});return}
   if(mode==="local"&&cur&&audio.duration&&lastTU<audio.duration-3&&Date.now()-lastTUAt<3000&&Date.now()-lastRevive>5000){revive(lastTU,true);return}
@@ -1514,14 +1532,17 @@ onAudio("error",()=>{if(audio.src&&audio.src!==SILENT&&(mode==="radio"||loadedId
 /* lock screen / Control Center */
 async function updateMedia(){if(!("mediaSession" in navigator))return;
   try{if(mode==="radio"&&station){navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:station.tags||"Radio",album:T("Radio live"),artwork:station.favicon?[{src:station.favicon,sizes:"256x256"}]:[]})}
-  else if(cur){const t=cur;const u=await artFor(t);if(cur!==t)return;navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,album:t.album,artwork:u?[{src:u,sizes:"600x600"}]:[]})}}catch(e){}}
+  else if(cur){const t=cur;const u=await artFor(t);if(cur!==t)return;navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,album:t.album,artwork:u?[{src:u,sizes:"600x600"}]:[]})}mediaHandlers()}catch(e){}}
 /* iOS can drop the handlers when the active media element changes, so they are set again on every play;
    no seek-forward/back handlers, so the lock screen keeps previous / next track buttons */
 function mediaHandlers(){if(!("mediaSession" in navigator))return;const ms=navigator.mediaSession,sh=(a,f)=>{try{ms.setActionHandler(a,f)}catch(e){}};
   sh("play",()=>{if(audio.paused)toggle()});sh("pause",()=>audio.pause());
-  sh("previoustrack",()=>prev());sh("nexttrack",()=>next(false));sh("seekbackward",null);sh("seekforward",null);
+  sh("previoustrack",()=>prev());sh("nexttrack",()=>next(false));
   sh("seekto",d=>{if(mode==="local"&&d&&isFinite(d.seekTime))audio.currentTime=d.seekTime})}
 mediaHandlers();
+function posState(){if(!("mediaSession" in navigator)||!navigator.mediaSession.setPositionState)return;
+  try{const d=audio.duration;if(mode==="local"&&isFinite(d)&&d>0)navigator.mediaSession.setPositionState({duration:d,position:Math.min(Math.max(audio.currentTime||0,0),d),playbackRate:1})}catch(e){}}
+["loadedmetadata","seeked","play","pause","durationchange"].forEach(ev=>onAudio(ev,posState));
 
 /* ---------------- mini & full player ---------------- */
 const fmt=s=>{if(!isFinite(s)||s<0)s=0;s=Math.floor(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
@@ -1681,7 +1702,7 @@ function applyEq(){if(!eq.on&&!actx)return;
   const useLim=eq.on&&eq.limiter!==false;node.connect(useLim?limNode:actx.destination);
   const peak=Math.max(0,...eqResponse(240).tot);
   eqPreDb=!eq.on?0:useLim?-0.5:Math.min(eq.mode==="param"&&eq.param?eq.param.pre:0,-peak)-0.3;
-  preNode.gain.value=Math.pow(10,eqPreDb/20);wake()}
+  envSet(Math.pow(10,eqPreDb/20));wake()}
 function parseAutoEQ(txt){const out={pre:0,filters:[]};const pm=String(txt).match(/Preamp:\s*(-?[\d.]+)\s*dB/i);if(pm)out.pre=parseFloat(pm[1])||0;
   const re=/Filter\s*\d*\s*:\s*ON\s+(PK|PEQ|LSC|LS|HSC|HS|LPQ|LP|HPQ|HP)\s+Fc\s+([\d.]+)\s*Hz(?:\s+Gain\s+(-?[\d.]+)\s*dB)?(?:\s+Q\s+([\d.]+))?/gi;let m;
   while((m=re.exec(txt))&&out.filters.length<24){const t=m[1].toUpperCase();
@@ -1738,7 +1759,7 @@ function eqImportSheet(){openSheet(p=>{
   ok.addEventListener("click",()=>{unlock();const r=parseAutoEQ(ta.value);if(!r)return toast(T("Textul nu conține filtre AutoEQ"));
     eq.param=r;eq.mode="param";eq.on=true;saveEq();applyEq();syncPlayer();rRefresh();toast(T("Profil aplicat"));eqSheet()});
   no.addEventListener("click",()=>eqSheet());b.append(ok,no);w.appendChild(b);p.appendChild(w)})}
-document.addEventListener("visibilitychange",()=>{if(document.hidden)return;wake();if(mode==="local"&&cur&&loadedId===cur.id&&dead())revive(lastTU,!audio.paused)});
+document.addEventListener("visibilitychange",()=>{mediaHandlers();if(document.hidden)return;wake();backToGraph();if(mode==="local"&&cur&&loadedId===cur.id&&dead())revive(lastTU,!audio.paused)});
 
 /* ---------------- themes ---------------- */
 const THEMES=[{id:"auto",label:T("Modern · automat")},{id:"light",label:T("Modern · luminos")},{id:"dark",label:T("Modern · întunecat")},
