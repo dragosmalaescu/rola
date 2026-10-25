@@ -1,111 +1,185 @@
 # Rola
 
-Rola is the music player I made for my own phone. I use it to listen to my audio files (not streaming) and to a handful of online radio stations. It runs in the browser, sits on the home screen like an app, and doesn't need an account, a subscription or the App Store.
+**Your music. Your device. Your privacy.**
 
-Open it here: **https://dragosmalaescu.github.io/rola/**
+Rola is a private music player for audio files you own, plus online radio. It runs in the browser as an installable PWA, keeps your library on the device, identifies untagged tracks by audio fingerprint, and ships a 10-band EQ with AutoEQ support. No account, no subscription, no ads, no trackers.
+
+**Web app:** [dragosmalaescu.github.io/rola](https://dragosmalaescu.github.io/rola/)
+An Android build for Google Play is in testing.
 
 ## Why I built it
 
-I have a lot of music in files, some of it in FLAC, and I didn't want to upload it to a cloud just to enjoy it on my phone. I also missed the old pocket players with a scroll wheel, where you could move through albums without staring at the screen. So I built Rola.
+I wanted a player for my own phone that could handle a local collection, FLAC included, without pushing anything to a cloud service. I also missed the old pocket players, so several themes use a scroll wheel and hardware-style keys you can operate without looking at the screen.
 
-## What it does
+## Features
 
-- Plays your local music: MP3, AAC/M4A, ALAC, FLAC, WAV and AIFF, including 24-bit files.
-- Reads the title, artist, album, genre and cover art from your files. On import it also tidies messy names (like "[Official Video 4K]") and fills in the right title, artist, album and cover from iTunes or Deezer, with MusicBrainz as a fallback. The Google Play version uses only MusicBrainz.
-- Can recognise songs with missing or wrong tags by their sound, using an AcoustID fingerprint (the web version has a key built in; in the Android app you add your own free AcoustID key in Settings, the i button explains how).
-- Lists the tracks that still need attention (no artist, no album, a generic title or not recognised) under Settings, Tools, Tracks to review, where you can edit the tags by hand or search online with what you typed and pick the right match.
-- Lets you browse by artists, albums, songs and genres. There are favorites, recently added, most played and an up next queue.
-- Has online radio with search, categories and favorite stations.
-- Has a 10-band equalizer and can import AutoEQ profiles for your headphones.
-- Has a sleep timer, shuffle and repeat, and remembers where you left off.
-- Lets you drag the progress bar to jump anywhere in a song. Hold the next or previous button to skip forward or back, 5 seconds at a time at first and then 10.
-- Speaks English, Romanian, German, French, Spanish and Italian. It starts in English and you can switch in Settings.
+- Local playback of MP3, AAC/M4A, ALAC, FLAC, WAV and AIFF, including 24-bit files
+- Library, favorites, playlists, history and settings stored on the device
+- Reads embedded title, artist, album, album artist, genre and cover art
+- Cleans noisy file names and fills missing metadata and artwork from online databases
+- Identifies untagged or mistagged tracks with an AcoustID fingerprint (the audio is never uploaded)
+- Review queue for tracks that still need attention, with manual editing and online matching
+- Duplicate protection on import, plus a one-tap cleanup for the existing library
+- Browse by artist, album, song or genre; favorites, recently added, most played, playlists, Up Next
+- Online radio with search, categories, local stations and favorites
+- 10-band graphic EQ with presets, AutoEQ parametric import and a built-in limiter
+- Themes: Modern, Retro, Velour, Aura, Quartz, E-Ink
+- Sleep timer, shuffle, repeat, drag-to-seek, hold-to-skip and resume where you left off
+- English, Romanian, German, French, Spanish and Italian
 
-## Install it on your phone
+Actual codec support also depends on the browser and OS.
 
-1. Open the address above in Safari on iPhone or Chrome on Android.
-2. On iPhone tap Share, then Add to Home Screen. On Android, open the browser menu and choose Add to Home screen.
-3. From now on, open it from the icon. It runs full screen, without the browser bar.
+## Install
 
-## Add your music
+**iPhone / iPad:** open the web app in Safari, tap Share, then Add to Home Screen, and launch it from the icon.
 
-1. Put your songs in a folder in the Files app. On iPhone the easiest place is On My iPhone, in a folder called Music.
-2. In Rola open the menu and choose Add music (in the scroll wheel themes: Settings, then Add music).
-3. Open the folder, tap Select, then Select All and Open.
-4. Keep the screen on until it finishes. Your music is copied into the player once.
+**Android:** open the web app in Chrome (or any Chromium browser), open the menu, choose Install app or Add to Home screen, and launch it from the icon.
 
-**Play from external storage without copying** (a USB stick, or a microSD card on Android). Choose External storage in the add menu and select the songs (in a folder, tap Select, then Select All). Rola plays the files straight from the stick or card and uses no space on the phone. iOS only allows access while the app is open, so after you close it completely you pick the files again. Any song you like can be imported into the library with a swipe to the right.
+Once installed, Rola runs full screen without the browser UI.
 
-Songs bought or downloaded from Apple Music can't be used. They are protected, and iOS doesn't share them with other apps.
+## Adding music
+
+1. Put your songs in a folder in the Files app (on iPhone, `On My iPhone/Music` works well).
+2. In Rola, choose **Add music**. In the scroll-wheel themes it's under **Settings → Add music**.
+3. Open the folder and use **Select → Select All → Open**.
+4. Keep the screen on until the import finishes.
+
+Imported files are copied once into the app's local storage. After the import succeeds you can delete the originals from Files if you don't need them there, but keep a backup somewhere: removing the app or clearing site data deletes the library.
+
+Duplicates are skipped automatically. Rola compares a fingerprint of each file's content and also the title, artist and album, and keeps the larger (usually better quality) copy.
+
+### External storage (no copy)
+
+**External storage** plays files straight from a USB stick, or from a microSD card on Android, without copying them to the phone. Pick the files and they start playing.
+
+The browser only keeps access while the app is running, on both iOS and Android. After you close Rola completely you need to pick the files again. Swipe right on a track in the External storage list to import it permanently.
+
+> Apple Music purchases and downloads are DRM-protected and not exposed to other apps, so they can't be imported.
+
+## Metadata and identification
+
+On import Rola reads the embedded tags, cleans up names like "Official Video 4K" and looks up anything missing. Tracks with a generic title such as "Track 8" get their real title from the album's track list.
+
+Sources by edition:
+
+- **Web/PWA:** iTunes Search API and Deezer first, MusicBrainz as fallback
+- **Android (Google Play):** MusicBrainz and Cover Art Archive only
+
+A match is accepted only when the artist agrees with the one in the file, so a known artist is never replaced by a different one. Online lookups can be turned off in Settings.
+
+### Identify by sound
+
+Rola computes a Chromaprint fingerprint from the first two minutes of the track and queries AcoustID. Only the fingerprint and the duration leave the device.
+
+- **Web:** an AcoustID key is built in.
+- **Android:** add your own free AcoustID application key under **Settings → Tools → Identify by sound**. The `i` button next to the field explains how to get one.
+
+### Tools
+
+Under **Settings → Tools**:
+
+- **Fix titles and covers:** rerun the online cleanup on the whole library
+- **Restore original tags:** undo online corrections and go back to the tags stored in the files
+- **Identify by sound** and **Identify unknown tracks**
+- **Tracks to review:** tracks with no artist or album, a generic title or no confident match. Edit the tags by hand, or search online with what you typed and pick the right result. Saving also fetches the cover.
+- **Remove duplicates:** merges copies already in the library. Favorites, play counts and playlist entries move to the copy that's kept.
+
+## Playback
+
+- Drag the progress bar to seek anywhere.
+- Hold **Next** or **Previous** to skip forward or back, in 5-second steps at first and then 10.
+- Shuffle and repeat work on albums, playlists and the queue.
+- Rola remembers the last track and position.
+- Sleep timer for listening at night.
 
 ## Themes
 
-Change them in Settings, under Theme.
+Pick one under **Settings → Theme**.
 
-- **Modern** (automatic, light or dark): a regular layout with tabs at the bottom and a big player.
-- **Retro** (amber, green, blue, paper): a pocket player with an LCD screen, a scroll wheel and five keys.
-- **Velour** (peach, night): soft and warm, with albums on a 3D shelf you flip through with your finger.
-- **Aura**: the background is the album cover, blurred, and the progress bar takes its colors from the cover.
-- **Quartz**: styled like a digital watch, with a grey-green screen and seven segment digits.
-- **E-Ink**: black and white with no animation, made for e-paper screens such as the Boox Palma.
+- **Modern:** standard layout with bottom tabs and a large player. Automatic, light or dark.
+- **Retro:** pocket player with an LCD, a scroll wheel and five keys. Amber, green, blue or paper.
+- **Velour:** soft and warm, with albums on a 3D shelf you flip through. Peach or night.
+- **Aura:** blurred album art as the background, with the progress bar colored from the cover.
+- **Quartz:** digital-watch look, grey-green display and seven-segment digits.
+- **E-Ink:** high-contrast black and white with no animation, for e-paper devices like the Boox Palma.
 
-In the scroll wheel themes:
+### Scroll wheel
 
-- drag the wheel to move through lists;
-- tap it to select, the same as OK;
-- tap it twice quickly to go back, the same as MENU;
-- hold it to open the options for a song;
-- MENU goes back, and holding it takes you to the main menu.
+- Drag along the wheel to move through lists.
+- Tap the wheel to select (same as **OK**); tap twice quickly to go back (same as **MENU**).
+- Hold the wheel to open a track's options.
+- **MENU** goes back; hold **MENU** to jump to the main menu.
 
-On the Now Playing screen, the current album or playlist is listed under the song details. Turn the wheel to pick another song and press to play it.
+On Now Playing, the current album or playlist is listed under the track info. Turn the wheel to pick another song and tap to play it.
 
 ## Equalizer
 
-There are two modes.
+**Graphic EQ:** ten bands with presets including ISO 226 loudness, bass shelf, warm and bright tilt, vocal presence and de-ess. The graph shows the actual response.
 
-**Graphic, 10 bands**, with presets for careful listening: Loudness based on ISO 226, a bass shelf, warm and bright tilt, vocal presence, de-ess and a few more. The graph shows the real curve.
+**AutoEQ:** go to [autoeq.app](https://autoeq.app/), find your headphones, choose **Parametric EQ**, copy the text and paste it into Rola.
 
-**AutoEQ headphone profile.** Find your headphone model on autoeq.app, choose Parametric EQ, copy the text and paste it into Rola. It's the most accurate way to correct a specific pair of headphones.
+A limiter is on by default to prevent clipping; a calculated preamp is available as an alternative. The EQ processes local music and also radio stations that allow it. The equalizer sheet shows whether the current source is being processed.
 
-The preamp is calculated from the curve so the sound doesn't clip. The equalizer applies to your music, not to radio.
+## Online radio
 
-## What stays on your phone and what goes online
+Station data comes from [Radio Browser](https://www.radio-browser.info/). Stations that only stream over plain HTTP can't be played from a secure page, so they're hidden.
 
-Your music is never uploaded. The files, favorites, playlists, listening history and settings stay in the browser storage on your device.
+## Privacy
 
-Only a few things go over the internet:
+No accounts, no analytics, no ad trackers. Your music files are never uploaded.
 
-- an audio fingerprint and the track length, when you identify a song by sound (sent to AcoustID; your audio is not uploaded);
-- the song title and artist name, when tags and covers are matched on iTunes, Deezer, MusicBrainz or the Cover Art Archive (you can turn this off in Settings);
-- requests to the radio directory, and the audio of the stations you listen to;
-- the fonts and the tag reading library, loaded when the page opens.
+Stored locally on the device: imported files, favorites, playlists, play history and counts, queue and playback state, settings.
 
-Your library belongs to the page address and the browser. If you move the app to another address or clear the site data, you'll need to import your music again.
+Network requests happen only for:
 
-## Known limits
+- **Identification:** fingerprint and duration sent to AcoustID
+- **Metadata and artwork:** title and artist names sent to iTunes, Deezer, MusicBrainz or Cover Art Archive depending on the edition (can be turned off)
+- **Radio:** the station directory and the streams you choose
+- **Fonts:** loaded from Google Fonts when the page opens
 
-- Radio stations that only stream over plain http can't be played and are hidden from the list.
-- On some iOS versions, sound can stop when the screen locks while the equalizer is on. If that happens, turn the equalizer off.
-- A browser can't guarantee bit-perfect playback to an external DAC. iOS decides the sample rate.
-- Music is copied into the player, so it takes space a second time. After importing you can delete the copy in Files.
+A PWA's library belongs to the exact site address and browser profile. Clearing site data, switching browsers or moving the app to another address means importing again.
 
-## Updating
+Full details: [privacy policy](https://dragosmalaescu.github.io/rola/privacy.html).
 
-The whole player is one file, `index.html`. To publish a new version, upload it to this repository with Add file, then Upload files and Commit changes. On the phone, close the app and open it again.
+## Known limitations
+
+- Plain-HTTP radio streams aren't available.
+- On some iOS versions audio can stop when the screen locks with the EQ on. Turn the EQ off if that happens.
+- A browser can't guarantee bit-perfect output to an external DAC; the OS controls the sample rate.
+- Imported files take space twice while the originals are still in Files.
+- External storage access ends when the app is closed, on iOS and Android.
+- iOS can't lock a web app to portrait, so Rola shows a hint to turn the phone upright. The Android app is locked to portrait.
+
+## Project layout and updates
+
+The player is `index.html` plus a few support files in the same folder:
+
+| File | Purpose |
+|---|---|
+| `index.html` | the whole app |
+| `jsmediatags.min.js` | tag reader |
+| `chromaprint.js`, `chromaprint.wasm` | fingerprinting for Identify by sound |
+| `manifest.webmanifest`, icons | PWA install metadata |
+| `privacy.html` | privacy policy |
+
+To ship an update, upload the changed files and commit. On the phone, close Rola completely and reopen it. The Android app loads the same files, so it picks up web updates without a new Play release.
 
 ## License
 
-Rola is not open source. You're welcome to use the hosted app for your own personal, non-commercial listening. Copying, redistributing, publishing modified versions or using it commercially requires my written permission. The full terms are in [LICENSE](LICENSE).
+Rola is proprietary and **not open source**. You're welcome to use the hosted app for personal, non-commercial listening. Copying, redistributing, publishing modified versions or commercial use requires my written permission. Full terms in [LICENSE](LICENSE).
 
-## Thanks
+## Credits
 
-- [jsmediatags](https://github.com/aadsm/jsmediatags), for reading tags and cover art (BSD 3-Clause)
-- [DSEG](https://www.keshikan.net/fonts-e.html), the seven segment font in the Quartz theme (SIL Open Font License 1.1)
-- [Radio Browser](https://www.radio-browser.info/), the public station directory
-- [AutoEQ](https://autoeq.app/), for headphone profiles
-- iTunes Search API and Deezer API, for song details and missing covers in the web version
-- [AcoustID](https://acoustid.org/) and [rusty-chromaprint](https://github.com/darksv/rusty-chromaprint) (MIT), for recognising songs by sound
-- [MusicBrainz](https://musicbrainz.org/) and the [Cover Art Archive](https://coverartarchive.org/), for song details, genres and missing covers
-- Google Fonts: Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch and Share Tech Mono (SIL Open Font License 1.1)
+- [jsmediatags](https://github.com/aadsm/jsmediatags): tag and cover reading (BSD 3-Clause)
+- [rusty-chromaprint](https://github.com/darksv/rusty-chromaprint) and rusty-chromaprint-wasm: audio fingerprinting (MIT)
+- [AcoustID](https://acoustid.org/): fingerprint lookup
+- [MusicBrainz](https://musicbrainz.org/) and [Cover Art Archive](https://coverartarchive.org/): metadata, genres and artwork
+- iTunes Search API and Deezer API: metadata and artwork in the web version
+- [Radio Browser](https://www.radio-browser.info/): radio directory
+- [AutoEQ](https://autoeq.app/): headphone profiles
+- [DSEG](https://www.keshikan.net/fonts-e.html): seven-segment font in Quartz (SIL OFL 1.1)
+- Google Fonts: Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch, Share Tech Mono (SIL OFL 1.1)
 
-A personal project by Dragoș Mălăescu.
+---
+
+A personal project by **Dragoș Mălăescu**.
