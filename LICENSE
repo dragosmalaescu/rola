@@ -1,62 +1,95 @@
-Rola
+Rola License
+
 Copyright (c) 2026 Dragoș Mălăescu. All rights reserved.
 
-This license covers the Rola source code, design and documentation in this
-repository ("the Software"). It does not cover the third-party components
-listed at the end, which keep their own licenses.
+This license applies to the Rola source code, design, and documentation in
+this repository, together referred to as "Rola". Third-party components are
+not covered by this license. They remain under their own licenses and terms.
 
 1. What you may do
 
-   a. Use the hosted Software, at https://dragosmalaescu.github.io/rola/ or
-      any other address published by the author, for your own personal,
-      non-commercial listening.
-   b. Read the source code to understand how it works.
+You may:
 
-2. What you may not do without the author's prior written permission
+a. Use an official version of Rola published by the author for your own
+   personal, non-commercial listening. This includes the hosted web app at
+   https://dragosmalaescu.github.io/rola/ and official app releases.
 
-   a. Copy, redistribute, sublicense or sell the Software, in whole or in
-      part.
-   b. Publish, host or distribute modified versions of the Software, or apps
-      and websites derived from it.
-   c. Use the Software, or any part of it, for commercial purposes. This
-      includes selling it, bundling it with a product or service, showing
-      ads in it, or offering it as a paid or hosted service.
-   d. Remove or change this copyright notice or this license.
-   e. Use the name "Rola" or the author's name to promote any product or
-      service.
+b. View and read the source code for personal study and to understand how
+   Rola works.
 
-   GitHub's Terms of Service let users view and fork public repositories on
-   GitHub. That does not give any of the rights listed in section 2.
+2. What you may not do
 
-3. Permission
+Unless you have written permission from the author, you may not:
 
-   To ask for permission for anything in section 2, open an issue in this
-   repository or contact the author through his GitHub profile.
+a. Copy, redistribute, sublicense, or sell Rola or any substantial part of it.
+
+b. Publish, host, or distribute a modified version of Rola, or create and
+   distribute an app or website based on it.
+
+c. Use Rola or any part of it for commercial purposes. This includes selling
+   it, including it in a paid product or service, adding advertising, or
+   offering it as a paid or hosted service.
+
+d. Remove or alter the copyright notice or this license.
+
+e. Use the Rola name or the author's name to promote or endorse another
+   product or service.
+
+Making this repository public allows GitHub users to view and fork it through
+GitHub, as described in GitHub's Terms of Service. It does not grant permission
+to redistribute, publish, sell, or commercially use Rola outside the rights
+listed in this license.
+
+3. Asking for permission
+
+If you want to use Rola in a way that is not allowed above, open an issue in
+this repository or contact the author through his GitHub profile. Please
+describe what you want to use and how you plan to use it.
 
 4. No warranty
 
-   The Software is provided "as is", without warranty of any kind, express or
-   implied, including warranties of merchantability, fitness for a particular
-   purpose and non-infringement. In no event shall the author be liable for
-   any claim, damages or other liability arising from the use of the Software,
-   including loss of data such as an imported music library.
+Rola is provided "as is", without any warranty, express or implied. This
+includes warranties of merchantability, fitness for a particular purpose,
+and non-infringement.
 
-5. Third-party components
+The author is not liable for any claim, damage, or other loss resulting from
+the use of Rola. This includes loss of data, imported music, playlists,
+settings, or access to a local music library.
 
-   These are used by the Software and remain under their own licenses:
+5. Your music
 
-   - jsmediatags, Copyright (c) 2009 Opera Software ASA and contributors,
-     BSD 3-Clause License. https://github.com/aadsm/jsmediatags
-   - rusty-chromaprint and rusty-chromaprint-wasm, MIT License.
-     https://github.com/darksv/rusty-chromaprint
-   - DSEG font family, Copyright (c) 2017 keshikan, SIL Open Font License,
-     Version 1.1. https://www.keshikan.net/fonts-e.html
-   - Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch and Share Tech Mono,
-     served by Google Fonts under the SIL Open Font License, Version 1.1.
-   - Data and services from Radio Browser, MusicBrainz (core data CC0),
-     the Cover Art Archive, AcoustID, the iTunes Search API, the Deezer API and AutoEQ are used under their own terms. The author claims no
-     rights over them.
+Rola only plays files you choose. You are responsible for having the right to
+use the music you import or play. The author does not provide, host or
+distribute any music.
 
-6. Governing law
+6. Third-party components and services
 
-   This license is governed by the laws of Romania.
+Rola uses the following third-party components and services. Each remains
+subject to its own license or terms:
+
+- jsmediatags, Copyright (c) 2009 Opera Software ASA, (c) 2015 António Afonso
+  and contributors, licensed under the BSD 3-Clause License:
+  https://github.com/aadsm/jsmediatags
+
+- rusty-chromaprint-wasm, Copyright (c) Janis Jansen, and rusty-chromaprint,
+  licensed under the MIT License:
+  https://github.com/janis-me/rusty-chromaprint-wasm
+  https://github.com/darksv/rusty-chromaprint
+
+- DSEG font family, Copyright (c) 2017 keshikan, licensed under the SIL Open
+  Font License, Version 1.1:
+  https://www.keshikan.net/fonts-e.html
+
+- Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch, and Share Tech Mono,
+  served by Google Fonts under the SIL Open Font License, Version 1.1.
+
+- Radio Browser, MusicBrainz, the Cover Art Archive, AcoustID, the iTunes
+  Search API, the Deezer API, and AutoEQ. Their data and services are used
+  under their respective terms. The author claims no rights over them.
+
+The full license texts of the redistributed components are in
+THIRD_PARTY_NOTICES.txt.
+
+7. Governing law
+
+This license is governed by the laws of Romania.
