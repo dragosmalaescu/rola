@@ -914,10 +914,34 @@ async function mbMeta(t){const who=t.artist===UNK_AR?"":t.artist;
 async function lookupOnline(t){if(IS_PLAY)return mbArt(t);let u=null,reached=false;try{u=await legacyArt(t);reached=true}catch(e){}if(u)return u;
   try{return await mbArt(t)}catch(e){if(reached)return null;throw e}}
 async function lookupMeta(t){if(IS_PLAY)return mbMeta(t);let m=null;try{m=await legacyMeta(t)}catch(e){}return m||await mbMeta(t)}
+/* generic titles like "Track 8" or "01": take the real title from the album's track list */
+const GENERIC_T=/^(?:(?:audio\s*)?track|piesa|piesă|pista|titel|titre|traccia|song|untitled|unknown|necunoscut[aă]?|no\s*title|sans\s*titre)?[\s._#-]*\d{0,3}$/i;
+function isGeneric(x){const s=nz(x);return !s||(GENERIC_T.test(s)&&/\d|^[a-zăâîșț\s]+$/i.test(s))}
+function genericNo(t){if(t.track)return t.track;const m=nz(t.title).match(/(\d{1,3})\s*$/);return m?parseInt(m[1],10):0}
+async function albumTracksLegacy(t){const who=t.artist===UNK_AR?"":t.artist;const q=encodeURIComponent((who+" "+t.album).trim());
+  try{const d=await jsonp("https://itunes.apple.com/search?term="+q+"&media=music&entity=album&limit=8");
+    let best=null,bs=0;for(const r of d.results||[]){const sc=simS(r.collectionName,t.album)*.7+(who?simS(r.artistName,who)*.3:.15);if(sc>bs){bs=sc;best=r}}
+    if(best&&bs>=.6){const l=await jsonp("https://itunes.apple.com/lookup?id="+best.collectionId+"&entity=song");
+      const tr=(l.results||[]).filter(x=>x.wrapperType==="track").map(x=>({n:x.trackNumber,disc:x.discNumber||1,title:x.trackName}));if(tr.length)return tr}}catch(e){}
+  try{const d=await jsonp("https://api.deezer.com/search/album?q="+q+"&limit=8&output=jsonp");
+    let best=null,bs=0;for(const r of d.data||[]){const sc=simS(r.title,t.album)*.7+(who?simS(r.artist&&r.artist.name,who)*.3:.15);if(sc>bs){bs=sc;best=r}}
+    if(best&&bs>=.6){const a=await jsonp("https://api.deezer.com/album/"+best.id+"?output=jsonp");
+      const tr=((a.tracks&&a.tracks.data)||[]).map((x,i)=>({n:x.track_position||i+1,disc:x.disk_number||1,title:x.title}));if(tr.length)return tr}}catch(e){}
+  return null}
+async function albumTracksMB(t){const who=t.artist===UNK_AR?"":t.artist;
+  try{const d=await mbGet("release?limit=8&query="+encodeURIComponent("release:"+luq(t.album)+(who?" AND artist:"+luq(who):"")));
+    let best=null,bs=0;for(const r of d.releases||[]){const sc=simS(r.title,t.album)*.7+(who?simS(acName(r["artist-credit"]),who)*.3:.15)+(r.status==="Official"?.02:0);if(sc>bs){bs=sc;best=r}}
+    if(!best||bs<.6)return null;const rel=await mbGet("release/"+best.id+"?inc=recordings");const out=[];
+    (rel.media||[]).forEach((m,di)=>{(m.tracks||m.track||[]).forEach((x,i)=>{out.push({n:parseInt(x.number,10)||x.position||i+1,disc:m.position||di+1,title:x.title||(x.recording&&x.recording.title)})})});
+    return out.length?out:null}catch(e){return null}}
+async function albumTrackTitle(t){const n=genericNo(t);if(!n||t.album===UNK_AL)return null;
+  let list=null;if(!IS_PLAY){try{list=await albumTracksLegacy(t)}catch(e){}}if(!list)list=await albumTracksMB(t);if(!list)return null;
+  const disc=t.disc||1;const hit=list.find(x=>x.n===n&&x.disc===disc)||list.find(x=>x.n===n);return hit&&nz(hit.title)?{title:nz(hit.title),track:n}:null}
 async function fixTrack(t){const sig=()=>JSON.stringify([t.title,t.artist,t.album,t.genre,t.year,t.track,t.artUrl||""]);const before=sig();
   if(t.artist===UNK_AR&&/\s-\s/.test(t.title)){const p=t.title.split(/\s+-\s+/);t.artist=p[0].trim();t.title=p.slice(1).join(" - ")}
   t.title=cleanTitle(t.title);
-  if(settings.online){let m=null;try{m=await throttle(()=>lookupMeta(t))}catch(e){}
+  if(settings.online&&isGeneric(t.title)){try{const g=await throttle(()=>albumTrackTitle(t));if(g){t.title=g.title;if(!t.track)t.track=g.track}}catch(e){}}
+  if(settings.online&&!isGeneric(t.title)){let m=null;try{m=await throttle(()=>lookupMeta(t))}catch(e){}
     if(m){if(nz(m.title))t.title=nz(m.title);if(nz(m.artist))t.artist=nz(m.artist);
       if(m.album&&(t.album===UNK_AL||simS(t.album,m.album)>=.5))t.album=m.album;
       if(m.genre&&(!t.genre||/^(necunoscut|unknown|other|others|genre|misc|none|undefined|\(\d+\)|\d+)$/i.test(String(t.genre).trim())))t.genre=m.genre;if(m.year&&!t.year)t.year=m.year;if(m.track&&!t.track)t.track=m.track;
@@ -1803,7 +1827,7 @@ function makeIcon(){try{const c=document.createElement("canvas");c.width=c.heigh
   if(eq.on)applyEq();
   const st=ls("rola.settings");if(st&&typeof st==="object")settings=Object.assign(settings,st);
   render();
-  try{db=await idbOpen();const all=await op("meta","readonly",s=>s.getAll());tracks=sortTracks(all||[]);for(const t of tracks){if(!nz(t.title)){const n=String(t.key||"").split("|")[0];t.title=nz(guess({name:n}).title)||n||"Track";op("meta","readwrite",x=>x.put(t)).catch(()=>{})}}if(IS_PLAY)for(const t of tracks){if(t.artUrl&&/(mzstatic|dzcdn|deezer|itunes)\./i.test(t.artUrl)){delete t.artUrl;op("meta","readwrite",x=>x.put(t)).catch(()=>{})}}
+  try{db=await idbOpen();const all=await op("meta","readonly",s=>s.getAll());tracks=sortTracks(all||[]);setTimeout(()=>{if(!settings.online)return;const gen=tracks.filter(t=>t.album!==UNK_AL&&isGeneric(t.title)&&genericNo(t));if(gen.length)autoFix(gen,true)},5000);for(const t of tracks){if(!nz(t.title)){const n=String(t.key||"").split("|")[0];t.title=nz(guess({name:n}).title)||n||"Track";op("meta","readwrite",x=>x.put(t)).catch(()=>{})}}if(IS_PLAY)for(const t of tracks){if(t.artUrl&&/(mzstatic|dzcdn|deezer|itunes)\./i.test(t.artUrl)){delete t.artUrl;op("meta","readwrite",x=>x.put(t)).catch(()=>{})}}
     if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}
   catch(e){toast(T("Stocarea locală e blocată în acest browser"))}
   const last=ls("rola.last");
