@@ -1536,7 +1536,8 @@ async function updateMedia(){if(!("mediaSession" in navigator))return;
 /* iOS can drop the handlers when the active media element changes, so they are set again on every play;
    no seek-forward/back handlers, so the lock screen keeps previous / next track buttons */
 function mediaHandlers(){if(!("mediaSession" in navigator))return;const ms=navigator.mediaSession,sh=(a,f)=>{try{ms.setActionHandler(a,f)}catch(e){}};
-  sh("play",()=>{if(audio.paused)toggle()});sh("pause",()=>audio.pause());
+  /* play / pause stay with iOS itself: a play started from page code while locked runs the clock without sound */
+  sh("play",null);sh("pause",null);
   sh("previoustrack",()=>prev());sh("nexttrack",()=>next(false));
   sh("seekto",d=>{if(mode==="local"&&d&&isFinite(d.seekTime))audio.currentTime=d.seekTime})}
 mediaHandlers();
