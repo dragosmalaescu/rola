@@ -128,7 +128,7 @@ Rola keeps your music files, library, playlists, favorites, listening history, a
 Network access is used for the following features and resources:
 
 * **Song recognition:** An audio fingerprint and track duration are sent to AcoustID. The audio file itself is never uploaded.
-* **Metadata lookup:** Song titles, artist and album names are sent to MusicBrainz and Cover Art Archive. Online metadata matching can be disabled in Settings.
+* **Metadata lookup:** Song titles, artist and album names are sent to MusicBrainz. MusicBrainz release identifiers and image requests are sent to Cover Art Archive. Online metadata matching can be disabled in Settings.
 * **Album artwork:** External artwork is displayed directly from Cover Art Archive. Rola stores only the image URLs, not copies of the images. Artwork embedded in your own music files may be stored locally.
 * **Online radio:** Requests are made to the Radio Browser station directory, to the radio streams you choose to play, and to station logo images.
 * **Fonts and resources:** All of the app's code and fonts are loaded from GitHub Pages. The bundled fonts use Latin and, where supported by the font family, Latin Extended subsets. Characters not provided by a selected font are displayed using a local system fallback font.
