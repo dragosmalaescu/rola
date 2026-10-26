@@ -80,6 +80,7 @@ Under **Settings → Tools**:
 - **Identify by sound** and **Identify unknown tracks**
 - **Tracks to review:** tracks with no artist or album, a generic title or no confident match. Edit the tags by hand, or search online with what you typed and pick the right result. Saving also fetches the cover.
 - **Remove duplicates:** merges copies already in the library. Favorites, play counts and playlist entries move to the copy that's kept.
+- **Delete library** (scroll-wheel themes): removes all songs, artwork, playlists, favorites and listening history after a Yes / No confirmation. App settings are kept. In the Modern theme it is at the bottom of **Settings**, with a second tap to confirm.
 
 ## Playback
 
