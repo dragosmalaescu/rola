@@ -141,6 +141,10 @@ Rola does not require an account and does not include advertising, analytics, or
 
 Full details: [privacy policy](https://dragosmalaescu.github.io/rola/privacy.html).
 
+## Copyright and removal requests
+
+Rola does not host music, radio streams or externally supplied album artwork. Rights holders may request the removal of a specific artwork, station logo or stream link by opening an [issue](https://github.com/dragosmalaescu/rola/issues). Please include the exact URL and evidence that you represent the rights holder. Valid requests will be reviewed and addressed promptly.
+
 ## Known limitations
 
 - Plain-HTTP radio streams aren't available.
