@@ -7,9 +7,9 @@ Rola is a private music player for audio files you own, plus online radio. It ru
 **Web app:** [dragosmalaescu.github.io/rola](https://dragosmalaescu.github.io/rola/)
 An Android build for Google Play is in testing.
 
-## Why I’ve built it
+## Why I built it
 
-I’ve always wanted a player for my own phone that could handle a local collection, FLAC included, without pushing anything to a cloud service. I also missed the old pocket players, so several themes use a scroll wheel and hardware-style keys you can operate without looking at the screen.
+I wanted a player for my own phone that could handle a local collection, FLAC included, without pushing anything to a cloud service. I also missed the old pocket players, so several themes use a scroll wheel and hardware-style keys you can operate without looking at the screen.
 
 ## Features
 
@@ -124,20 +124,23 @@ A limiter is on by default to prevent clipping; a calculated preamp is available
 
 Station data comes from [Radio Browser](https://www.radio-browser.info/). Stations that only stream over plain HTTP can't be played from a secure page, so they're hidden.
 
-## Privacy
+## Network access and privacy
 
-No accounts, no analytics, no ad trackers. Your music files are never uploaded.
+Rola keeps your music files, library, playlists, favorites, listening history, and settings on your device. Your audio files are never uploaded.
 
-Stored locally on your device: imported files, favorites, playlists, play history and counts, queue and playback state, settings.
+Network access is used for the following features and resources:
 
-Network requests happen only for:
+* **Song recognition:** An audio fingerprint and track duration are sent to AcoustID. The audio file itself is never uploaded.
+* **Metadata lookup:** Song titles and artist names may be sent to iTunes, Deezer, MusicBrainz, or Cover Art Archive, depending on the edition. Online metadata matching can be disabled in Settings.
+* **Album artwork:** External artwork is displayed directly from the provider's servers. Rola stores only the image URLs, not copies of the images. Artwork embedded in your own music files may be stored locally.
+* **Online radio:** Requests are made to the Radio Browser station directory, to the radio streams you choose to play, and to station logo images.
+* **Fonts and resources:** Google Fonts are loaded when the web app opens. Supporting libraries are hosted with the app; jsDelivr is used only as a fallback.
 
-- **Identification:** fingerprint and duration sent to AcoustID
-- **Metadata and artwork:** title and artist names sent to iTunes, Deezer, MusicBrainz or Cover Art Archive depending on the edition (can be turned off)
-- **Radio:** the station directory and the streams you choose
-- **Fonts:** loaded from Google Fonts when the page opens
+Third-party services may receive standard network information, such as your IP address, when these resources are requested.
 
-A PWA's library belongs to the exact site address and browser profile. Clearing site data, switching browsers or moving the app to another address means importing again.
+**Google Play edition:** Rola does not use iTunes or Deezer for metadata or artwork. MusicBrainz and Cover Art Archive are used instead.
+
+Rola does not include advertising, analytics, or user tracking.
 
 Full details: [privacy policy](https://dragosmalaescu.github.io/rola/privacy.html).
 
