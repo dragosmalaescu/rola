@@ -54,7 +54,7 @@ Duplicates are skipped automatically. Rola compares a fingerprint of each file's
 
 The browser only keeps access while the app is running, on both iOS and Android. After you close Rola completely you need to pick the files again. Swipe right on a track in the External storage list to import it permanently.
 
-> Apple Music purchases and downloads are DRM-protected and not exposed to other apps, so they can't be imported.
+> Songs downloaded through an Apple Music subscription are protected and cannot be imported directly. DRM-free music purchased from the iTunes Store can be imported if you have access to the audio files.
 
 ## Metadata and identification
 
