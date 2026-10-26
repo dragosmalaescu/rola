@@ -131,9 +131,9 @@ Network access is used for the following features and resources:
 * **Metadata lookup:** Song titles, artist and album names are sent to MusicBrainz and Cover Art Archive. Online metadata matching can be disabled in Settings.
 * **Album artwork:** External artwork is displayed directly from Cover Art Archive. Rola stores only the image URLs, not copies of the images. Artwork embedded in your own music files may be stored locally.
 * **Online radio:** Requests are made to the Radio Browser station directory, to the radio streams you choose to play, and to station logo images.
-* **Fonts and resources:** Fonts and supporting libraries are hosted with the app. jsDelivr is used only as a fallback for the tag reader.
+* **Fonts and resources:** All of the app's code and fonts are loaded from GitHub Pages. The bundled fonts use Latin and, where supported by the font family, Latin Extended subsets. Characters not provided by a selected font are displayed using a local system fallback font.
 
-Third-party services may receive standard network information, such as your IP address, when these resources are requested.
+Requests to third-party services necessarily disclose the user's IP address and basic connection information to those services. Rola does not upload audio files. Online metadata lookup may send title, artist and album values, while song recognition sends an audio fingerprint and track duration. Apart from the app itself, all other connections are requests for data, images and audio streams; no external code is loaded.
 
 The web app and the Google Play edition use the same sources. The only difference: the web app includes an AcoustID key, while on Google Play you add your own.
 
