@@ -1795,6 +1795,8 @@ function rRoot(){return rList(T("Meniu"),()=>{const it=[];
 function rAllSongs(){const list=tracks.slice().sort((a,b)=>coll.compare(a.title,b.title));
   const v=rSongs(list,T("Melodii"));const base=v.build;
   v.build=()=>[{label:T("Shuffle"),r:"",go:()=>{shuffle=true;saveModes();playList(list,Math.floor(Math.random()*list.length));rNP()}}].concat(base());return v}
+/* wheel themes: delete library needs a second press within 4 s, like the Modern settings */
+let rWipeArm=false;
 function rSettings(){return rList(T("Setări"),()=>[
   {label:T("Shuffle"),r:shuffle?T("Pornit"):T("Oprit"),go:()=>{shuffle=!shuffle;saveModes();rebuildQueue();rRefresh()}},
   {label:T("Repetă"),r:T({off:"Oprit",all:"Tot",one:"Piesa"}[repeat]),go:()=>{repeat={off:"all",all:"one",one:"off"}[repeat];saveModes();rRefresh()}},
@@ -1804,7 +1806,8 @@ function rSettings(){return rList(T("Setări"),()=>[
   {label:T("Temă"),go:()=>rPush(rThemes())},
   {label:T("Limbă"),r:lang.toUpperCase(),go:()=>rPush(rList(T("Limbă"),()=>Object.keys(LANGS).map(k=>({label:LANGS[k],r:k===lang?"●":"",go:()=>setLang(k)}))))},
   {label:T("Adaugă muzică"),go:()=>$("#pick").click()},{label:T("Memorie externă"),go:()=>$("#pickTemp").click()},
-  {label:T("Politica de confidențialitate"),go:()=>openDoc("privacy")},{label:T("Licențe"),go:()=>openDoc("licenses")}])}
+  {label:T("Politica de confidențialitate"),go:()=>openDoc("privacy")},{label:T("Licențe"),go:()=>openDoc("licenses")},
+  {label:rWipeArm?T("Apasă din nou pentru confirmare"):T("Șterge biblioteca"),go:()=>{if(!rWipeArm){rWipeArm=true;rRefresh();setTimeout(()=>{if(rWipeArm){rWipeArm=false;rRefresh()}},4000);return}rWipeArm=false;rRefresh();wipe().then(()=>{try{rRefresh()}catch(e){}})}}])}
 function rTools(){return rList(T("Instrumente"),()=>[{label:T("Corectează titlurile și coperțile"),go:()=>{if(!tracks.length)return toast(T("Biblioteca e goală"));autoFix(tracks,true)}},{label:T("Restabilește etichetele originale"),go:()=>{if(!tracks.length)return toast(T("Biblioteca e goală"));restoreTags(tracks)}},{label:T("Recunoaștere după sunet"),go:()=>acSheet()},{label:T("Identifică piesele neidentificate"),go:()=>{if(!tracks.length)return toast(T("Biblioteca e goală"));identifyMany(tracks,true)}},{label:T("Piese de verificat"),r:tracks.filter(needsReview).length,go:()=>reviewSheet()},{label:T("Elimină dublurile"),go:()=>{if(!tracks.length)return toast(T("Biblioteca e goală"));toast(T("Caut dublurile…"));removeDuplicates()}}])}
 function rSongs(list,title){return rList(title,()=>list.filter(x=>x.temp||tracks.indexOf(x)>=0).map((t,i)=>({label:t.title,r:favs.has(t.id)?"♥":"",hold:()=>rPush(rOpts(t)),go:()=>{playList(list,i);rNP()}})))}
 function rMusic(){return rList(T("Muzică"),()=>[
