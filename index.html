@@ -1395,16 +1395,20 @@ function openDoc(k){if(!document.getElementById("docCss")){const st=document.cre
   const bd=document.createElement("div");bd.className="dvb";bd.innerHTML=DOCS[k]||"";bd.querySelectorAll("a[href]").forEach(a=>{a.target="_blank";a.rel="noopener"});
   ["pointerdown","touchstart","touchmove","wheel","click"].forEach(ev=>v.addEventListener(ev,e=>e.stopPropagation()));
   v.append(hd,bd);document.body.appendChild(v);cl.focus()}
-function settingsSheet(){let armed=false;openSheet(p=>{
-  sItem(p,I.theme,T("Temă"),()=>themeSheet(),themeLabel());
-  sItem(p,I.globe,T("Limbă"),()=>langSheet(),LANGS[lang]);
-  sItem(p,I.globe,T("Titluri și coperți online"),b=>{settings.online=!settings.online;ls("rola.settings",settings);b.querySelector(".val").textContent=settings.online?T("Pornit"):T("Oprit")},settings.online?T("Pornit"):T("Oprit"));
+/* Modern: the library tools live in their own sheet, as Settings → Tools does in the wheel themes */
+function toolsSheet(){openSheet(p=>{
   sItem(p,I.image,T("Corectează titlurile și coperțile"),()=>{closeSheet();autoFix(tracks,true)});
   sItem(p,I.note,T("Restabilește etichetele originale"),()=>{closeSheet();restoreTags(tracks)});
   sItem(p,I.radio,T("Recunoaștere după sunet"),()=>acSheet(),acKey()?T("Activă"):T("Fără cheie"));
   sItem(p,I.radio,T("Identifică piesele neidentificate"),()=>{closeSheet();identifyMany(tracks,true)});
   sItem(p,I.note,T("Piese de verificat"),()=>reviewSheet(),String(tracks.filter(needsReview).length));
   sItem(p,I.trash,T("Elimină dublurile"),()=>{closeSheet();toast(T("Caut dublurile…"));removeDuplicates()});
+})}
+function settingsSheet(){let armed=false;openSheet(p=>{
+  sItem(p,I.theme,T("Temă"),()=>themeSheet(),themeLabel());
+  sItem(p,I.globe,T("Limbă"),()=>langSheet(),LANGS[lang]);
+  sItem(p,I.globe,T("Titluri și coperți online"),b=>{settings.online=!settings.online;ls("rola.settings",settings);b.querySelector(".val").textContent=settings.online?T("Pornit"):T("Oprit")},settings.online?T("Pornit"):T("Oprit"));
+  sItem(p,I.gear,T("Instrumente"),()=>toolsSheet());
   sItem(p,I.eq,T("Egalizator"),()=>eqSheet(),eqLabel());
   if(CAN_OUT)sItem(p,I.out,T("Ieșire audio (AirPlay, Bluetooth)"),()=>{closeSheet();pickOutput()});
   const RQ=[0,128,192,256];
