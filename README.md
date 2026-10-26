@@ -143,7 +143,7 @@ Full details: [privacy policy](https://dragosmalaescu.github.io/rola/privacy.htm
 
 ## Copyright and removal requests
 
-Rola does not host music, radio streams or externally supplied album artwork. Rights holders may request the removal of a specific artwork, station logo or stream link by opening an [issue](https://github.com/dragosmalaescu/rola/issues). Please include the exact URL and evidence that you represent the rights holder. Valid requests will be reviewed and addressed promptly.
+Rola does not host music, radio streams or externally supplied album artwork. Rights holders may request the removal of a specific artwork, station logo or stream link by email at [rola.app@malaescu.ro](mailto:rola.app@malaescu.ro). Please include the exact URL and evidence that you represent the rights holder. Valid requests will be reviewed and addressed promptly.
 
 ## Known limitations
 
@@ -186,4 +186,4 @@ Rola is proprietary and **not open source**. You're welcome to use the hosted ap
 
 ---
 
-A personal project by **Dragoș Mălăescu**.
+A personal project by **Dragoș Mălăescu**. Contact: [rola.app@malaescu.ro](mailto:rola.app@malaescu.ro)
