@@ -68,8 +68,8 @@ A match is accepted only when the artist agrees with the one in the file, so a k
 
 Rola computes a Chromaprint fingerprint from the first two minutes of the track and queries AcoustID. Only the fingerprint and the duration leave the device.
 
-- **Web:** an AcoustID key is built in.
-- **Android:** add your own free AcoustID application key under **Settings → Tools → Identify by sound**. The `i` button next to the field explains how to get one.
+- An AcoustID application key is built in, on the web and on Android. You can replace it with your own under **Settings → Tools → Identify by sound**; the `i` button next to the field explains how to get one.
+- Requests are sent one at a time, at most about two per second, within AcoustID's limit of three per second.
 
 ### Tools
 
@@ -135,7 +135,7 @@ Network access is used for the following features and resources:
 
 Requests to third-party services necessarily disclose the user's IP address and basic connection information to those services. Rola does not upload audio files. Online metadata lookup may send title, artist and album values, while song recognition sends an audio fingerprint and track duration. Apart from the app itself, all other connections are requests for data, images and audio streams; no external code is loaded.
 
-The web app and the Google Play edition use the same sources. The only difference: the web app includes an AcoustID key, while on Google Play you add your own.
+The web app and the Google Play edition use the same sources and the same built-in AcoustID key.
 
 Rola does not require an account and does not include advertising, analytics, or user tracking. It does not operate its own analytics or user-tracking servers.
 
