@@ -81,10 +81,10 @@ subject to its own license or terms:
   https://www.keshikan.net/fonts-e.html
 
 - Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch, and Share Tech Mono,
-  served by Google Fonts under the SIL Open Font License, Version 1.1.
+  bundled in the fonts folder (from the Fontsource packages) under the SIL
+  Open Font License, Version 1.1.
 
-- Radio Browser, MusicBrainz, the Cover Art Archive, AcoustID, the iTunes
-  Search API, the Deezer API, and AutoEQ. Their data and services are used
+- Radio Browser, MusicBrainz, the Cover Art Archive, AcoustID, and AutoEQ. Their data and services are used
   under their respective terms. The author claims no rights over them.
 
 The full license texts of the redistributed components are in

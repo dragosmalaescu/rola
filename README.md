@@ -60,10 +60,7 @@ The browser only keeps access while the app is running, on both iOS and Android.
 
 On import Rola reads the embedded tags, cleans up names like "Official Video 4K" and looks up anything missing. Tracks with a generic title such as "Track 8" get their real title from the album's track list.
 
-Sources by edition:
-
-- **Web/PWA:** iTunes Search API and Deezer first, MusicBrainz as fallback
-- **Android (Google Play):** MusicBrainz and Cover Art Archive only
+Metadata comes from MusicBrainz and artwork from Cover Art Archive, in the web app and on Google Play alike.
 
 A match is accepted only when the artist agrees with the one in the file, so a known artist is never replaced by a different one. Online lookups can be turned off in Settings.
 
@@ -131,16 +128,16 @@ Rola keeps your music files, library, playlists, favorites, listening history, a
 Network access is used for the following features and resources:
 
 * **Song recognition:** An audio fingerprint and track duration are sent to AcoustID. The audio file itself is never uploaded.
-* **Metadata lookup:** Song titles and artist names may be sent to iTunes, Deezer, MusicBrainz, or Cover Art Archive, depending on the edition. Online metadata matching can be disabled in Settings.
-* **Album artwork:** External artwork is displayed directly from the provider's servers. Rola stores only the image URLs, not copies of the images. Artwork embedded in your own music files may be stored locally.
+* **Metadata lookup:** Song titles, artist and album names are sent to MusicBrainz and Cover Art Archive. Online metadata matching can be disabled in Settings.
+* **Album artwork:** External artwork is displayed directly from Cover Art Archive. Rola stores only the image URLs, not copies of the images. Artwork embedded in your own music files may be stored locally.
 * **Online radio:** Requests are made to the Radio Browser station directory, to the radio streams you choose to play, and to station logo images.
-* **Fonts and resources:** Google Fonts are loaded when the web app opens. Supporting libraries are hosted with the app; jsDelivr is used only as a fallback.
+* **Fonts and resources:** Fonts and supporting libraries are hosted with the app. jsDelivr is used only as a fallback for the tag reader.
 
 Third-party services may receive standard network information, such as your IP address, when these resources are requested.
 
-**Google Play edition:** Rola does not use iTunes or Deezer for metadata or artwork. MusicBrainz and Cover Art Archive are used instead.
+The web app and the Google Play edition use the same sources. The only difference: the web app includes an AcoustID key, while on Google Play you add your own.
 
-Rola does not include advertising, analytics, or user tracking.
+Rola does not require an account and does not include advertising, analytics, or user tracking. It does not operate its own analytics or user-tracking servers.
 
 Full details: [privacy policy](https://dragosmalaescu.github.io/rola/privacy.html).
 
@@ -161,6 +158,7 @@ The player is `index.html` plus a few support files in the same folder:
 |---|---|
 | `index.html` | the whole app |
 | `jsmediatags.min.js` | tag reader |
+| `fonts/` | self-hosted fonts and their licenses |
 | `chromaprint.js`, `chromaprint.wasm` | fingerprinting for Identify by sound |
 | `manifest.webmanifest`, icons | PWA install metadata |
 | `privacy.html` | privacy policy |
@@ -177,11 +175,10 @@ Rola is proprietary and **not open source**. You're welcome to use the hosted ap
 - [rusty-chromaprint](https://github.com/darksv/rusty-chromaprint) and rusty-chromaprint-wasm: audio fingerprinting (MIT)
 - [AcoustID](https://acoustid.org/): fingerprint lookup
 - [MusicBrainz](https://musicbrainz.org/) and [Cover Art Archive](https://coverartarchive.org/): metadata, genres and artwork
-- iTunes Search API and Deezer API: metadata and artwork in the web version
 - [Radio Browser](https://www.radio-browser.info/): radio directory
 - [AutoEQ](https://autoeq.app/): headphone profiles
 - [DSEG](https://www.keshikan.net/fonts-e.html): seven-segment font in Quartz (SIL OFL 1.1)
-- Google Fonts: Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch, Share Tech Mono (SIL OFL 1.1)
+- Onest, Familjen Grotesk, Barlow, VT323, Chakra Petch, Share Tech Mono via [Fontsource](https://fontsource.org), bundled in `fonts/` (SIL OFL 1.1)
 
 ---
 

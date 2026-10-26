@@ -29,10 +29,10 @@ th{font-weight:600}
 <body>
 <main>
 <header><img src="icon-192.png" alt=""><h1>Rola privacy policy</h1></header>
-<p class="muted">Effective 26 October 2026</p>
+<p class="muted">Effective 26 October 2026 (updated)</p>
 
 <div class="card">
-<p><strong>In short:</strong> Rola has no accounts, no advertising, no analytics and no user tracking. Your music files never leave your device. I don't collect or receive any of your personal data. A few features talk to public online services, and those services can see the request and your IP address, as described below.</p>
+<p><strong>In short:</strong> Rola does not require an account and does not include advertising, analytics, or user tracking. Your music files, playlists, listening history and settings are stored locally on your device, and Rola does not upload your audio files. Certain features use third-party services, which may receive technical information such as your IP address and browser details when a request is made. Rola does not operate its own analytics or user-tracking servers.</p>
 </div>
 
 <p>Rola is a music player made by Dragoș Mălăescu. It plays audio files you choose from your own device and online radio stations. This policy applies to the Rola app on Google Play and to the web version at <a href="https://dragosmalaescu.github.io/rola/">dragosmalaescu.github.io/rola</a>.</p>
@@ -50,15 +50,15 @@ th{font-weight:600}
 <table>
 <tr><th>Feature</th><th>What is sent</th><th>Sent to</th></tr>
 <tr><td>Song recognition (identify by sound)</td><td>An audio fingerprint (a short code computed on your device; the music cannot be rebuilt from it) and the track duration. The audio file itself is never uploaded.</td><td>AcoustID, then MusicBrainz and Cover Art Archive.<br>Web version: works with a built-in AcoustID key.<br>Google Play app: works only after you add your own AcoustID key in Settings.</td></tr>
-<tr><td>Metadata lookup: fixing song titles, finding genres and artwork (can be turned off in Settings)</td><td>The song title and artist name as a search query</td><td>Google Play app: MusicBrainz and Cover Art Archive.<br>Web version: Apple iTunes Search API and Deezer API first, then MusicBrainz and Cover Art Archive.</td></tr>
-<tr><td>Album artwork</td><td>A standard image request. External artwork is displayed directly from the provider's servers; Rola stores only the image address (URL), not a copy of the image. Artwork embedded in your own music files is stored on your device.</td><td>The provider that returned the artwork (Cover Art Archive; in the web version also Apple or Deezer)</td></tr>
+<tr><td>Metadata lookup: fixing song titles, finding genres and artwork (can be turned off in Settings)</td><td>The song title, artist and album name as a search query</td><td>MusicBrainz and Cover Art Archive, in every edition</td></tr>
+<tr><td>Album artwork</td><td>A standard image request. External artwork is displayed directly from Cover Art Archive; Rola stores only the image address (URL), not a copy of the image. Artwork embedded in your own music files is stored on your device.</td><td>Cover Art Archive (coverartarchive.org) and the Internet Archive servers that host its images</td></tr>
 <tr><td>Online radio</td><td>Search terms, the selected category or country, the audio stream request and station logo images</td><td>Radio Browser (radio-browser.info), the radio station you choose and the sites hosting station logos</td></tr>
-<tr><td>Fonts and resources</td><td>A standard request when the app opens</td><td>Google Fonts. Supporting libraries are hosted with the app; jsDelivr is used only as a fallback.</td></tr>
+<tr><td>Tag reading library (fallback only)</td><td>A standard request, only if the copy hosted with the app cannot be loaded</td><td>jsDelivr</td></tr>
 </table>
 <p>Like any internet request, these services receive your IP address and basic device information such as the browser version. Rola sends no name, email, account, location or advertising identifier. The country used for the radio list is guessed from your phone's time zone, on the device. These services handle requests under their own privacy policies.</p>
 
 <h2>What I collect</h2>
-<p>Nothing. I don't run a server for Rola, and the app contains no advertising, analytics, crash reporting or user tracking. I don't sell or share personal data, because I don't have any.</p>
+<p>I don't operate a server, an account system or any analytics for Rola, so I don't receive data about you or your listening. The app contains no advertising, analytics, crash reporting or user tracking, and I don't sell personal data. Fonts and the app's own libraries are hosted with the app on GitHub Pages; requests to it are handled under the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a>.</p>
 
 <h2>Permissions</h2>
 <p>Rola only reads the audio files you pick yourself with the system file picker. It does not scan your storage and does not ask for access to your contacts, camera, microphone or location.</p>
