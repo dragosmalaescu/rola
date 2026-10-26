@@ -44,7 +44,7 @@ Once installed, Rola runs full screen without the browser UI.
 3. Open the folder and use **Select → Select All → Open**.
 4. Keep the screen on until the import finishes.
 
-Imported files are copied once into the app's local storage. After the import succeeds you can delete the originals from Files if you don't need them there, but keep a backup somewhere: removing the app or clearing site data deletes the library.
+Imported files are copied once into the app's local storage. After the import succeeds you can delete the originals from Files if you don't need them there, but keep a backup somewhere: deleting the library in Rola or clearing the site's browser data deletes it; uninstalling the Android wrapper alone may not clear browser-stored data.
 
 Duplicates are skipped automatically. Rola compares a fingerprint of each file's content and also the title, artist and album, and keeps the larger (usually better quality) copy.
 
